@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\the_g\\OneDrive\\Desktop\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
+      "projectUniqueName": "C:\\DEV\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
       "projectName": "MTGDeckBuilder",
-      "projectPath": "C:\\Users\\the_g\\OneDrive\\Desktop\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
+      "projectPath": "C:\\DEV\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
       "packagesPath": "C:\\Users\\the_g\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\the_g\\OneDrive\\Desktop\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\obj\\",
+      "outputPath": "C:\\DEV\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
