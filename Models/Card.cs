@@ -16,7 +16,7 @@ public class Card
 
     public string ColorIdentity { get; set; }
 
-    public string ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
 
     // Navigation
     public ICollection<DeckCard> DeckCards { get; set; }

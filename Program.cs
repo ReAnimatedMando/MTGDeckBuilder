@@ -24,9 +24,9 @@ using (var scope = app.Services.CreateScope())
     {
         var cards = new List<Card>
         {
-            new Card { Name = "Casey Jones, Jury-Rig Justiciar", ManaCost = "{R}{1}", TypeLine = "Legendary Creature — Human Berserker", ColorIdentity = "R" },
-            new Card { Name = "Donatello, Gadget Master", ManaCost = "{2}{U}", TypeLine = "Legendary Creature — Mutant Ninja Turtle", ColorIdentity = "U" },
-            new Card { Name = "Shredder's Revenge", ManaCost = "{2}{B}", TypeLine = "Sorcery", ColorIdentity = "B" }
+            new Card { Name = "Casey Jones, Jury-Rig Justiciar", ManaCost = "{R}{1}", TypeLine = "Legendary Creature — Human Berserker", ColorIdentity = "R", ImageUrl = "https://via.placeholder.com/223x310?text=Casey+Jones" },
+            new Card { Name = "Donatello, Gadget Master", ManaCost = "{2}{U}", TypeLine = "Legendary Creature — Mutant Ninja Turtle", ColorIdentity = "U", ImageUrl = "https://via.placeholder.com/223x310?text=Donatello" },
+            new Card { Name = "Shredder's Revenge", ManaCost = "{2}{B}", TypeLine = "Sorcery", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Shredder's+Revenge" }
         };
 
         db.Cards.AddRange(cards);

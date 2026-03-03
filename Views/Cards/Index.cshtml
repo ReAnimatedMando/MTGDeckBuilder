@@ -1,0 +1,44 @@
+﻿@model IEnumerable<Card>
+
+<h1>All Cards</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Mana Cost</th>
+            <th>Type</th>
+            <th>Color Identity</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var card in Model)
+        {
+            <tr>
+                <td>@card.Name</td>
+                <td>@card.ManaCost</td>
+                <td>@card.TypeLine</td>
+                <td>@card.ColorIdentity</td>
+            </tr>
+        }
+    @foreach (var card in Model)
+    {
+        <tr>
+            <td>
+                @if (!string.IsNullOrEmpty(card.ImageUrl))
+                {
+                    <img src="@card.ImageUrl" width="80" />
+                }
+                else
+                {
+                    <span>No Image</span>
+                }
+            </td>
+            <td>@card.Name</td>
+            <td>@card.ManaCost</td>
+            <td>@card.TypeLine</td>
+            <td>@card.ColorIdentity</td>
+        </tr>
+    }
+    </tbody>
+</table>

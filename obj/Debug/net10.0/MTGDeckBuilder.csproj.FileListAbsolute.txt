@@ -185,3 +185,4 @@ C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\refint\MTGDeckBuild
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\MTGDeckBuilder.pdb
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\MTGDeckBuilder.genruntimeconfig.cache
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\ref\MTGDeckBuilder.dll
+C:\DEV\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\MTGDeckBuilder.sourcelink.json
