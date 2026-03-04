@@ -37,7 +37,9 @@
                         <span class="text-muted">No Image</span>
                     }
                 </td>
-                <td>@card.Name</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@card.Id">@card.Name</a>
+                </td>
                 <td>@card.ManaCost</td>
                 <td>@card.TypeLine</td>
                 <td>@card.ColorIdentity</td>

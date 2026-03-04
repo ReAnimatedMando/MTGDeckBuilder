@@ -1,0 +1,37 @@
+﻿@model Card
+
+<h1>@Model.Name</h1>
+
+<div class="row">
+
+    <div class="col-md-4">
+        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+        {
+            <img src="@Model.ImageUrl" class="img-fluid rounded" />
+        }
+        else 
+        {
+            <p>No Image Available</p>
+        }
+    </div>
+
+    <div class="col-md-8">
+
+        <dl class="row">
+            
+            <dt class="col-sm-3">Mana Cost</dt>
+            <dd class="col-sm-9">@Model.ManaCost</dd>
+
+            <dt class="col-sm-3">Type</dt>
+            <dd class="col-sm-9">@Model.TypeLine</dd>
+
+            <dt class="col-sm-3">Color Identity</dt>
+            <dd class="col-sm-9">@Model
+            
+        </dl>
+
+    </div>
+
+</div>
+
+<a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>

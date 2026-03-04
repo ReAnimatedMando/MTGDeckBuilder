@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTGDeckBuilder.Data;
@@ -16,6 +17,11 @@ namespace MTGDeckBuilder.Controllers
         // GET: Cards
         public async Task<IActionResult> Index(string? q)
         {
+            if (q == null)
+            {
+                return NotFound();
+            }
+
             var cardsQuery = _context.Cards.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(q))
