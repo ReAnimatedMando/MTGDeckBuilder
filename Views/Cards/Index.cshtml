@@ -1,36 +1,57 @@
 ﻿@model IEnumerable<Card>
 
-<h1>All Cards</h1>
+@{
+    var q = Context.Request.Query["q"].ToString();
+    var hasQuery = !string.IsNullOrWhiteSpace(q);
+    var hasResults = Model != null && Model.Any();
+}
+
+<h1>@(hasQuery ? "Search Results" : "Cards")</h1>
 
 <form method="get" class="mb-3">
     <div class="input-group">
-        <input name="q" value="@Context.Request.Query["q"]" class="form-control" placeholder="Search card name, type, mana cost, or color identity..." />
+        <input name="q" value="@q" class="form-control" placeholder="Search card name, type, mana cost, or color identity..." />
         <button class="btn btn-primary" type="submit">Search</button>
-        @if (!string.IsNullOrWhiteSpace(Context.Request.Query["q"]))
+
+        @if (hasQuery)
         {
             <a class="btn btn-outline-secondary" asp-action="Index">Clear</a>
         }
     </div>
 </form>
 
-<table class="table table-striped align-middle">
-    <thead>
-        <tr>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Mana Cost</th>
-            <th>Type</th>
-            <th>Color Identity</th>
-        </tr>
-    </thead>
-    <tbody>
+@if (!hasQuery)
+{
+    <div class="alert alert-info">
+        Search for a card by name, type, mana cost, or color identity.
+    </div>
+}
+else if (!hasResults)
+{
+    <div class="alert alert-warning">
+        No cards found for "<strong>@q</strong>"
+    </div>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Mana Cost</th>
+                <th>Type</th>
+                <th>Color Identity</th>
+            </tr>
+        </thead>
+        <tbody>
         @foreach (var card in Model)
         {
             <tr>
                 <td style="width: 90px;">
                     @if (!string.IsNullOrEmpty(card.ImageUrl))
                     {
-                        <img src="@card.ImageUrl" width="80" class="img-fluid rounded" alt="@card.Name" />
+                        <img src="@card.ImageUrl" width="80" class="img-fluidrounded"  alt="@card.Name" />
                     }
                     else
                     {
@@ -45,5 +66,6 @@
                 <td>@card.ColorIdentity</td>
             </tr>
         }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+}

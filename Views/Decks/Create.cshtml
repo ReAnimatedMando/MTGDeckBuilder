@@ -1,0 +1,35 @@
+﻿@model MTGDeckBuilder.Models.Deck
+
+<h1>Create Deck</h1>
+
+<form asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Theme" class="form-label"></label>
+        <input asp-for="Theme" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ColorIdentity" class="form-label"></label>
+        <input asp-for="ColorIdentity" class="form-control" placeholder="W, U, B, R, G or WUBRG" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

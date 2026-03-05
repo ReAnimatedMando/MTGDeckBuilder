@@ -1,0 +1,124 @@
+﻿@model MTGDeckBuilder.Models.Deck
+@using MTGDeckBuilder.Models
+
+@{
+    var results = ViewBag.SearchResults as List<Card>;
+    string q = ViewBag.Query as string;
+    int totalCards = Model.DeckCards?.Sum(dc => dc.Quantity) ?? 0;
+}
+
+<h1>@Model.Name</h1>
+
+<p>
+    <strong>Theme:</strong> @Model.Theme<br />
+    <strong>Color Identity:</strong> @Model.ColorIdentity<br />
+    <strong>Total Cards:</strong> @totalCards
+</p>
+
+<hr />
+
+<h2>Deck List</h2>
+
+@if (Model.DeckCards == null || !Model.DeckCards.Any())
+{
+    <p>No cards yet. Search below and add some.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 120px;">Qty</th>
+                <th>Card</th>
+                <th>Type</th>
+                <th style="width: 160px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var dc in Model.DeckCards.OrderBy(dc => dc.Card.Name))
+        {
+            <tr>
+                <td>
+                    <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="deckId" value="@Model.Id" />
+                        <input type="hidden" name="cardId" value="@dc.CardId" />
+                        <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
+                        <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
+                    </form>
+                </td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        @if (!string.IsNullOrWhiteSpace(dc.Card.ImageUrl))
+                        {
+                            <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px;border-radius:4px;" />
+                        }
+                        <span>@dc.Card.Name</span>
+                    </div>
+                </td>
+                <td>@dc.Card.TypeLine</td>
+                <td>
+                    <form asp-action="RemoveCard" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="deckId" value="@Model.Id" />
+                        <input type="hidden" name="cardId" value="@dc.CardId" />
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+<hr />
+
+<h2>Add Cards</h2>
+
+<form method="get" class="d-flex gap-2 mb-3">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <input type="text" name="q" value="@q" class="form-control" placeholder="Search card name (e.g. Lightning Bolt)" />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+@if (results != null)
+{
+    if (!results.Any())
+    {
+        <p>No results.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Card</th>
+                    <th>Type</th>
+                    <th style="width: 220px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var c in results)
+            {
+                <tr>
+                    <td>@c.Name</td>
+                    <td>@c.TypeLine</td>
+                    <td>
+                        <form asp-action="AddCard" method="post" class="d-flex gap2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@c.Id" />
+                            <input type="number" name="quantity" value="1" min="1" class="form-control" style="max-width:90px;" />
+                            <button class="btn btn-sm btn-success" type="submit">Add</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+}
+
+<p>
+    <a asp-action="Index">Back to Decks</a>
+</p>

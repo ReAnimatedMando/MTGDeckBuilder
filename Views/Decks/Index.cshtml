@@ -1,0 +1,31 @@
+﻿@model IEnumerable<MTGDeckBuilder.Models.Deck>
+
+<h1>Decks</h1>
+
+<p>
+    <a class="btn btn-primary" asp-action="Create">Create New Deck</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Theme</th>
+            <th>Color Identity</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var deck in Model)
+    {
+        <tr>
+            <td>@deck.Name</td>
+            <td>@deck.Theme</td>
+            <td>@deck.ColorIdentity</td>
+            <td>
+                <a asp-action="Details" asp-route-id="@deck.Id">Open</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

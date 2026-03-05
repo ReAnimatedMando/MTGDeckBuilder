@@ -1,7 +1,7 @@
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTGDeckBuilder.Data;
+using MTGDeckBuilder.Models;
 
 namespace MTGDeckBuilder.Controllers
 {
@@ -17,25 +17,25 @@ namespace MTGDeckBuilder.Controllers
         // GET: Cards
         public async Task<IActionResult> Index(string? q)
         {
-            if (q == null)
+            if (string.IsNullOrWhiteSpace(q))
             {
-                return NotFound();
+                return View(new List<Card>());
             }
 
-            var cardsQuery = _context.Cards.AsQueryable();
+            q = q.Trim();
 
-            if (!string.IsNullOrWhiteSpace(q))
-            {
-                q = q.Trim();
-                
-                cardsQuery = cardsQuery.Where(c => c.Name.Contains(q) || (c.TypeLine != null && c.TypeLine.Contains(q)) || (c.ManaCost != null && c.ManaCost.Contains(q)) || (c.ColorIdentity != null && c.ColorIdentity.Contains(q)));
-            }
-
-            var cards = await cardsQuery
+            var term = $"%{q}%"; // for SQL LIKE queries, but EF Core will translate Contains to LIKE automatically
+            
+            var cards = await _context.Cards
+                .Where(c =>
+                    EF.Functions.Like(c.Name, term) ||
+                    (c.TypeLine != null && EF.Functions.Like(c.TypeLine, term)) ||
+                    (c.ManaCost != null && EF.Functions.Like(c.ManaCost, term)) ||
+                    (c.ColorIdentity != null && EF.Functions.Like(c.ColorIdentity, term)))
                 .OrderBy(c => c.Name)
                 .Take(200)
                 .ToListAsync();
-                
+
             return View(cards);
         }
 
