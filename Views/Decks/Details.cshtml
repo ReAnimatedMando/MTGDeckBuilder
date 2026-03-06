@@ -5,6 +5,25 @@
     var results = ViewBag.SearchResults as List<Card>;
     string q = ViewBag.Query as string;
     int totalCards = Model.DeckCards?.Sum(dc => dc.Quantity) ?? 0;
+
+    string deckValidationMessage;
+    string deckValidationClass;
+
+    if (totalCards < 60)
+    {
+        deckValidationMessage = $"Deck is too small ({totalCards} cards). Minimum is 60.";
+        deckValidationClass = "alert alert-warning";
+    }
+    else if (totalCards > 100)
+    {
+        deckValidationMessage = $"Deck is too large ({totalCards} cards). Maximum is 100.";
+        deckValidationClass = "alert alert-danger";
+    }
+    else 
+    {
+        deckValidationMessage = $"Deck size is valid ({totalCards} cards).";
+        deckValidationClass = "alert alert-success";
+    }
 }
 
 <h1>@Model.Name</h1>
@@ -14,6 +33,10 @@
     <strong>Color Identity:</strong> @Model.ColorIdentity<br />
     <strong>Total Cards:</strong> @totalCards
 </p>
+
+<div class="@deckValidationClass">
+    @deckValidationMessage
+</div>
 
 <hr />
 
@@ -104,7 +127,7 @@ else
                     <td>@c.Name</td>
                     <td>@c.TypeLine</td>
                     <td>
-                        <form asp-action="AddCard" method="post" class="d-flex gap2">
+                        <form asp-action="AddCard" method="post" class="d-flex gap-2">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="deckId" value="@Model.Id" />
                             <input type="hidden" name="cardId" value="@c.Id" />
