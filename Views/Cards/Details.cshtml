@@ -1,4 +1,4 @@
-﻿@model Card
+﻿@model MTGDeckBuilder.Models.Card
 
 <h1>@Model.Name</h1>
 
@@ -7,7 +7,7 @@
     <div class="col-md-4">
         @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
         {
-            <img src="@Model.ImageUrl" class="img-fluid rounded" />
+            <img src="@Model.ImageUrl" class="img-fluid rounded" alt="@Model.Name" />
         }
         else 
         {
@@ -26,7 +26,7 @@
             <dd class="col-sm-9">@Model.TypeLine</dd>
 
             <dt class="col-sm-3">Color Identity</dt>
-            <dd class="col-sm-9">@Model
+            <dd class="col-sm-9">@Model.ColorIdentity</dd>
             
         </dl>
 

@@ -40,7 +40,7 @@
 
 <hr />
 
-<h2>Deck List</h2>
+<h2>Card List</h2>
 
 @if (Model.DeckCards == null || !Model.DeckCards.Any())
 {
@@ -76,7 +76,7 @@ else
                         {
                             <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px;border-radius:4px;" />
                         }
-                        <span>@dc.Card.Name</span>
+                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card.Name</a>
                     </div>
                 </td>
                 <td>@dc.Card.TypeLine</td>
@@ -124,7 +124,9 @@ else
             @foreach (var c in results)
             {
                 <tr>
-                    <td>@c.Name</td>
+                    <td>
+                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@c.Id">@c.Name</a>
+                    </td>>
                     <td>@c.TypeLine</td>
                     <td>
                         <form asp-action="AddCard" method="post" class="d-flex gap-2">
