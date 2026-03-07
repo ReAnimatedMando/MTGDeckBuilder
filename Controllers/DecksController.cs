@@ -1,4 +1,3 @@
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTGDeckBuilder.Data;
@@ -34,7 +33,7 @@ namespace MTGDeckBuilder.Controllers
         // POST: /Decks/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Deck deck)
+        public async Task<IActionResult> Create([Bind("Name,Description")] Deck deck)
         {
             if (!ModelState.IsValid)
                 return View(deck);
@@ -54,6 +53,8 @@ namespace MTGDeckBuilder.Controllers
                 .FirstOrDefaultAsync(d => d.Id == id);
 
             if (deck == null) return NotFound();
+
+            q = q?.Trim();
 
             // Card search results (optional)
             if (!string.IsNullOrWhiteSpace(q))
@@ -76,14 +77,27 @@ namespace MTGDeckBuilder.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddCard(int deckId, int cardId, int quantity = 1)
         {
-            if (quantity < 1) quantity = 1;
+            if (quantity <= 0) quantity = 1;
 
-            if (!await _context.Decks.AnyAsync(d => d.Id == deckId)) return NotFound();
+            var deckExists = await _context.Decks.AnyAsync(d => d.Id == deckId);
+            if (!deckExists) return NotFound();
 
-            if (!await _context.Cards.AnyAsync(c => c.Id == cardId)) return NotFound();
+            var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == cardId);
+            if (card == null) return NotFound();
 
             var deckCard = await _context.DeckCards
                 .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId);
+
+            var currentQuantity = deckCard?.Quantity ?? 0;
+            var newQuantity = currentQuantity + quantity;
+
+            var isBasicLand = !string.IsNullOrEmpty(card.TypeLine) && card.TypeLine.Contains("Basic Land");
+
+            if (!isBasicLand && newQuantity > 4)
+            {
+                TempData["Error"] = $"{card.Name} cannot have more than 4 copies in a deck";
+                return RedirectToAction(nameof(Details), new { id = deckId });
+            }
 
             if (deckCard == null)
             {
@@ -93,11 +107,12 @@ namespace MTGDeckBuilder.Controllers
                     CardId = cardId,
                     Quantity = quantity
                 };
+
                 _context.DeckCards.Add(deckCard);
             }
             else
             {
-                deckCard.Quantity += quantity;
+                deckCard.Quantity = newQuantity;
             }
 
             await _context.SaveChangesAsync();
@@ -109,8 +124,8 @@ namespace MTGDeckBuilder.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetQuantity(int deckId, int cardId, int quantity)
         {
-            var deckCard = _context.DeckCards
-                .FirstOrDefault(dc => dc.DeckId == deckId && dc.CardId == cardId);
+            var deckCard = await _context.DeckCards
+                .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId);
             
             if (deckCard == null) return NotFound();
 
@@ -132,8 +147,8 @@ namespace MTGDeckBuilder.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveCard(int deckId, int cardId)
         {
-            var deckCard = _context.DeckCards
-                .FirstOrDefault(dc => dc.DeckId == deckId && dc.CardId == cardId);
+            var deckCard = await _context.DeckCards
+                .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId);
             
             if (deckCard == null) return NotFound();
 
