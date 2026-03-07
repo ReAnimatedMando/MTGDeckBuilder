@@ -91,7 +91,7 @@ namespace MTGDeckBuilder.Controllers
             var currentQuantity = deckCard?.Quantity ?? 0;
             var newQuantity = currentQuantity + quantity;
 
-            var isBasicLand = !string.IsNullOrEmpty(card.TypeLine) && card.TypeLine.Contains("Basic Land");
+            var isBasicLand = !string.IsNullOrEmpty(card.TypeLine) && card.TypeLine.Contains("Basic Land", StringComparison.OrdinalIgnoreCase);
 
             if (!isBasicLand && newQuantity > 4)
             {

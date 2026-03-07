@@ -26,6 +26,13 @@
     }
 }
 
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
 <h1>@Model.Name</h1>
 
 <p>
