@@ -125,6 +125,7 @@ namespace MTGDeckBuilder.Controllers
         public async Task<IActionResult> SetQuantity(int deckId, int cardId, int quantity)
         {
             var deckCard = await _context.DeckCards
+                .Include(dc => dc.Card)
                 .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId);
             
             if (deckCard == null) return NotFound();
@@ -135,6 +136,14 @@ namespace MTGDeckBuilder.Controllers
             }
             else
             {
+                var isBasicLand = deckCard.Card != null && !string.IsNullOrEmpty(deckCard.Card.TypeLine) && deckCard.Card.TypeLine.Contains("Basic Land", StringComparison.OrdinalIgnoreCase);
+
+                if (!isBasicLand && quantity > 4)
+                {
+                    TempData["Error"] = $"{deckCard.Card?.Name} cannot have more than 4 copies in a deck";
+                    return RedirectToAction(nameof(Details), new { id = deckId });
+                }
+
                 deckCard.Quantity = quantity;
             }
 

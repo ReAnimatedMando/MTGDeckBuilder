@@ -1,10 +1,35 @@
 ﻿@model MTGDeckBuilder.Models.Deck
 @using MTGDeckBuilder.Models
+@using System.Data.Common
 
 @{
     var results = ViewBag.SearchResults as List<Card>;
     string q = ViewBag.Query as string;
     int totalCards = Model.DeckCards?.Sum(dc => dc.Quantity) ?? 0;
+
+    int creatures = Model.DeckCards? 
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Creature"))
+    .Sum(dc => dc.Quantity) ?? 0;
+
+    int instantsSorceries = Model.DeckCards? 
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && (dc.Card.TypeLine.Contains("Instant") || dc.Card.TypeLine.Contains("Sorcery")))
+    .Sum(dc => dc.Quantity) ?? 0;
+
+    int artifacts = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact"))
+    .Sum(dc => dc.Quantity) ?? 0;
+
+    int enchantments = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment"))
+    .Sum(dc => dc.Quantity) ?? 0;
+
+    int planeswalkers = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Planeswalker"))
+    .Sum(dc => dc.Quantity) ?? 0;
+
+    int lands = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Land"))
+    .Sum(dc => dc.Quantity) ?? 0;
 
     string deckValidationMessage;
     string deckValidationClass;
@@ -40,6 +65,21 @@
     <strong>Color Identity:</strong> @Model.ColorIdentity<br />
     <strong>Total Cards:</strong> @totalCards
 </p>
+
+<div class="card mb-3" style="max-width: 420px;">
+    <div class="card-header">
+        <strong>Deck Stats</strong>
+    </div>
+    <div class="card-body">
+        <p class"mb-1"><strong>Total Cards:</strong> @totalCards</p>
+        <p class"mb-1"><strong>Creatures:</strong> @creatures</p>
+        <p class"mb-1"><strong>Instants/Sorceries:</strong> @instantsSorceries</p>
+        <p class"mb-1"><strong>Artifacts:</strong> @artifacts</p>
+        <p class"mb-1"><strong>Enchantments:</strong> @enchantments</p>
+        <p class"mb-1"><strong>Planeswalkers:</strong> @planeswalkers</p>
+        <p class"mb-1"><strong>Lands:</strong> @lands</p>
+    </div>
+</div>
 
 <div class="@deckValidationClass">
     @deckValidationMessage
@@ -133,7 +173,7 @@ else
                 <tr>
                     <td>
                         <a asp-controller="Cards" asp-action="Details" asp-route-id="@c.Id">@c.Name</a>
-                    </td>>
+                    </td>
                     <td>@c.TypeLine</td>
                     <td>
                         <form asp-action="AddCard" method="post" class="d-flex gap-2">
