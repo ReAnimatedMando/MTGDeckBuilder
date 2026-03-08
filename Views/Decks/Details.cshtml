@@ -31,6 +31,48 @@
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Land"))
     .Sum(dc => dc.Quantity) ?? 0;
 
+    var creaturesList = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Creature"))
+        .OrderBy(dc => dc.Card?.Name)
+        .ToList() ?? new List<DeckCard>();
+    
+    var instantsSorceriesList = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && (dc.Card.TypeLine.Contains("Instant") || dc.Card.TypeLine.Contains("Sorcery")))
+        .OrderBy(dc => dc.Card?.Name)
+        .ToList() ?? new List<DeckCard>();
+
+    var artifactsList = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact"))
+        .OrderBy(dc => dc.Card?.Name)
+        .ToList() ?? new List<DeckCard>();
+
+    var enchantmentsList = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment"))
+        .OrderBy(dc => dc.Card?.Name)
+        .ToList() ?? new List<DeckCard>();
+
+    var planeswalkersList = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Planeswalker"))
+        .OrderBy(dc => dc.Card?.Name)
+        .ToList() ?? new List<DeckCard>();
+
+    var landsList = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Land"))
+        .OrderBy(dc => dc.Card?.Name)
+        .ToList() ?? new List<DeckCard>();
+
+    var otherList = Model.DeckCards?
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && 
+            !dc.Card.TypeLine.Contains("Creature") && 
+            !dc.Card.TypeLine.Contains("Instant") && 
+            !dc.Card.TypeLine.Contains("Sorcery") && 
+            !dc.Card.TypeLine.Contains("Artifact") && 
+            !dc.Card.TypeLine.Contains("Enchantment") && 
+            !dc.Card.TypeLine.Contains("Planeswalker") && 
+            !dc.Card.TypeLine.Contains("Land"))
+        .OrderBy(dc => dc.Card?.Name)
+        .ToList() ?? new List<DeckCard>();
+
     string deckValidationMessage;
     string deckValidationClass;
 
@@ -95,51 +137,350 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th style="width: 120px;">Qty</th>
-                <th>Card</th>
-                <th>Type</th>
-                <th style="width: 160px;"></th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var dc in Model.DeckCards.OrderBy(dc => dc.Card.Name))
-        {
-            <tr>
-                <td>
-                    <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="deckId" value="@Model.Id" />
-                        <input type="hidden" name="cardId" value="@dc.CardId" />
-                        <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
-                        <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
-                    </form>
-                </td>
-                <td>
-                    <div class="d-flex align-items-center gap-2">
-                        @if (!string.IsNullOrWhiteSpace(dc.Card.ImageUrl))
-                        {
-                            <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px;border-radius:4px;" />
-                        }
-                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card.Name</a>
-                    </div>
-                </td>
-                <td>@dc.Card.TypeLine</td>
-                <td>
-                    <form asp-action="RemoveCard" method="post">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="deckId" value="@Model.Id" />
-                        <input type="hidden" name="cardId" value="@dc.CardId" />
-                        <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                    </form>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+    @if (creaturesList.Any())
+    {
+        <h3>Creatures (@creaturesList.Sum(dc => dc.Quantity))</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Qty</th>
+                    <th>Card</th>
+                    <th>Type</th>
+                    <th style="width: 160px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var dc in creaturesList)
+            {
+                <tr>
+                    <td>
+                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
+                            <button class="btn btn-sm btn-primary" type="submit">Set</button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
+                            {
+                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
+                            }
+                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
+                        </div>
+                    </td>
+                    <td>@dc.Card?.TypeLine</td>
+                    <td>
+                        <form asp-action="RemoveCard" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    @if (instantsSorceriesList.Any())
+    {
+        <h3>Instants / Sorceries (@instantsSorceriesList.Sum(dc => dc.Quantity))</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Qty</th>
+                    <th>Card</th>
+                    <th>Type</th>
+                    <th style="width: 160px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var dc in instantsSorceriesList)
+            {
+                <tr>
+                    <td>
+                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
+                            {
+                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
+                            }
+                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
+                        </div>
+                    </td>
+                    <td>@dc.Card?.TypeLine</td>
+                    <td>
+                        <form asp-action="RemoveCard" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    @if (artifactsList.Any())
+    {
+        <h3>Artifacts (@artifactsList.Sum(dc => dc.Quantity))</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Qty</th>
+                    <th>Card</th>
+                    <th>Type</th>
+                    <th style="width: 160px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var dc in artifactsList)
+            {
+                <tr>
+                    <td>
+                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
+                            {
+                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
+                            }
+                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
+                        </div>
+                    </td>
+                    <td>@dc.Card?.TypeLine</td>
+                    <td>
+                        <form asp-action="RemoveCard" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    @if (enchantmentsList.Any())
+    {
+        <h3>Enchantments (@enchantmentsList.Sum(dc => dc.Quantity))</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Qty</th>
+                    <th>Card</th>
+                    <th>Type</th>
+                    <th style="width: 160px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var dc in enchantmentsList)
+            {
+                <tr>
+                    <td>
+                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
+                            {
+                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
+                            }
+                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
+                        </div>
+                    </td>
+                    <td>@dc.Card?.TypeLine</td>
+                    <td>
+                        <form asp-action="RemoveCard" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+    @if (planeswalkersList.Any())
+    {
+        <h3>Planeswalkers (@planeswalkersList.Sum(dc => dc.Quantity))</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Qty</th>
+                    <th>Card</th>
+                    <th>Type</th>
+                    <th style="width: 160px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var dc in planeswalkersList)
+            {
+                <tr>
+                    <td>
+                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
+                            {
+                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
+                            }
+                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
+                        </div>
+                    </td>
+                    <td>@dc.Card?.TypeLine</td>
+                    <td>
+                        <form asp-action="RemoveCard" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+
+     @if (landsList.Any())
+    {
+        <h3>Lands (@landsList.Sum(dc => dc.Quantity))</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Qty</th>
+                    <th>Card</th>
+                    <th>Type</th>
+                    <th style="width: 160px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var dc in landsList)
+            {
+                <tr>
+                    <td>
+                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
+                            {
+                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
+                            }
+                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
+                        </div>
+                    </td>
+                    <td>@dc.Card?.TypeLine</td>
+                    <td>
+                        <form asp-action="RemoveCard" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+    @if (otherList.Any())
+    {
+        <h3>Other (@otherList.Sum(dc => dc.Quantity))</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 120px;">Qty</th>
+                    <th>Card</th>
+                    <th>Type</th>
+                    <th style="width: 160px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var dc in otherList)
+            {
+                <tr>
+                    <td>
+                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
+                        </form>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
+                            {
+                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
+                            }
+                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
+                        </div>
+                    </td>
+                    <td>@dc.Card?.TypeLine</td>
+                    <td>
+                        <form asp-action="RemoveCard" method="post">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="deckId" value="@Model.Id" />
+                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
 }
+
+
 
 <hr />
 
