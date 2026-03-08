@@ -1,10 +1,9 @@
 ﻿@model MTGDeckBuilder.Models.Deck
 @using MTGDeckBuilder.Models
-@using System.Data.Common
 
 @{
     var results = ViewBag.SearchResults as List<Card>;
-    string q = ViewBag.Query as string;
+    string? q = ViewBag.Query as string;
     int totalCards = Model.DeckCards?.Sum(dc => dc.Quantity) ?? 0;
 
     int creatures = Model.DeckCards? 
@@ -16,11 +15,11 @@
     .Sum(dc => dc.Quantity) ?? 0;
 
     int artifacts = Model.DeckCards?
-        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact"))
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact") && !dc.Card.TypeLine.Contains("Creature"))
     .Sum(dc => dc.Quantity) ?? 0;
 
     int enchantments = Model.DeckCards?
-        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment"))
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment") && !dc.Card.TypeLine.Contains("Creature"))
     .Sum(dc => dc.Quantity) ?? 0;
 
     int planeswalkers = Model.DeckCards?
@@ -33,32 +32,32 @@
 
     var creaturesList = Model.DeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Creature"))
-        .OrderBy(dc => dc.Card?.Name)
+        .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
     
     var instantsSorceriesList = Model.DeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && (dc.Card.TypeLine.Contains("Instant") || dc.Card.TypeLine.Contains("Sorcery")))
-        .OrderBy(dc => dc.Card?.Name)
+        .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
     var artifactsList = Model.DeckCards?
-        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact"))
-        .OrderBy(dc => dc.Card?.Name)
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact") && !dc.Card.TypeLine.Contains("Creature"))
+        .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
     var enchantmentsList = Model.DeckCards?
-        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment"))
-        .OrderBy(dc => dc.Card?.Name)
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment") && !dc.Card.TypeLine.Contains("Creature"))
+        .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
     var planeswalkersList = Model.DeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Planeswalker"))
-        .OrderBy(dc => dc.Card?.Name)
+        .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
     var landsList = Model.DeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Land"))
-        .OrderBy(dc => dc.Card?.Name)
+        .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
     var otherList = Model.DeckCards?
@@ -70,7 +69,7 @@
             !dc.Card.TypeLine.Contains("Enchantment") && 
             !dc.Card.TypeLine.Contains("Planeswalker") && 
             !dc.Card.TypeLine.Contains("Land"))
-        .OrderBy(dc => dc.Card?.Name)
+        .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
     string deckValidationMessage;
@@ -113,13 +112,13 @@
         <strong>Deck Stats</strong>
     </div>
     <div class="card-body">
-        <p class"mb-1"><strong>Total Cards:</strong> @totalCards</p>
-        <p class"mb-1"><strong>Creatures:</strong> @creatures</p>
-        <p class"mb-1"><strong>Instants/Sorceries:</strong> @instantsSorceries</p>
-        <p class"mb-1"><strong>Artifacts:</strong> @artifacts</p>
-        <p class"mb-1"><strong>Enchantments:</strong> @enchantments</p>
-        <p class"mb-1"><strong>Planeswalkers:</strong> @planeswalkers</p>
-        <p class"mb-1"><strong>Lands:</strong> @lands</p>
+        <p class="mb-1"><strong>Total Cards:</strong> @totalCards</p>
+        <p class="mb-1"><strong>Creatures:</strong> @creatures</p>
+        <p class="mb-1"><strong>Instants/Sorceries:</strong> @instantsSorceries</p>
+        <p class="mb-1"><strong>Artifacts:</strong> @artifacts</p>
+        <p class="mb-1"><strong>Enchantments:</strong> @enchantments</p>
+        <p class="mb-1"><strong>Planeswalkers:</strong> @planeswalkers</p>
+        <p class="mb-1"><strong>Lands:</strong> @lands</p>
     </div>
 </div>
 
@@ -139,301 +138,66 @@ else
 {
     @if (creaturesList.Any())
     {
-        <h3>Creatures (@creaturesList.Sum(dc => dc.Quantity))</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 120px;">Qty</th>
-                    <th>Card</th>
-                    <th>Type</th>
-                    <th style="width: 160px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var dc in creaturesList)
-            {
-                <tr>
-                    <td>
-                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
-                            <button class="btn btn-sm btn-primary" type="submit">Set</button>
-                        </form>
-                    </td>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
-                            {
-                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
-                            }
-                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
-                        </div>
-                    </td>
-                    <td>@dc.Card?.TypeLine</td>
-                    <td>
-                        <form asp-action="RemoveCard" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+        @await Html.PartialAsync("_DeckCardSection", creaturesList, new ViewDataDictionary(ViewData)
+        {
+            ["SectionTitle"] = "Creatures",
+            ["DeckId"] = Model.Id
+        })
     }
 
     @if (instantsSorceriesList.Any())
     {
-        <h3>Instants / Sorceries (@instantsSorceriesList.Sum(dc => dc.Quantity))</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 120px;">Qty</th>
-                    <th>Card</th>
-                    <th>Type</th>
-                    <th style="width: 160px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var dc in instantsSorceriesList)
-            {
-                <tr>
-                    <td>
-                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
-                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
-                        </form>
-                    </td>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
-                            {
-                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
-                            }
-                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
-                        </div>
-                    </td>
-                    <td>@dc.Card?.TypeLine</td>
-                    <td>
-                        <form asp-action="RemoveCard" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+        @await Html.PartialAsync("_DeckCardSection", instantsSorceriesList, new ViewDataDictionary(ViewData)
+        {
+            ["SectionTitle"] = "Instants / Sorceries",
+            ["DeckId"] = Model.Id
+        })
     }
 
     @if (artifactsList.Any())
     {
-        <h3>Artifacts (@artifactsList.Sum(dc => dc.Quantity))</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 120px;">Qty</th>
-                    <th>Card</th>
-                    <th>Type</th>
-                    <th style="width: 160px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var dc in artifactsList)
-            {
-                <tr>
-                    <td>
-                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
-                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
-                        </form>
-                    </td>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
-                            {
-                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
-                            }
-                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
-                        </div>
-                    </td>
-                    <td>@dc.Card?.TypeLine</td>
-                    <td>
-                        <form asp-action="RemoveCard" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+        @await Html.PartialAsync("_DeckCardSection", artifactsList, new ViewDataDictionary(ViewData)
+        {
+            ["SectionTitle"] = "Artifacts",
+            ["DeckId"] = Model.Id
+        })
     }
 
     @if (enchantmentsList.Any())
     {
-        <h3>Enchantments (@enchantmentsList.Sum(dc => dc.Quantity))</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 120px;">Qty</th>
-                    <th>Card</th>
-                    <th>Type</th>
-                    <th style="width: 160px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var dc in enchantmentsList)
-            {
-                <tr>
-                    <td>
-                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
-                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
-                        </form>
-                    </td>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
-                            {
-                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
-                            }
-                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
-                        </div>
-                    </td>
-                    <td>@dc.Card?.TypeLine</td>
-                    <td>
-                        <form asp-action="RemoveCard" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+        @await Html.PartialAsync("_DeckCardSection", enchantmentsList, new ViewDataDictionary(ViewData)
+        {
+            ["SectionTitle"] = "Enchantments",
+            ["DeckId"] = Model.Id
+        })
     }
 
     @if (planeswalkersList.Any())
     {
-        <h3>Planeswalkers (@planeswalkersList.Sum(dc => dc.Quantity))</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 120px;">Qty</th>
-                    <th>Card</th>
-                    <th>Type</th>
-                    <th style="width: 160px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var dc in planeswalkersList)
-            {
-                <tr>
-                    <td>
-                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
-                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
-                        </form>
-                    </td>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
-                            {
-                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
-                            }
-                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
-                        </div>
-                    </td>
-                    <td>@dc.Card?.TypeLine</td>
-                    <td>
-                        <form asp-action="RemoveCard" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+        @await Html.PartialAsync("_DeckCardSection", planeswalkersList, new ViewDataDictionary(ViewData)
+        {
+            ["SectionTitle"] = "Planeswalkers",
+            ["DeckId"] = Model.Id
+        })
     }
 
      @if (landsList.Any())
     {
-        <h3>Lands (@landsList.Sum(dc => dc.Quantity))</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 120px;">Qty</th>
-                    <th>Card</th>
-                    <th>Type</th>
-                    <th style="width: 160px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var dc in landsList)
-            {
-                <tr>
-                    <td>
-                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
-                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
-                        </form>
-                    </td>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
-                            {
-                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
-                            }
-                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
-                        </div>
-                    </td>
-                    <td>@dc.Card?.TypeLine</td>
-                    <td>
-                        <form asp-action="RemoveCard" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+        @await Html.PartialAsync("_DeckCardSection", landsList, new ViewDataDictionary(ViewData)
+        {
+            ["SectionTitle"] = "Lands",
+            ["DeckId"] = Model.Id
+        })
     }
     @if (otherList.Any())
     {
-        <h3>Other (@otherList.Sum(dc => dc.Quantity))</h3>
-        <table class="table">
+        @await Html.PartialAsync("_DeckCardSection", otherList, new ViewDataDictionary(ViewData)
+        {
+            ["SectionTitle"] = "Other",
+            ["DeckId"] = Model.Id
+        })
+    }
+}
             <thead>
                 <tr>
                     <th style="width: 120px;">Qty</th>

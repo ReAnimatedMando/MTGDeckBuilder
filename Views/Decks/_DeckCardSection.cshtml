@@ -1,0 +1,51 @@
+﻿@model IEnumerable<MTGDeckBuilder.Models.DeckCard>
+
+@{
+    var title = ViewData["SectionTitle"] as string ?? "Cards";
+    var deckId = (int)(ViewData["DeckId"] ?? 0);
+    var total = Model.Sum(dc => dc.Quantity);
+}
+
+<h3>@title (@total)</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 120px;">Qty</th>
+            <th>Card</th>
+            <th>Type</th>
+            <th style="width: 160px;"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dc in Model)
+        {
+            <tr>
+                <td>
+                    <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="deckId" value="@deckId" />
+                        <input type="hidden" name="cardId" value="@dc.CardId" />
+                        <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width: 90px;" />
+                        <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
+                    </form>
+                </td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
+                        {
+                            <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px border-radius:4px" />
+                        }
+                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
+                </td>
+                <td>@dc.Card?.TypeLine</td>
+                <td>
+                    <form asp-action="RemoveCard" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="deckId" value="@deckId" />
+                        <input type="hidden" name="cardId" value="@dc.CardId" />
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                    </form>
+            </tr>
+        }    
+    </tbody>
+</table>
