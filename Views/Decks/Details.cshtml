@@ -128,6 +128,44 @@
 
 <hr />
 
+@{
+    var curveData = ViewBag.ManaCurveData as List<int> ?? new List<int>();
+    var labels = new List<string> { "0", "1", "2", "3", "4", "5", "6", "7+" };
+    var maxValue = curveData.Any() ? curveData.Max() : 1;
+
+    if (maxValue == 0)
+    {
+        maxValue = 1;
+    }
+}
+
+<h3>Mana Curve Chart</h3>
+
+<div class="card shadow-sm mb-4 p-3">
+    <div class="d-flex align-items-end gap-3" style="height: 220px;">
+        @for (int i = 0; i < curveData.Count; i++)
+        {
+            var count = curveData[i];
+            var heightPercent = (int)Math.Round((double)count / maxValue * 100);
+            var minHeight = count > 0 ? "12px" : "0";
+
+            <div class="text-center" style="width: 60px;">
+                <div class="mb-2 fw-bold">@count</div>
+
+                <div class="d-flex align-items-end justify-content-center" style="height: 160px;">
+                    <div class="bg-primary rounded-top"
+                         style="width: 40px; height:@(heightPercent)%; min-height:@minHeight;">
+                    </div>
+                </div>
+
+                <div class="mt-2">@labels[i]</div>
+            </div>
+        }
+    </div>
+</div>
+
+<hr />
+
 <h2>Card List</h2>
 
 @if (Model.DeckCards == null || !Model.DeckCards.Any())
@@ -198,54 +236,7 @@ else
         })
     }
 }
-            <thead>
-                <tr>
-                    <th style="width: 120px;">Qty</th>
-                    <th>Card</th>
-                    <th>Type</th>
-                    <th style="width: 160px;"></th>
-                </tr>
-            </thead>
-            <tbody>
-            @foreach (var dc in otherList)
-            {
-                <tr>
-                    <td>
-                        <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width:90px;" />
-                            <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
-                        </form>
-                    </td>
-                    <td>
-                        <div class="d-flex align-items-center gap-2">
-                            @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
-                            {
-                                <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px; border-radius:4px;" />
-                            }
-                            <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
-                        </div>
-                    </td>
-                    <td>@dc.Card?.TypeLine</td>
-                    <td>
-                        <form asp-action="RemoveCard" method="post">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@dc.CardId" />
-                            <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
-    }
-}
-
-
-
+   
 <hr />
 
 <h2>Add Cards</h2>
@@ -295,31 +286,6 @@ else
         </table>
     }
 }
-
-<h3>Mana Curve</h3>
-
-<table class="table table-sm">
-    <tr>
-        <th>0</th>
-        <th>1</th>
-        <th>2</th>
-        <th>3</th>
-        <th>4</th>
-        <th>5</th>
-        <th>6</th>
-        <th>7+</th>
-    </tr>
-    <tr>
-        <td>@ViewBag.ManaCurve.Cmc0</td>
-        <td>@ViewBag.ManaCurve.Cmc1</td>
-        <td>@ViewBag.ManaCurve.Cmc2</td>
-        <td>@ViewBag.ManaCurve.Cmc3</td>
-        <td>@ViewBag.ManaCurve.Cmc4</td>
-        <td>@ViewBag.ManaCurve.Cmc5</td>
-        <td>@ViewBag.ManaCurve.Cmc6</td>
-        <td>@ViewBag.ManaCurve.Cmc7Plus</td>
-    </tr>
-</table>
 
 <p>
     <a asp-action="Index">Back to Decks</a>

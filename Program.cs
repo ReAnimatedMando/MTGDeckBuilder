@@ -26,7 +26,15 @@ using (var scope = app.Services.CreateScope())
         {
             new Card { Name = "Casey Jones, Jury-Rig Justiciar", ManaCost = "{R}{1}", TypeLine = "Legendary Creature — Human Berserker", ColorIdentity = "R", ImageUrl = "https://via.placeholder.com/223x310?text=Casey+Jones" },
             new Card { Name = "Donatello, Gadget Master", ManaCost = "{2}{U}", TypeLine = "Legendary Creature — Mutant Ninja Turtle", ColorIdentity = "U", ImageUrl = "https://via.placeholder.com/223x310?text=Donatello" },
-            new Card { Name = "Shredder's Revenge", ManaCost = "{2}{B}", TypeLine = "Sorcery", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Shredder's+Revenge" }
+            new Card { Name = "Shredder's Revenge", ManaCost = "{2}{B}", TypeLine = "Sorcery", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Shredder's+Revenge" },
+            new Card { Name = "Mouser Foundry", ManaCost = "{1}{R}", TypeLine = "Artifact", ColorIdentity = "R", ImageUrl = "https://via.placeholder.com/223x310?text=Mouser+Foundry" },
+            new Card { Name = "Pain 101", ManaCost = "{1}{B}", TypeLine = "Instant", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Pain+101" },
+            new Card { Name = "Plains", ManaCost = "", TypeLine = "Basic Land — Plains", ColorIdentity = "", ImageUrl = "https://via.placeholder.com/223x310?text=Plains" },
+            new Card { Name = "Guac & Marshmallow Pizza", ManaCost = "{G}", TypeLine = "Artifact-Food", ColorIdentity = "G", ImageUrl = "https://via.placeholder.com/223x310?text=Guac+%26+Marshmallow+Pizza" },
+            new Card { Name = "Armaggon, Future Shark", ManaCost = "{6}{B}{B}", TypeLine = "Legendary Creature - Shark Horror Mutant", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Armaggon" },
+            new Card { Name = "Bishop, Warthog Warrior", ManaCost = "{4}{B}", TypeLine = "Legendary Creature - Boar Mutant Warrior", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Bishop" },
+            new Card { Name = "Rock Soldiers", ManaCost = "{3}{R}", TypeLine = "Artifact Creature - Soldier", ColorIdentity = "R", ImageUrl = "https://via.placeholder.com/223x310?text=Rock+Soldiers" },
+            new Card { Name = "Utrom Scientists", ManaCost = "{2}{U}", TypeLine = "Artifact Creature - Utrom Robot Scientist", ColorIdentity = "U", ImageUrl = "https://via.placeholder.com/223x310?text=Utrom+Scientists" }
         };
 
         db.Cards.AddRange(cards);

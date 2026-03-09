@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 using MTGDeckBuilder.Data;
 using MTGDeckBuilder.Models;
 
@@ -53,28 +52,41 @@ namespace MTGDeckBuilder.Controllers
                     .ThenInclude(dc => dc.Card)
                 .FirstOrDefaultAsync(d => d.Id == id);
 
+            if (deck == null) return NotFound();
+
             var curve = new ManaCurve();
             
-            foreach (var dc in deck!.DeckCards)
+            foreach (var dc in deck.DeckCards)
             {
-                int cmc = dc.Card!.ManaValue ?? 0;
+                int cmc = dc.Card?.ManaValue ?? 0;
 
                 switch (cmc)
                 {
-                    case 0: curve.Cmc0++; break;
-                    case 1: curve.Cmc1++; break;
-                    case 2: curve.Cmc2++; break;
-                    case 3: curve.Cmc3++; break;
-                    case 4: curve.Cmc4++; break;
-                    case 5: curve.Cmc5++; break;
-                    case 6: curve.Cmc6++; break;
-                    default: curve.Cmc7Plus++; break;
+                    case 0: curve.Cmc0 += dc.Quantity; break;
+                    case 1: curve.Cmc1 += dc.Quantity; break;
+                    case 2: curve.Cmc2 += dc.Quantity; break;
+                    case 3: curve.Cmc3 += dc.Quantity; break;
+                    case 4: curve.Cmc4 += dc.Quantity; break;
+                    case 5: curve.Cmc5 += dc.Quantity; break;
+                    case 6: curve.Cmc6 += dc.Quantity; break;
+                    default: curve.Cmc7Plus += dc.Quantity; break;
                 }
             }
 
-            ViewBag.ManaCurve = curve;
+            var manaCurveData = new List<int>
+            {
+                curve.Cmc0,
+                curve.Cmc1,
+                curve.Cmc2,
+                curve.Cmc3,
+                curve.Cmc4,
+                curve.Cmc5,
+                curve.Cmc6,
+                curve.Cmc7Plus
+            };
 
-            if (deck == null) return NotFound();
+            ViewBag.ManaCurve = curve;
+            ViewBag.ManaCurveData = manaCurveData;
 
             q = q?.Trim();
 
