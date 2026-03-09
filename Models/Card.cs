@@ -18,6 +18,8 @@ public class Card
 
     public string? ImageUrl { get; set; }
 
+    public int? ManaValue { get; set; }
+
     // Navigation
     public ICollection<DeckCard> DeckCards { get; set; } = new List<DeckCard>();
     public ICollection<OwnedCard> OwnedCards { get; set; } = new List<OwnedCard>();

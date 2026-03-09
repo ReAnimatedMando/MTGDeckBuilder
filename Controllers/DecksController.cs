@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using MTGDeckBuilder.Data;
 using MTGDeckBuilder.Models;
 
@@ -51,6 +52,27 @@ namespace MTGDeckBuilder.Controllers
                 .Include(d => d.DeckCards)
                     .ThenInclude(dc => dc.Card)
                 .FirstOrDefaultAsync(d => d.Id == id);
+
+            var curve = new ManaCurve();
+            
+            foreach (var dc in deck!.DeckCards)
+            {
+                int cmc = dc.Card!.ManaValue ?? 0;
+
+                switch (cmc)
+                {
+                    case 0: curve.Cmc0++; break;
+                    case 1: curve.Cmc1++; break;
+                    case 2: curve.Cmc2++; break;
+                    case 3: curve.Cmc3++; break;
+                    case 4: curve.Cmc4++; break;
+                    case 5: curve.Cmc5++; break;
+                    case 6: curve.Cmc6++; break;
+                    default: curve.Cmc7Plus++; break;
+                }
+            }
+
+            ViewBag.ManaCurve = curve;
 
             if (deck == null) return NotFound();
 
