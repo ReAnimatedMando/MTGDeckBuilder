@@ -1,5 +1,6 @@
 ﻿@model MTGDeckBuilder.Models.Deck
 @using MTGDeckBuilder.Models
+@using System.Drawing
 
 @{
     var results = ViewBag.SearchResults as List<Card>;
@@ -150,6 +151,15 @@
         ["G"] = "Green"
     };
 
+    var colorClasses = new Dictionary<string, string>
+        {
+            ["W"] = "bg-light text-dark",
+            ["U"] = "bg-primary",
+            ["B"] = "bg-dark",
+            ["R"] = "bg-danger",
+            ["G"] = "bg-success"
+        };
+
     var maxColorValue = colorPieData.Any() ? colorPieData.Values.Max() : 1;
 
     if (maxColorValue == 0)
@@ -199,14 +209,14 @@
 
                 <div class="mb-3">
                     <div class="d-flex justify-content-between">
-                        <span><strong>@label</strong></span>
+                        <span><strong>@label (@key)</strong></span>
                         <span>@count</span>
                     </div>
 
-                    <div class="progress" style="height: 24px;">
-                        <div class="progress-bar"
+                    <div class="progress" style="height: 24px; border-radius: 8px;">
+                        <div class="progress-bar @colorClasses[key]"
                              role="progressbar"
-                             style="width:@(widthPercent)%"
+                             style="width:@(widthPercent)%; border-radius: 8px;"
                              aria-valuenow="@count"
                              aria-valuemin="0"
                              aria-valuemax="@maxColorValue">
