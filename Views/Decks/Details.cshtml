@@ -128,6 +128,8 @@
 
 <hr />
 
+<h2>Deck Analysis</h2>
+
 @{
     var curveData = ViewBag.ManaCurveData as List<int> ?? new List<int>();
     var labels = new List<string> { "0", "1", "2", "3", "4", "5", "6", "7+" };
@@ -137,34 +139,86 @@
     {
         maxValue = 1;
     }
+
+    var colorPieData = ViewBag.ColorPieData as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var colorLabels = new Dictionary<string, string>
+    {
+        ["W"] = "White",
+        ["U"] = "Blue",
+        ["B"] = "Black",
+        ["R"] = "Red",
+        ["G"] = "Green"
+    };
+
+    var maxColorValue = colorPieData.Any() ? colorPieData.Values.Max() : 1;
+
+    if (maxColorValue == 0)
+    {
+        maxColorValue = 1;
+    }
 }
 
-<h3>Mana Curve Chart</h3>
+<div class="row g-4 mb-5">
+    <div class="col-12 col-lg-6">
+        <h3>Mana Curve Chart</h3>
 
-<div class="card shadow-sm mb-4 p-3">
-    <div class="d-flex align-items-end gap-3" style="height: 220px;">
-        @for (int i = 0; i < curveData.Count; i++)
-        {
-            var count = curveData[i];
-            var heightPercent = (int)Math.Round((double)count / maxValue * 100);
-            var minHeight = count > 0 ? "12px" : "0";
+        <div class="card shadow-sm h-100 p-3">
+            <div class="d-flex align-items-end justify-content-between" style="height: 220px;">
+                @for (int i = 0; i < curveData.Count; i++)
+                {
+                    var count = curveData[i];
+                    var heightPercent = (int)Math.Round((double)count / maxValue * 100);
+                    var minHeight = count > 0 ? "12px" : "0";
 
-            <div class="text-center" style="width: 60px;">
-                <div class="mb-2 fw-bold">@count</div>
+                    <div class="text-center" style="width: 52px;">
+                        <div class="mb-2 fw-bold">@count</div>
 
-                <div class="d-flex align-items-end justify-content-center" style="height: 160px;">
-                    <div class="bg-primary rounded-top"
-                         style="width: 40px; height:@(heightPercent)%; min-height:@minHeight;">
+                        <div class="d-flex align-items-end justify-content-center" style="height: 160px;">
+                            <div class="bg-primary rounded-top"
+                                 style="width: 40px; height:@(heightPercent)%; min-height:@minHeight;">
+                            </div>
+                        </div>
+
+                        <div class="mt-2">@labels[i]</div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <h3>Color Pie Distribution</h3>
+
+        <div class="card shadow-sm h-100 p-3">
+            @foreach (var kvp in colorLabels)
+            {
+                var key = kvp.Key;
+                var label = kvp.Value;
+                var count = colorPieData.ContainsKey(key) ? colorPieData[key] : 0;
+                var widthPercent = (int)Math.Round((double)count / maxColorValue * 100);
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span><strong>@label</strong></span>
+                        <span>@count</span>
+                    </div>
+
+                    <div class="progress" style="height: 24px;">
+                        <div class="progress-bar"
+                             role="progressbar"
+                             style="width:@(widthPercent)%"
+                             aria-valuenow="@count"
+                             aria-valuemin="0"
+                             aria-valuemax="@maxColorValue">
+                        </div>
                     </div>
                 </div>
-
-                <div class="mt-2">@labels[i]</div>
-            </div>
-        }
+            }
+        </div>
     </div>
 </div>
 
-<hr />
+<hr class="my-5" />
 
 <h2>Card List</h2>
 

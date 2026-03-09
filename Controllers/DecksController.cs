@@ -88,6 +88,38 @@ namespace MTGDeckBuilder.Controllers
             ViewBag.ManaCurve = curve;
             ViewBag.ManaCurveData = manaCurveData;
 
+            var colorPieData = new Dictionary<string, int>
+            {
+                ["W"] = 0,
+                ["U"] = 0,
+                ["B"] = 0,
+                ["R"] = 0,
+                ["G"] = 0
+            };
+
+            foreach (var dc in deck.DeckCards)
+            {
+                var colorIdentity = dc.Card?.ColorIdentity;
+
+                if (string.IsNullOrWhiteSpace(colorIdentity))
+                    continue;
+
+                var colors = colorIdentity
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries);
+                
+                foreach (var rawColor in colors)
+                {
+                    var trimmedColor = rawColor.Trim();
+
+                    if (colorPieData.ContainsKey(trimmedColor))
+                    {
+                        colorPieData[trimmedColor] += dc.Quantity;
+                    }
+                }
+            }
+
+            ViewBag.ColorPieData = colorPieData;
+
             q = q?.Trim();
 
             // Card search results (optional)
