@@ -32,7 +32,8 @@ using (var scope = app.Services.CreateScope())
         new Card { Name = "Armaggon, Future Shark", ManaCost = "{6}{B}{B}", ManaValue = 8, TypeLine = "Legendary Creature - Shark Horror Mutant", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Armaggon" },
         new Card { Name = "Bishop, Warthog Warrior", ManaCost = "{4}{B}", ManaValue = 5, TypeLine = "Legendary Creature - Boar Mutant Warrior", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Bishop" },
         new Card { Name = "Rock Soldiers", ManaCost = "{3}{R}", ManaValue = 4, TypeLine = "Artifact Creature - Soldier", ColorIdentity = "R", ImageUrl = "https://via.placeholder.com/223x310?text=Rock+Soldiers" },
-        new Card { Name = "Utrom Scientists", ManaCost = "{2}{U}", ManaValue = 3, TypeLine = "Artifact Creature - Utrom Robot Scientist", ColorIdentity = "U", ImageUrl = "https://via.placeholder.com/223x310?text=Utrom+Scientists" }
+        new Card { Name = "Utrom Scientists", ManaCost = "{2}{U}", ManaValue = 3, TypeLine = "Artifact Creature - Utrom Robot Scientist", ColorIdentity = "U", ImageUrl = "https://via.placeholder.com/223x310?text=Utrom+Scientists" },
+        new Card { Name = "Heroes in a Half Shell", ManaCost = "{W}{U}{B}{R}{G}", ManaValue = 5, TypeLine = "Legendary Creature - Mutant Ninja Turtle", ColorIdentity = "WUBRG", ImageUrl = "https://via.placeholder.com/223x310?text=Heroes+in+a+Half+Shell" }
     };
 
     foreach (var seedCard in cardsToSeed)
