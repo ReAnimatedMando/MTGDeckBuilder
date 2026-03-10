@@ -338,6 +338,7 @@ else
         <table class="table">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Card</th>
                     <th>Type</th>
                     <th style="width: 220px;"></th>
@@ -347,8 +348,18 @@ else
             @foreach (var c in results)
             {
                 <tr>
+                    <td style="width:90px;">
+                        @if (!string.IsNullOrEmpty(c.ImageUrl))
+                        {
+                            <img src="@c.ImageUrl" style="width:70px;border-radius:4px;" />
+                        }
+                    </td>
+
                     <td>
-                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@c.Id">@c.Name</a>
+                        <a asp-controller="Cards" asp-action="Details" asp-rout-id="@c.Id"><strong>@c.Name</strong>
+                        </a>
+
+                        <div class="text-muted small">@c.ManaCost</div>
                     </td>
                     <td>@c.TypeLine</td>
                     <td>
