@@ -1,6 +1,5 @@
 ﻿@model MTGDeckBuilder.Models.Deck
 @using MTGDeckBuilder.Models
-@using System.Drawing
 
 @{
     var results = ViewBag.SearchResults as List<Card>;
@@ -9,27 +8,29 @@
 
     int creatures = Model.DeckCards? 
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Creature"))
-    .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity) ?? 0;
 
     int instantsSorceries = Model.DeckCards? 
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && (dc.Card.TypeLine.Contains("Instant") || dc.Card.TypeLine.Contains("Sorcery")))
-    .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity) ?? 0;
 
     int artifacts = Model.DeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact") && !dc.Card.TypeLine.Contains("Creature"))
-    .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity) ?? 0;
 
     int enchantments = Model.DeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment") && !dc.Card.TypeLine.Contains("Creature"))
-    .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity) ?? 0;
 
     int planeswalkers = Model.DeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Planeswalker"))
-    .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity) ?? 0;
 
     int lands = Model.DeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Land"))
-    .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity) ?? 0;
+
+    int spells = totalCards - lands;
 
     var creaturesList = Model.DeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Creature"))
@@ -120,6 +121,7 @@
         <p class="mb-1"><strong>Enchantments:</strong> @enchantments</p>
         <p class="mb-1"><strong>Planeswalkers:</strong> @planeswalkers</p>
         <p class="mb-1"><strong>Lands:</strong> @lands</p>
+        <p class="mb-1"><strong>Spells:</strong> @spells</p>
     </div>
 </div>
 
@@ -224,6 +226,20 @@
                     </div>
                 </div>
             }
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-12 col-lg-6">
+        <h3>Land vs Spells</h3>
+
+        <div class="card shadow-sm p-3">
+            <p class="mb-3"><strong>Lands:</strong> @lands | <strong>Spells:</strong> @spells</p>
+
+            <div style="position: relative; height: 260px; max-width: 260px; margin: 0 auto;">
+                <canvas id="landSpellChart"></canvas>
+            </div>
         </div>
     </div>
 </div>
@@ -354,3 +370,38 @@ else
 <p>
     <a asp-action="Index">Back to Decks</a>
 </p>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById("landSpellChart");
+
+    if (!ctx) {
+        console.log("landSpellChart canvas not found");
+        return;
+    }
+
+    new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels: ["Lands", "Spells"],
+            datasets: [{
+                data: [@lands, @spells],
+                backgroundColor: ["#d4af37", "#6c757d"],
+                borderColor: "#ffffff",
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "top"
+                }
+            }
+        }
+    });
+});
+</script>
