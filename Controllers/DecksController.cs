@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTGDeckBuilder.Data;
 using MTGDeckBuilder.Models;
+using MTGDeckBuilder.Services;
 
 namespace MTGDeckBuilder.Controllers
 {
     public class DecksController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ScryfallService _scryfall;
 
-        public DecksController(ApplicationDbContext context)
+        public DecksController(ApplicationDbContext context, ScryfallService scryfall)
         {
             _context = context;
+            _scryfall = scryfall;
         }
 
         // GET: /Decks 
@@ -125,12 +128,54 @@ namespace MTGDeckBuilder.Controllers
             // Card search results (optional)
             if (!string.IsNullOrWhiteSpace(q))
             {
+                try
+                {
+                    Console.WriteLine($"SEARCH TERM = {q}");
+
+                    var scryfallCard = await _scryfall.SearchCardAsync(q);
+
+                    if (scryfallCard != null && !string.IsNullOrWhiteSpace(scryfallCard.Name))
+                    {
+                        var existingCard = await _context.Cards
+                            .FirstOrDefaultAsync(c => c.Name == scryfallCard.Name);
+
+                        if (existingCard == null)
+                        {
+                            var newCard = new Card
+                            {
+                                Name = scryfallCard.Name,
+                                ManaCost = scryfallCard.ManaCost,
+                                ManaValue = (int)scryfallCard.Cmc,
+                                TypeLine = scryfallCard.TypeLine,
+                                ColorIdentity = scryfallCard.ColorIdentity != null
+                                    ? string.Join(",", scryfallCard.ColorIdentity)
+                                    : "",
+                                ImageUrl = scryfallCard.ImageUris?.Normal
+                            };
+
+                            _context.Cards.Add(newCard);
+                            await _context.SaveChangesAsync();
+
+                            Console.WriteLine($"Added card from Scryfall: {newCard.Name}");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Card already exists: {existingCard.Name}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("SCRYFALL ERROR:");
+                    Console.WriteLine(ex.Message);
+                }
+
                 var results = await _context.Cards
-                    .Where(c => c.Name.Contains(q))
+                    .Where(c => c.Name.Contains(q!))
                     .OrderBy(c => c.Name)
                     .Take(40)
                     .ToListAsync();
-                    
+
                 ViewBag.Query = q;
                 ViewBag.SearchResults = results;
             }

@@ -2,16 +2,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTGDeckBuilder.Data;
 using MTGDeckBuilder.Models;
+using MTGDeckBuilder.Services;
 
 namespace MTGDeckBuilder.Controllers
 {
     public class CardsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ScryfallService _scryfall;
 
-        public CardsController(ApplicationDbContext context)
+        public CardsController(ApplicationDbContext context, ScryfallService scryfall)
         {
             _context = context;
+            _scryfall = scryfall;
         }
 
         // GET: Cards
@@ -55,6 +58,5 @@ namespace MTGDeckBuilder.Controllers
 
             return View(card);
         }
-
     }
 }

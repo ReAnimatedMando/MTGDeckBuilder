@@ -1986,11 +1986,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Dev\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
+      "projectUniqueName": "C:\\DEV\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
       "projectName": "MTGDeckBuilder",
-      "projectPath": "C:\\Dev\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
+      "projectPath": "C:\\DEV\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
       "packagesPath": "C:\\Users\\the_g\\.nuget\\packages\\",
-      "outputPath": "C:\\Dev\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\obj\\",
+      "outputPath": "C:\\DEV\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -2068,7 +2068,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.104/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

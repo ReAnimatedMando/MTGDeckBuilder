@@ -3,12 +3,18 @@ using Microsoft.EntityFrameworkCore.Internal;
 using MTGDeckBuilder.Data;
 using MTGDeckBuilder.Models;
 using static System.Formats.Asn1.AsnWriter;
-using Microsoft.Extensions.DependencyInjection; 
+using Microsoft.Extensions.DependencyInjection;
+using MTGDeckBuilder.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpClient<ScryfallService>(client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
