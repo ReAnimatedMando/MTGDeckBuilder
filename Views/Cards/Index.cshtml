@@ -48,10 +48,13 @@ else
         @foreach (var card in Model)
         {
             <tr>
-                <td style="width: 90px;">
-                    @if (!string.IsNullOrEmpty(card.ImageUrl))
+                <td style="width: 100px;">
+                    @if (!string.IsNullOrWhiteSpace(card.ImageUrl))
                     {
-                        <img src="@card.ImageUrl" width="80" class="img-fluidrounded"  alt="@card.Name" />
+                        <img src="@card.ImageUrl"
+                             alt="@card.Name"
+                             width="80"
+                             class="img-fluid rounded shadow-sm" />
                     }
                     else
                     {

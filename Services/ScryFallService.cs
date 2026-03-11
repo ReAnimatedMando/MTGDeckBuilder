@@ -41,4 +41,23 @@ public class ScryfallService
             PropertyNameCaseInsensitive = true
         });
     }
+
+    public async Task<List<ScryfallCardDto>> SearchCardsAsync(string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+        {
+            return new List<ScryfallCardDto>();
+        }
+
+        var url = $"https://api.scryfall.com/cards/search?q={Uri.EscapeDataString(query)}";
+        
+        var json = await _http.GetStringAsync(url);
+
+        var result = JsonSerializer.Deserialize<ScryfallCardDto>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        return result?.Data ?? new List<ScryfallCardDto();
+    }
 }

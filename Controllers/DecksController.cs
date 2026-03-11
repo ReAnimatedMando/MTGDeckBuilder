@@ -132,10 +132,13 @@ namespace MTGDeckBuilder.Controllers
                 {
                     Console.WriteLine($"SEARCH TERM = {q}");
 
-                    var scryfallCard = await _scryfall.SearchCardAsync(q);
+                    var scryfallCards = await _scryfall.SearchCardsAsync(q);
 
-                    if (scryfallCard != null && !string.IsNullOrWhiteSpace(scryfallCard.Name))
+                    foreach (var scryfallCard in scryfallCards.Take(20))
                     {
+                        if (string.IsNullOrWhiteSpace(scryfallCard.Name))
+                            continue;
+
                         var existingCard = await _context.Cards
                             .FirstOrDefaultAsync(c => c.Name == scryfallCard.Name);
 
@@ -154,24 +157,61 @@ namespace MTGDeckBuilder.Controllers
                             };
 
                             _context.Cards.Add(newCard);
-                            await _context.SaveChangesAsync();
-
-                            Console.WriteLine($"Added card from Scryfall: {newCard.Name}");
                         }
                         else
                         {
-                            Console.WriteLine($"Card already exists: {existingCard.Name}");
+                            var updated = false;
+
+                            if (string.IsNullOrWhiteSpace(existingCard.ImageUrl) && !string.IsNullOrWhiteSpace(scryfallCard.ImageUris?.Normal))
+                            {
+                                existingCard.ImageUrl = scryfallCard.ImageUris.Normal;
+                                updated = true;
+                            }
+
+                            if (string.IsNullOrWhiteSpace(existingCard.ManaCost) && !string.IsNullOrWhiteSpace(scryfallCard.ManaCost))
+                            {
+                                existingCard.ManaCost = scryfallCard.ManaCost;
+                                updated = true;
+                            }
+
+                            if (string.IsNullOrWhiteSpace(existingCard.TypeLine) && !string.IsNullOrWhiteSpace(scryfallCard.TypeLine))
+                            {
+                                existingCard.TypeLine = scryfallCard.TypeLine;
+                                updated = true;
+                            }
+
+                            if (string.IsNullOrWhiteSpace(existingCard.ColorIdentity) && scryfallCard.ColorIdentity != null)
+                            {
+                                existingCard.ColorIdentity = string.Join(",", scryfallCard.ColorIdentity);
+                                updated = true;
+                            }
+
+                            if (existingCard.ManaValue == 0 && scryfallCard.Cmc > 0)
+                            {
+                                existingCard.ManaValue = (int)scryfallCard.Cmc;
+                                updated = true;
+                            }
+
+                            if (updated)
+                            {
+                                Console.WriteLine($"Updated existing card: {existingCard.Name}");
+                            }
                         }
                     }
+
+                    await _context.SaveChangesAsync();
                 }
+
                 catch (Exception ex)
                 {
                     Console.WriteLine("SCRYFALL ERROR:");
                     Console.WriteLine(ex.Message);
                 }
 
+                var term = $"%{q}%";
+
                 var results = await _context.Cards
-                    .Where(c => c.Name.Contains(q!))
+                    .Where(c => EF.Functions.Like(c.Name, term) || (c.TypeLine != null && EF.Functions.Like(c.TypeLine, term)) || (c.ManaCost != null && EF.Functions.Like(c.ManaCost, term)) || (c.ColorIdentity != null && EF.Functions.Like(c.ColorIdentity, term)))
                     .OrderBy(c => c.Name)
                     .Take(40)
                     .ToListAsync();
