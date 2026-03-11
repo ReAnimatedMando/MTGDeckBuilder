@@ -335,46 +335,58 @@ else
     }
     else
     {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Card</th>
-                    <th>Type</th>
-                    <th style="width: 220px;"></th>
-                </tr>
-            </thead>
-            <tbody>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
             @foreach (var c in results)
             {
-                <tr>
-                    <td style="width:90px;">
-                        @if (!string.IsNullOrEmpty(c.ImageUrl))
-                        {
-                            <img src="@c.ImageUrl" style="width:70px;border-radius:4px;" />
-                        }
-                    </td>
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex gap-3">
+                                <div style="width: 72px; flex-shrink: 0;">
+                                    @if (!string.IsNullOrWhiteSpace(c.ImageUrl))
+                                    {
+                                        <img src="@c.ImageUrl"
+                                             alt="@c.Name"
+                                             class="img-fluid rounded"
+                                             style="width: 72px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="border rounded d-flex align-items-center justify-content-center text-muted small"
+                                             style="width:72px; height:100px;">
+                                            No Image
+                                        </div>
+                                    }
+                                </div>
 
-                    <td>
-                        <a asp-controller="Cards" asp-action="Details" asp-rout-id="@c.Id"><strong>@c.Name</strong>
-                        </a>
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">
+                                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@c.Id" class="text-decoration-none">
+                                            @c.Name
+                                        </a>
+                                    </div>
 
-                        <div class="text-muted small">@c.ManaCost</div>
-                    </td>
-                    <td>@c.TypeLine</td>
-                    <td>
-                        <form asp-action="AddCard" method="post" class="d-flex gap-2">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="deckId" value="@Model.Id" />
-                            <input type="hidden" name="cardId" value="@c.Id" />
-                            <input type="number" name="quantity" value="1" min="1" class="form-control" style="max-width:90px;" />
-                            <button class="btn btn-sm btn-success" type="submit">Add</button>
-                        </form>
-                    </td>
-                </tr>
+                                    @if (!string.IsNullOrWhiteSpace(c.ManaCost))
+                                    {
+                                        <div class="text-muted small mb-1">@c.ManaCost</div>
+                                    }
+
+                                    <div class="small mb-3">@c.TypeLine</div>
+
+                                    <form asp-action="AddCard" method="post" class="d-flex gap-2 align-items-center">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="deckId" value="@Model.Id" />
+                                        <input type="hidden" name="cardId" value="@c.Id" />
+                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 72px;" />
+                                        <button class="btn btn-sm btn-success" type="submit">+ Add</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             }
-            </tbody>
-        </table>
+        </div>
     }
 }
 

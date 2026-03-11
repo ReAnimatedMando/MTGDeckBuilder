@@ -28,18 +28,9 @@ using (var scope = app.Services.CreateScope())
 
     var cardsToSeed = new List<Card>
     {
-        new Card { Name = "Casey Jones, Jury-Rig Justiciar", ManaCost = "{R}{1}", ManaValue = 2, TypeLine = "Legendary Creature — Human Berserker", ColorIdentity = "R", ImageUrl = "https://via.placeholder.com/223x310?text=Casey+Jones" },
-        new Card { Name = "Donatello, Gadget Master", ManaCost = "{2}{U}", ManaValue = 3, TypeLine = "Legendary Creature — Mutant Ninja Turtle", ColorIdentity = "U", ImageUrl = "https://via.placeholder.com/223x310?text=Donatello" },
-        new Card { Name = "Shredder's Revenge", ManaCost = "{2}{B}", ManaValue = 3, TypeLine = "Sorcery", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Shredder's+Revenge" },
-        new Card { Name = "Mouser Foundry", ManaCost = "{1}{R}", ManaValue = 2, TypeLine = "Artifact", ColorIdentity = "R", ImageUrl = "https://via.placeholder.com/223x310?text=Mouser+Foundry" },
-        new Card { Name = "Pain 101", ManaCost = "{1}{B}", ManaValue = 2, TypeLine = "Instant", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Pain+101" },
-        new Card { Name = "Plains", ManaCost = "", ManaValue = 0, TypeLine = "Basic Land — Plains", ColorIdentity = "W", ImageUrl = "https://via.placeholder.com/223x310?text=Plains" },
-        new Card { Name = "Guac & Marshmallow Pizza", ManaCost = "{G}", ManaValue = 1, TypeLine = "Artifact-Food", ColorIdentity = "G", ImageUrl = "https://via.placeholder.com/223x310?text=Guac+%26+Marshmallow+Pizza" },
-        new Card { Name = "Armaggon, Future Shark", ManaCost = "{6}{B}{B}", ManaValue = 8, TypeLine = "Legendary Creature - Shark Horror Mutant", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Armaggon" },
-        new Card { Name = "Bishop, Warthog Warrior", ManaCost = "{4}{B}", ManaValue = 5, TypeLine = "Legendary Creature - Boar Mutant Warrior", ColorIdentity = "B", ImageUrl = "https://via.placeholder.com/223x310?text=Bishop" },
-        new Card { Name = "Rock Soldiers", ManaCost = "{3}{R}", ManaValue = 4, TypeLine = "Artifact Creature - Soldier", ColorIdentity = "R", ImageUrl = "https://via.placeholder.com/223x310?text=Rock+Soldiers" },
-        new Card { Name = "Utrom Scientists", ManaCost = "{2}{U}", ManaValue = 3, TypeLine = "Artifact Creature - Utrom Robot Scientist", ColorIdentity = "U", ImageUrl = "https://via.placeholder.com/223x310?text=Utrom+Scientists" },
-        new Card { Name = "Heroes in a Half Shell", ManaCost = "{W}{U}{B}{R}{G}", ManaValue = 5, TypeLine = "Legendary Creature - Mutant Ninja Turtle", ColorIdentity = "W,U,B,R,G", ImageUrl = "https://via.placeholder.com/223x310?text=Heroes+in+a+Half+Shell" }
+        new Card { Name = "Casey Jones, Jury-Rig Justiciar", ManaCost = "{R}{1}", ManaValue = 2, TypeLine = "Legendary Creature — Human Berserker", ColorIdentity = "R", ImageUrl = null },
+        new Card { Name = "Donatello, Gadget Master", ManaCost = "{2}{U}", ManaValue = 3, TypeLine = "Legendary Creature — Mutant Ninja Turtle", ColorIdentity = "U", ImageUrl = null },
+        new Card { Name = "Shredder's Revenge", ManaCost = "{2}{B}", ManaValue = 3, TypeLine = "Sorcery", ColorIdentity = "B", ImageUrl = null }
     };
 
     foreach (var seedCard in cardsToSeed)
@@ -51,12 +42,30 @@ using (var scope = app.Services.CreateScope())
         }
         else
         {
-            existingCard.ManaCost = seedCard.ManaCost;
-            existingCard.ManaValue = seedCard.ManaValue;
-            existingCard.TypeLine = seedCard.TypeLine;
-            existingCard.ColorIdentity = seedCard.ColorIdentity;
-            existingCard.ImageUrl = seedCard.ImageUrl;
+            if (string.IsNullOrWhiteSpace(existingCard.ManaCost))
+                existingCard.ManaCost = seedCard.ManaCost;
+
+            if (existingCard.ManaValue == 0)
+                existingCard.ManaValue = seedCard.ManaValue;
+
+            if (string.IsNullOrWhiteSpace(existingCard.TypeLine))
+                existingCard.TypeLine = seedCard.TypeLine;
+
+            if (string.IsNullOrWhiteSpace(existingCard.ColorIdentity))
+                existingCard.ColorIdentity = seedCard.ColorIdentity;
+
+            if (string.IsNullOrWhiteSpace(existingCard.ImageUrl))
+                existingCard.ImageUrl = seedCard.ImageUrl;
         }
+    }
+
+    var placeholderCards = db.Cards
+        .Where(c => c.ImageUrl != null && c.ImageUrl.Contains("via.placeholder.com"))
+        .ToList();
+    
+    foreach (var card in placeholderCards)
+    {
+        card.ImageUrl = null;
     }
 
     db.SaveChanges();

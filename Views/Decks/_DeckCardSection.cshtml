@@ -7,13 +7,14 @@
 }
 
 <h3>@title (@total)</h3>
-<table class="table">
+
+<table class="table align-middle">
     <thead>
         <tr>
-            <th style="width: 120px;">Qty</th>
+            <th style="width: 140px;">Qty</th>
             <th>Card</th>
             <th>Type</th>
-            <th style="width: 160px;"></th>
+            <th style="width: 120px;"></th>
         </tr>
     </thead>
     <tbody>
@@ -29,15 +30,29 @@
                         <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
                     </form>
                 </td>
+
                 <td>
                     <div class="d-flex align-items-center gap-2">
-                        @if (!string.IsNullOrEmpty(dc.Card?.ImageUrl))
+                        @if (!string.IsNullOrWhiteSpace(dc.Card?.ImageUrl))
                         {
-                            <img src="@dc.Card.ImageUrl" alt="@dc.Card.Name" style="height:40px border-radius:4px" />
+                            <img src="@dc.Card.ImageUrl"
+                                 alt="@dc.Card.Name"
+                                 class="img-fluid rounded"
+                                 style="width: 60px;" />
                         }
-                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">@dc.Card?.Name</a>
+                        else
+                        {
+                            <div class="text-muted small">No Image</div>
+                        }
+
+                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">
+                            @dc.Card?.Name
+                        </a>
+                    </div>
                 </td>
+
                 <td>@dc.Card?.TypeLine</td>
+
                 <td>
                     <form asp-action="RemoveCard" method="post">
                         @Html.AntiForgeryToken()
@@ -45,7 +60,8 @@
                         <input type="hidden" name="cardId" value="@dc.CardId" />
                         <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
                     </form>
+                </td>
             </tr>
-        }    
+        }
     </tbody>
 </table>

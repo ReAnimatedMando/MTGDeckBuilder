@@ -53,11 +53,11 @@ public class ScryfallService
         
         var json = await _http.GetStringAsync(url);
 
-        var result = JsonSerializer.Deserialize<ScryfallCardDto>(json, new JsonSerializerOptions
+        var result = JsonSerializer.Deserialize<ScryfallSearchDto>(json, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         });
 
-        return result?.Data ?? new List<ScryfallCardDto();
+        return result?.Data ?? new List<ScryfallCardDto>();
     }
 }
