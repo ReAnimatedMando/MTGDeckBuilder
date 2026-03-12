@@ -54,7 +54,10 @@ else
                         <img src="@card.ImageUrl"
                              alt="@card.Name"
                              width="80"
-                             class="img-fluid rounded shadow-sm" />
+                             class="img-fluid rounded shadow-sm card-preview-trigger" 
+                             data-image-url="@card.ImageUrl" 
+                             data-card-name="@card.Name"
+                             style="cursor: point;" />
                     }
                     else
                     {
@@ -62,7 +65,7 @@ else
                     }
                 </td>
                 <td>
-                    <a asp-action="Details" asp-route-id="@card.Id">@card.Name</a>
+                    <a asp-action="Details" asp-route-id="@card.Id" class="card-preview-trigger" data-image-url="@card.ImageUrl" data-card-name="@card.Name">@card.Name</a>
                 </td>
                 <td>@card.ManaCost</td>
                 <td>@card.TypeLine</td>
@@ -72,3 +75,85 @@ else
         </tbody>
     </table>
 }
+
+<div id="cardPreviewPopup" class="card-preview-popup d-none">
+    <img id="cardPreviewImage" src="" alt="Card Preview" />
+</div>"
+
+<style>
+    .card-preview-popup {
+        position: fixed;
+        z-index: 9999;
+        pointer-events: none;
+        background: transparent;
+    }
+
+    .card-preview-popup img {
+        width: 223px;
+        max-width: 223px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(225, 255, 255, 0.15);
+        background: #111;
+    }
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const popup = document.getElementById("cardPreviewPopup");
+    const popupImage = document.getElementById("cardPreviewImage");
+    const triggers = document.querySelectorAll(".card-preview-trigger");
+
+    if (!popup || !popupImage || triggers.length === 0) return;
+
+    function movePopup(e) {
+        const offsetX = 20;
+        const offsetY = 20;
+        const popupWidth = 223;
+        const popupHeight = 310;
+
+        let left = e.clientX + offsetX;
+        let top = e.clientY + offsetY;
+
+        if (left + popupWidth > window.innerWidth) {
+            left = e.clientX - popupWidth - offsetX;
+        }
+
+        if (top + popupHeight > window.innerHeight) {
+            top = window.innerHeight - popupHeight - 10;
+        }
+
+        if (top < 10) {
+            top = 10;
+        }
+
+        popup.style.left = left + "px";
+        popup.style.top = top + "px";
+    }
+
+    triggers.forEach(trigger => {
+        trigger.addEventListener("moueenter", function (e) {
+            const imageUrl = this.dataset.imageUrl;
+
+            if (!imageUrl) return;
+
+            popupImage.src = imageUrl;
+            popupImage.alt = this.dataset.cardName || "Card Preview";
+            popup.classList.remove("d-none");
+            movePopup(e);
+        });
+
+        trigger.addEventListener("mousemove", function (e) {
+            if (!popup.classList.contains("d-none")) {
+                movePopup(e);
+            }
+        });
+
+        trigger.addEventListener("mouseleave", function () {
+            popup.classList.add("d-none");
+            popupImage.src = "";
+        });
+    });
+});
+
+</script>
