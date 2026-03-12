@@ -37,15 +37,22 @@
                         {
                             <img src="@dc.Card.ImageUrl"
                                  alt="@dc.Card.Name"
-                                 class="img-fluid rounded"
-                                 style="width: 60px;" />
+                                 class="img-fluid rounded card-preview-trigger"
+                                 data-image-url="@dc.Card.ImageUrl"
+                                 data-card-name="@dc.Card.Name"
+                                 style="width: 60px; cursor: pointer;" />
                         }
                         else
                         {
                             <div class="text-muted small">No Image</div>
                         }
 
-                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@dc.CardId">
+                        <a asp-controller="Cards"
+                           asp-action="Details"
+                           asp-route-id="@dc.CardId"
+                           class="card-preview-trigger"
+                           data-image-url="@dc.Card?.ImageUrl"
+                           data-card-name="@dc.Card?.Name">
                             @dc.Card?.Name
                         </a>
                     </div>

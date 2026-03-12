@@ -29,3 +29,23 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+.card-preview-popup {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  background: transparent;
+}
+
+.card-preview-popup img {
+  width: 223px;
+  max-width: 223px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #111;
+}
+
+.card-preview-trigger {
+  cursor: pointer;
+}

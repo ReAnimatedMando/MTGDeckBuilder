@@ -110,9 +110,7 @@ C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\rjsmcshtml.dswa.cac
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\scopedcss\Views\Shared\_Layout.cshtml.rz.scp.css
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\scopedcss\bundle\MTGDeckBuilder.styles.css
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\scopedcss\projectbundle\MTGDeckBuilder.bundle.scp.css
-C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\mt29ckpa5g-{0}-b9sayid5wm-b9sayid5wm.gz
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\e84qp77f1b-{0}-61n19gt1b8-61n19gt1b8.gz
-C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\sy76453xdk-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\2nloiuefkk-{0}-bqjiyaj88i-bqjiyaj88i.gz
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\e4qgvm7xjy-{0}-c2jlpeoesf-c2jlpeoesf.gz
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\1ej6353bfk-{0}-erw9l3u2r3-erw9l3u2r3.gz
@@ -186,3 +184,5 @@ C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\MTGDeckBuilder.pdb
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\MTGDeckBuilder.genruntimeconfig.cache
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\ref\MTGDeckBuilder.dll
 C:\DEV\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\MTGDeckBuilder.sourcelink.json
+C:\DEV\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\mt29ckpa5g-{0}-5bide6ojaf-5bide6ojaf.gz
+C:\DEV\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\sy76453xdk-{0}-77b0kzmt27-77b0kzmt27.gz
