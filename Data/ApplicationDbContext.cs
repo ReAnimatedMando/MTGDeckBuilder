@@ -21,7 +21,7 @@ public class ApplicationDbContext : DbContext
 
         // Composite key for DeckCard
         modelBuilder.Entity<DeckCard>() 
-            .HasKey(dc => new { dc.DeckId, dc.CardId });
+            .HasKey(dc => new { dc.DeckId, dc.CardId, dc.IsSideboard });
 
         modelBuilder.Entity<DeckCard>()
             .HasOne(dc => dc.Deck)

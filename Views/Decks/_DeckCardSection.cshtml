@@ -3,6 +3,7 @@
 @{
     var title = ViewData["SectionTitle"] as string ?? "Cards";
     var deckId = (int)(ViewData["DeckId"] ?? 0);
+    var isSideboard = (bool)(ViewData["IsSideboard"] ?? false);
     var total = Model.Sum(dc => dc.Quantity);
 }
 
@@ -26,6 +27,7 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="deckId" value="@deckId" />
                         <input type="hidden" name="cardId" value="@dc.CardId" />
+                        <input type="hidden" name="isSideboard" value="@isSideboard.ToString().ToLower()" />
                         <input type="number" name="quantity" value="@dc.Quantity" min="0" class="form-control" style="max-width: 90px;" />
                         <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
                     </form>
@@ -65,6 +67,7 @@
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="deckId" value="@deckId" />
                         <input type="hidden" name="cardId" value="@dc.CardId" />
+                        <input  type="hidden" name="isSideboard" value="@isSideboard.ToString().ToLower()" />
                         <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
                     </form>
                 </td>

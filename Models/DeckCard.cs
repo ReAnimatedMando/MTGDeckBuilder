@@ -11,4 +11,6 @@ public class DeckCard
     public Card? Card { get; set; }
 
     public int Quantity { get; set; }
+
+    public bool IsSideboard { get; set; }
 }

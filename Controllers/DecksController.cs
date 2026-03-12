@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTGDeckBuilder.Data;
@@ -226,7 +227,7 @@ namespace MTGDeckBuilder.Controllers
         // POST: /Decks/AddCard
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddCard(int deckId, int cardId, int quantity = 1)
+        public async Task<IActionResult> AddCard(int deckId, int cardId, int quantity = 1, bool isSideboard = false)
         {
             if (quantity <= 0) quantity = 1;
 
@@ -237,7 +238,7 @@ namespace MTGDeckBuilder.Controllers
             if (card == null) return NotFound();
 
             var deckCard = await _context.DeckCards
-                .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId);
+                .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId && dc.IsSideboard == isSideboard);
 
             var currentQuantity = deckCard?.Quantity ?? 0;
             var newQuantity = currentQuantity + quantity;
@@ -256,7 +257,8 @@ namespace MTGDeckBuilder.Controllers
                 {
                     DeckId = deckId,
                     CardId = cardId,
-                    Quantity = quantity
+                    Quantity = quantity,
+                    IsSideboard = isSideboard
                 };
 
                 _context.DeckCards.Add(deckCard);
@@ -273,11 +275,11 @@ namespace MTGDeckBuilder.Controllers
         // POST: /Decks/SetQuantity
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetQuantity(int deckId, int cardId, int quantity)
+        public async Task<IActionResult> SetQuantity(int deckId, int cardId, int quantity, bool isSideboard = false)
         {
             var deckCard = await _context.DeckCards
                 .Include(dc => dc.Card)
-                .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId);
+                .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId && dc.IsSideboard == isSideboard);
             
             if (deckCard == null) return NotFound();
 
@@ -305,10 +307,10 @@ namespace MTGDeckBuilder.Controllers
         // POST: /Decks/RemoveCard
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> RemoveCard(int deckId, int cardId)
+        public async Task<IActionResult> RemoveCard(int deckId, int cardId, bool isSideboard = false)
         {
             var deckCard = await _context.DeckCards
-                .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId);
+                .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId && dc.IsSideboard == isSideboard);
             
             if (deckCard == null) return NotFound();
 

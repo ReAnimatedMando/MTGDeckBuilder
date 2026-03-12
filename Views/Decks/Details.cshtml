@@ -2,67 +2,78 @@
 @using MTGDeckBuilder.Models
 
 @{
+    var mainDeckCards = Model.DeckCards?
+        .Where(dc => !dc.IsSideboard)
+        .ToList() ?? new List<DeckCard>();
+
+    var sideboardCards = Model.DeckCards?
+        .Where(dc => dc.IsSideboard)
+        .ToList() ?? new List<DeckCard>();
+}
+
+@{
     var results = ViewBag.SearchResults as List<Card>;
     string? q = ViewBag.Query as string;
-    int totalCards = Model.DeckCards?.Sum(dc => dc.Quantity) ?? 0;
+    int totalCards = mainDeckCards.Sum(dc => dc.Quantity);
+    int sideboardTotal = sideboardCards.Sum(dc => dc.Quantity);
 
-    int creatures = Model.DeckCards? 
+    int creatures = mainDeckCards? 
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Creature"))
         .Sum(dc => dc.Quantity) ?? 0;
 
-    int instantsSorceries = Model.DeckCards? 
+    int instantsSorceries = mainDeckCards? 
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && (dc.Card.TypeLine.Contains("Instant") || dc.Card.TypeLine.Contains("Sorcery")))
         .Sum(dc => dc.Quantity) ?? 0;
 
-    int artifacts = Model.DeckCards?
+    int artifacts = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact") && !dc.Card.TypeLine.Contains("Creature"))
         .Sum(dc => dc.Quantity) ?? 0;
 
-    int enchantments = Model.DeckCards?
+    int enchantments = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment") && !dc.Card.TypeLine.Contains("Creature"))
         .Sum(dc => dc.Quantity) ?? 0;
 
-    int planeswalkers = Model.DeckCards?
+    int planeswalkers = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Planeswalker"))
         .Sum(dc => dc.Quantity) ?? 0;
 
-    int lands = Model.DeckCards?
+    int lands = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Land"))
         .Sum(dc => dc.Quantity) ?? 0;
 
     int spells = totalCards - lands;
 
-    var creaturesList = Model.DeckCards?
+    var creaturesList = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Creature"))
         .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
     
-    var instantsSorceriesList = Model.DeckCards?
+    var instantsSorceriesList = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && (dc.Card.TypeLine.Contains("Instant") || dc.Card.TypeLine.Contains("Sorcery")))
         .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
-    var artifactsList = Model.DeckCards?
+    var artifactsList = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact") && !dc.Card.TypeLine.Contains("Creature"))
         .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
-    var enchantmentsList = Model.DeckCards?
+    var enchantmentsList = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment") && !dc.Card.TypeLine.Contains("Creature"))
         .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
-    var planeswalkersList = Model.DeckCards?
+    var planeswalkersList = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Planeswalker"))
         .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
-    var landsList = Model.DeckCards?
+    var landsList = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Land"))
         .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
 
-    var otherList = Model.DeckCards?
+    var otherList = mainDeckCards?
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && 
             !dc.Card.TypeLine.Contains("Creature") && 
             !dc.Card.TypeLine.Contains("Instant") && 
@@ -73,6 +84,10 @@
             !dc.Card.TypeLine.Contains("Land"))
         .OrderBy(dc => dc.Card!.Name)
         .ToList() ?? new List<DeckCard>();
+
+    var sideboardList = sideboardCards
+        .OrderBy(dc => dc.Card!.Name)
+        .ToList();
 
     string deckValidationMessage;
     string deckValidationClass;
@@ -94,6 +109,8 @@
     }
 }
 
+
+
 @if (TempData["Error"] != null)
 {
     <div class="alert alert-danger">
@@ -106,7 +123,8 @@
 <p>
     <strong>Theme:</strong> @Model.Theme<br />
     <strong>Color Identity:</strong> @Model.ColorIdentity<br />
-    <strong>Total Cards:</strong> @totalCards
+    <strong>Main Deck:</strong> @totalCards<br />
+    <strong>Sideboard:</strong> @sideboardTotal
 </p>
 
 <div class="card mb-3" style="max-width: 420px;">
@@ -259,7 +277,8 @@ else
         @await Html.PartialAsync("_DeckCardSection", creaturesList, new ViewDataDictionary(ViewData)
         {
             ["SectionTitle"] = "Creatures",
-            ["DeckId"] = Model.Id
+            ["DeckId"] = Model.Id,
+            ["IsSideboard"] = false
         })
     }
 
@@ -268,7 +287,8 @@ else
         @await Html.PartialAsync("_DeckCardSection", instantsSorceriesList, new ViewDataDictionary(ViewData)
         {
             ["SectionTitle"] = "Instants / Sorceries",
-            ["DeckId"] = Model.Id
+            ["DeckId"] = Model.Id,
+            ["IsSideboard"] = false
         })
     }
 
@@ -277,7 +297,8 @@ else
         @await Html.PartialAsync("_DeckCardSection", artifactsList, new ViewDataDictionary(ViewData)
         {
             ["SectionTitle"] = "Artifacts",
-            ["DeckId"] = Model.Id
+            ["DeckId"] = Model.Id,
+            ["IsSideboard"] = false
         })
     }
 
@@ -286,7 +307,8 @@ else
         @await Html.PartialAsync("_DeckCardSection", enchantmentsList, new ViewDataDictionary(ViewData)
         {
             ["SectionTitle"] = "Enchantments",
-            ["DeckId"] = Model.Id
+            ["DeckId"] = Model.Id,
+            ["IsSideboard"] = false
         })
     }
 
@@ -295,7 +317,8 @@ else
         @await Html.PartialAsync("_DeckCardSection", planeswalkersList, new ViewDataDictionary(ViewData)
         {
             ["SectionTitle"] = "Planeswalkers",
-            ["DeckId"] = Model.Id
+            ["DeckId"] = Model.Id,
+            ["IsSideboard"] = false
         })
     }
 
@@ -304,7 +327,8 @@ else
         @await Html.PartialAsync("_DeckCardSection", landsList, new ViewDataDictionary(ViewData)
         {
             ["SectionTitle"] = "Lands",
-            ["DeckId"] = Model.Id
+            ["DeckId"] = Model.Id,
+            ["IsSideboard"] = false
         })
     }
     @if (otherList.Any())
@@ -312,9 +336,28 @@ else
         @await Html.PartialAsync("_DeckCardSection", otherList, new ViewDataDictionary(ViewData)
         {
             ["SectionTitle"] = "Other",
-            ["DeckId"] = Model.Id
+            ["DeckId"] = Model.Id,
+            ["IsSideboard"] = false
         })
     }
+}
+
+<hr class="my-5" />
+
+<h2>Sideboard</h2>
+
+@if (!sideboardList.Any())
+{
+    <p>No sideboard cards yet.</p>
+}
+else
+{
+    @await Html.PartialAsync("_DeckCardSection", sideboardList, new ViewDataDictionary(ViewData)
+    {
+        ["SectionTitle"] = "Sideboard",
+        ["DeckId"] = Model.Id,
+        ["IsSideboard"] = true
+    })
 }
    
 <hr />
@@ -373,12 +416,14 @@ else
 
                                     <div class="small mb-3">@c.TypeLine</div>
 
-                                    <form asp-action="AddCard" method="post" class="d-flex gap-2 align-items-center">
+                                    <form asp-action="AddCard" method="post" class="d-flex gap-2 align-items-center flex-wrap">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="deckId" value="@Model.Id" />
                                         <input type="hidden" name="cardId" value="@c.Id" />
                                         <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 72px;" />
-                                        <button class="btn btn-sm btn-success" type="submit">+ Add</button>
+                                        <button class="btn btn-sm btn-success" type="submit" name="isSideboard" value="false">+ Main</button>
+
+                                        <button class="btn btn-sm btn-outline-secondary" type="submit" name="isSideboard" value="true">+ Sideboard</button>
                                     </form>
                                 </div>
                             </div>
