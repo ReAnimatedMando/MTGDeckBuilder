@@ -118,6 +118,11 @@
     </div>
 }
 
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
 <h1>@Model.Name</h1>
 
 <p>
@@ -359,6 +364,27 @@ else
         ["IsSideboard"] = true
     })
 }
+
+<hr class="my-5" />
+
+<h2>Import Decklist</h2>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form asp-action="ImportDecklist" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="deckId" value="@Model.Id" />
+            <div class="mb-3">
+                <label for="decklistText" class="form-label">Paste decklist</label>
+                <textarea id="decklistText" name="decklistText" class="form-control" rows="10" placeholder="4 Lightning Bolt&#10;4 Monastery Swiftspear&#10;4 Lava Spike&#10;&#10;Sideboard&#10;2 Smash to Smithereens&#10;2 Roiling Vortex"></textarea>"
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Import Decklist
+            </button>
+        </form>
+    </div>
+</div>
    
 <hr />
 

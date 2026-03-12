@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTGDeckBuilder.Data;
@@ -240,12 +239,17 @@ namespace MTGDeckBuilder.Controllers
             var deckCard = await _context.DeckCards
                 .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == cardId && dc.IsSideboard == isSideboard);
 
-            var currentQuantity = deckCard?.Quantity ?? 0;
-            var newQuantity = currentQuantity + quantity;
+            var totalCopiesAcrossDeck = await _context.DeckCards
+                .Where(dc => dc.DeckId == deckId && dc.CardId == cardId)
+                .SumAsync(dc => (int?)dc.Quantity) ?? 0;
+
+            var currentSectionQuantity = deckCard?.Quantity ?? 0;
+            var newSectionQuantity = currentSectionQuantity + quantity;
+            var newTotalCopiesAcrossDeck = totalCopiesAcrossDeck + quantity;
 
             var isBasicLand = !string.IsNullOrEmpty(card.TypeLine) && card.TypeLine.Contains("Basic Land", StringComparison.OrdinalIgnoreCase);
 
-            if (!isBasicLand && newQuantity > 4)
+            if (!isBasicLand && newTotalCopiesAcrossDeck > 4)
             {
                 TempData["Error"] = $"{card.Name} cannot have more than 4 copies in a deck";
                 return RedirectToAction(nameof(Details), new { id = deckId });
@@ -265,7 +269,7 @@ namespace MTGDeckBuilder.Controllers
             }
             else
             {
-                deckCard.Quantity = newQuantity;
+                deckCard.Quantity = newSectionQuantity;
             }
 
             await _context.SaveChangesAsync();
@@ -319,5 +323,181 @@ namespace MTGDeckBuilder.Controllers
 
             return RedirectToAction(nameof(Details), new { id = deckId });
         }    
+
+        // POST: /Decks/ImportDecklist
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportDecklist(int deckId, string? decklistText)
+        {
+            var deck = await _context.Decks.FindAsync(deckId);
+            if (deck == null ) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(decklistText))
+            {
+                TempData["Error"] = "Please paste a decklist first.";
+                return RedirectToAction(nameof(Details), new { id = deckId });
+            }
+
+            var existingCards = await _context.DeckCards
+                .Where(dc => dc.DeckId == deckId)
+                .ToListAsync();
+            
+            _context.DeckCards.RemoveRange(existingCards);
+            await _context.SaveChangesAsync();
+
+            var lines = decklistText
+                .Split(new[] { "\r\n", "\n" }, StringSplitOptions.None)
+                .Select(l => l.Trim())
+                .ToList();
+
+            var importedCount = 0;
+            var failedLines = new List<string>();
+            var isSideboard = false;
+
+            foreach (var line in lines)
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                    continue;
+                
+                var normalized = line.Trim();
+
+                if (normalized.Equals("Sideboard", StringComparison.OrdinalIgnoreCase) || normalized.Equals("Sideboard:", StringComparison.OrdinalIgnoreCase))
+                {
+                    isSideboard = true;
+                    continue;
+                }
+
+                if (!TryParseDecklistLine(normalized, out int quantity, out string cardName))
+                {
+                    failedLines.Add(line);
+                    continue;
+                }
+
+                try
+                {
+                    var card = await GetOrCreateCardFromDecklistImport(cardName);
+
+                    if (card == null)
+                    {
+                        failedLines.Add(line);
+                        continue;
+                    }
+
+                    var existingDeckCard = await _context.DeckCards
+                        .Include(dc => dc.Card)
+                        .FirstOrDefaultAsync(dc => dc.DeckId == deckId && dc.CardId == card.Id && dc.IsSideboard == isSideboard);
+
+                    var isBasicLand = !string.IsNullOrWhiteSpace(card.TypeLine) && card.TypeLine.Contains("Basic Land", StringComparison.OrdinalIgnoreCase);
+
+                    var currentQuantity = existingDeckCard?.Quantity ?? 0;
+                    var newQuantity = currentQuantity + quantity;
+
+                    if (!isBasicLand && newQuantity > 4)
+                    {
+                        failedLines.Add($"{line} (would exceed 4-copy limit)");
+                        continue;
+                    }
+
+                    if (existingDeckCard == null)
+                    {
+                        _context.DeckCards.Add(new DeckCard
+                        {
+                            DeckId = deckId,
+                            CardId = card.Id,
+                            Quantity = quantity,
+                            IsSideboard = isSideboard
+                        });
+                    }
+                    else
+                    {
+                        existingDeckCard.Quantity = newQuantity;
+                    }
+
+                    importedCount += quantity;
+                }
+                
+                catch
+                {
+                    failedLines.Add(line);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            if (failedLines.Any())
+            {
+                TempData["Error"] = $"Imported {importedCount} cards, but some lines failed: {string.Join(" | ", failedLines.Take(5))}" + (failedLines.Count > 5 ? "..." : "");
+            }
+            else
+            {
+                TempData["Success"] = $"Imported {importedCount} cards successfully.";
+            }
+            return RedirectToAction(nameof(Details), new { id = deckId });
+        }
+
+        private bool TryParseDecklistLine(string line, out int quantity, out string cardName)
+        {
+            quantity = 0;
+            cardName = string.Empty;
+
+            if (string.IsNullOrWhiteSpace(line))
+                return false;
+
+            var firstSpace = line.IndexOf(' ');
+            if (firstSpace <= 0)
+                return false;
+
+            var qtyPart = line.Substring(0, firstSpace).Trim();
+            var namePart = line.Substring(firstSpace + 1).Trim();
+
+            if (!int.TryParse(qtyPart, out quantity))
+                return false;
+
+            if (quantity <= 0 || string.IsNullOrWhiteSpace(namePart))
+                return false;
+
+            cardName = namePart;
+            return true;
+        }
+
+        private async Task<Card> GetOrCreateCardFromDecklistImport(string cardName)
+        {
+            var existingCard = await _context.Cards
+                .FirstOrDefaultAsync(c => c.Name == cardName);
+
+            if (existingCard != null)
+                return existingCard;
+
+            var scryfallCards = await _scryfall.SearchCardsAsync(cardName);
+            var scryfallCard = scryfallCards
+                .FirstOrDefault(c => !string.IsNullOrWhiteSpace(c.Name) &&
+                                    c.Name.Equals(cardName, StringComparison.OrdinalIgnoreCase));
+
+            if (scryfallCard == null)
+            {
+                scryfallCard = scryfallCards
+                    .FirstOrDefault(c => !string.IsNullOrWhiteSpace(c.Name));
+            }
+
+            if (scryfallCard == null || string.IsNullOrWhiteSpace(scryfallCard.Name))
+                return null!;
+
+            var newCard = new Card
+            {
+                Name = scryfallCard.Name,
+                ManaCost = scryfallCard.ManaCost,
+                ManaValue = (int)scryfallCard.Cmc,
+                TypeLine = scryfallCard.TypeLine,
+                ColorIdentity = scryfallCard.ColorIdentity != null
+                    ? string.Join(",", scryfallCard.ColorIdentity)
+                    : "",
+                ImageUrl = scryfallCard.ImageUris?.Normal
+            };
+
+            _context.Cards.Add(newCard);
+            await _context.SaveChangesAsync();
+
+            return newCard;
+        }
     }
 }
