@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using MTGDeckBuilder.Data;
 using MTGDeckBuilder.Models;
 using MTGDeckBuilder.Services;
+using System.IO;
+using System.Text;
 
 namespace MTGDeckBuilder.Controllers
 {
@@ -462,6 +464,63 @@ namespace MTGDeckBuilder.Controllers
 
             TempData["Error"] = "Unsupported deck URL. Please paste a decklist instead.";
             return RedirectToAction(nameof(Details), new { id = deckId });
+        }
+
+        // GET: /Decks/Export/5
+        [HttpGet]
+        public async Task<IActionResult> Export(int id)
+        {
+            var deck = await _context.Decks
+                .Include(d => d.DeckCards)
+                    .ThenInclude(dc => dc.Card)
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (deck == null)
+                return NotFound();
+
+            var lines = new List<string>();
+
+            var mainDeckCards = deck.DeckCards
+                .Where(dc => !dc.IsSideboard && dc.Card != null)
+                .OrderBy(dc => dc.Card!.Name)
+                .ToList();
+
+            foreach (var dc in mainDeckCards)
+            {
+                lines.Add($"{dc.Quantity} {dc.Card!.Name}");
+            }
+
+            var sideboardCards = deck.DeckCards
+                .Where(dc => dc.IsSideboard && dc.Card != null)
+                .OrderBy(dc => dc.Card!.Name)
+                .ToList();
+
+            if (sideboardCards.Any())
+            {
+                lines.Add("");
+                lines.Add("Sideboard");
+
+                foreach (var dc in sideboardCards)
+                {
+                    lines.Add($"{dc.Quantity} {dc.Card!.Name}");
+                }
+            }
+
+            var deckText = string.Join(Environment.NewLine, lines);
+            var fileName = $"{SanitizeFileName(deck.Name ?? "deck")}.txt";
+
+            var bytes = System.Text.Encoding.UTF8.GetBytes(deckText);
+            return File(bytes, "text/plain", fileName);
+        }
+
+        private string SanitizeFileName(string fileName)
+        {
+            foreach (var c in Path.GetInvalidFileNameChars())
+            {
+                fileName =fileName.Replace(c, '_');
+            }
+
+            return fileName;
         }
 
         private bool TryParseDecklistLine(string line, out int quantity, out string cardName)

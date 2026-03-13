@@ -148,6 +148,12 @@
     </div>
 </div>
 
+<hr class="my-5" />
+
+<div class="mb-3">
+    <a asp-action="Export" asp-route-id="@Model.Id" class="btn btn-outline-primary">Export Decklist</a>
+</div>
+
 <div class="@deckValidationClass">
     @deckValidationMessage
 </div>
@@ -400,7 +406,7 @@ else
     </div>
 </div>
    
-<hr />
+<hr class="my-5" />
 
 <h2>Add Cards</h2>
 
