@@ -148,6 +148,32 @@
     </div>
 </div>
 
+<div class="col-12 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Deck Completion</strong>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Owned Copies:</strong> @ViewBag.OwnedCopies / @ViewBag.RequiredCopies</p>
+                <p class="mb-2"><strong>Completion:</strong> @ViewBag.CompletionPercent%</p>
+
+                <div class="progress" style="height: 24px;">
+                    <div class="progress-bar bg-success"
+                        role="progressbar"
+                        style="width:@ViewBag.CompletionPercent%"
+                        aria-valuenow="@ViewBag.CompletionPercent"
+                        aria-valuemin="0"
+                        aria-valuemax="100">
+                        @ViewBag.CompletionPercent%
+                    </div>
+                </div>
+                <p class="mb-1"><strong>Missing Unique Cards:</strong> @ViewBag.MissingUniqueCards</p>
+                <p class="mb-1"><strong>Missing Total Copies:</strong> @ViewBag.MissingTotalCopies</p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <hr class="my-5" />
 
 <div class="mb-3">

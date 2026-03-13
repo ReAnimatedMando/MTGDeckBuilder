@@ -224,6 +224,54 @@ namespace MTGDeckBuilder.Controllers
                 ViewBag.SearchResults = results;
             }
 
+            var deckCardIds = deck.DeckCards
+                .Where(dc => !dc.IsSideboard)
+                .Select(dc => dc.CardId)
+                .ToList();
+
+            var ownedCards = await _context.OwnedCards
+                .Where(oc => deckCardIds.Contains(oc.CardId))
+                .ToListAsync();
+
+            var ownedLookup = ownedCards
+                .GroupBy(oc => oc.CardId)
+                .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
+
+            int requiredCopies = 0;
+            int ownedCopies = 0;
+            int missingTotalCopies = 0;
+            int missingUniqueCards = 0;
+
+            foreach (var dc in deck.DeckCards.Where(dc => !dc.IsSideboard))
+            {
+                requiredCopies += dc.Quantity;
+
+                var ownedQty = ownedLookup.ContainsKey(dc.CardId)
+                    ? ownedLookup[dc.CardId]
+                    : 0;
+
+                var usedOwned = Math.Min(ownedQty, dc.Quantity);
+                ownedCopies += usedOwned;
+
+                var missing = Math.Max(0, dc.Quantity - ownedQty);
+                missingTotalCopies += missing;
+
+                if (missing > 0)
+                {
+                    missingUniqueCards++;
+                }
+            }
+
+            int completionPercent = requiredCopies > 0
+                ? (int)Math.Round((double)ownedCopies / requiredCopies * 100)
+                : 0;
+
+            ViewBag.RequiredCopies = requiredCopies;
+            ViewBag.OwnedCopies = ownedCopies;
+            ViewBag.MissingTotalCopies = missingTotalCopies;
+            ViewBag.MissingUniqueCards = missingUniqueCards;
+            ViewBag.CompletionPercent = completionPercent;
+
             return View(deck);
         }
 
