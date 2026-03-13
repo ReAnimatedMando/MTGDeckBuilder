@@ -367,11 +367,25 @@ else
 
 <hr class="my-5" />
 
+<h4>Import Deck from URL</h4>
+
+<form asp-action="ImportFromUrl" asp-controller="Decks" method="post" class="mb-3">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="deckId" value="@Model.Id" />
+
+    <div class="input-group">
+        <input type="url" name="url" class="form-control" placeholder="Past Moxfield or Archidekt URL" />
+        <button type="submit" class="btn btn-success">Import URL</button>
+    </div>
+</form>
+
+<hr class="my-5" />
+
 <h2>Import Decklist</h2>
 
 <div class="card shadow-sm mb-4">
     <div class="card-body">
-        <form asp-action="ImportDecklist" method="post">
+        <form asp-action="ImportDecklist" asp-controller="Decks" method="post">
             @Html.AntiForgeryToken()
             <input type="hidden" name="deckId" value="@Model.Id" />
             <div class="mb-3">
@@ -390,7 +404,7 @@ else
 
 <h2>Add Cards</h2>
 
-<form method="get" class="d-flex gap-2 mb-3">
+<form asp-action="Details" asp-controller="Decks" method="get" class="d-flex gap-2 mb-3">
     <input type="hidden" name="id" value="@Model.Id" />
     <input type="text" name="q" value="@q" class="form-control" placeholder="Search card name (e.g. Lightning Bolt)" />
     <button type="submit" class="btn btn-primary">Search</button>

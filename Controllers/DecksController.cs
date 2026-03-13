@@ -1,3 +1,5 @@
+using System.Net.Http.Headers;
+using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MTGDeckBuilder.Data;
@@ -435,6 +437,33 @@ namespace MTGDeckBuilder.Controllers
             return RedirectToAction(nameof(Details), new { id = deckId });
         }
 
+        // POST: /Decks/ImportFromUrl
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportFromUrl(int deckId, string? url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                TempData["Error"] = "Please enter a deck URL.";
+                return RedirectToAction(nameof(Details), new { id = deckId });
+            }
+
+            if (url.Contains("moxfield.com", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] = "Moxfield URL import is currently blocked by Moxfield/Cloudflare. Please export the deck as text from Moxfield and paste it into Import Decklist below.";
+                return RedirectToAction(nameof(Details), new { id = deckId });
+            }
+
+            if (url.Contains("archidekt.com", StringComparison.OrdinalIgnoreCase))
+            {
+                TempData["Error"] = "Archidekt URL import is currently unavailable due to unstable public API responses. Please export the deck as text from Archidekt and paste it into Import Decklist below.";
+                return RedirectToAction(nameof(Details), new { id = deckId });
+            }
+
+            TempData["Error"] = "Unsupported deck URL. Please paste a decklist instead.";
+            return RedirectToAction(nameof(Details), new { id = deckId });
+        }
+
         private bool TryParseDecklistLine(string line, out int quantity, out string cardName)
         {
             quantity = 0;
@@ -498,6 +527,176 @@ namespace MTGDeckBuilder.Controllers
             await _context.SaveChangesAsync();
 
             return newCard;
+        }
+
+        private async Task<string?> DownloadDecklistFromUrl(string url)
+        {
+            using var http = new HttpClient();
+
+            http.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " + "(KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36");
+
+            http.DefaultRequestHeaders.Accept.ParseAdd("application/json,text/plain,*/*");
+            http.DefaultRequestHeaders.Referrer = new Uri("https://www.moxfield.com/");
+
+            // MOXFIELD
+            if (url.Contains("moxfield.com", StringComparison.OrdinalIgnoreCase))
+            {
+                var uri = new Uri(url);
+                var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+                var deckIndex = Array.FindIndex(segments, s => s.Equals("decks", StringComparison.OrdinalIgnoreCase));
+
+                if (deckIndex < 0 || deckIndex + 1 >= segments.Length)
+                {
+                    Console.WriteLine("MOXFIELD: could not extract deck id");
+                    return null;
+                }
+
+                var deckId = segments[deckIndex + 1];
+
+                var apiUrl = $"https://api.moxfield.com/v2/decks/all/{deckId}";
+
+                Console.WriteLine($"MOXFIELD API URL = {apiUrl}");
+
+                var response = await http.GetAsync(apiUrl);
+                Console.WriteLine($"MOXFIELD STATUS = {(int)response.StatusCode} {response.StatusCode}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("MOXFIELD ERROR BODY:");  
+                    Console.WriteLine(errorBody);
+                    return null;
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+
+                var data = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+                var decklist = new List<string>();
+
+                if (!data.TryGetProperty("mainboard", out JsonElement mainboard) || mainboard.ValueKind != JsonValueKind.Object)
+                {
+                    Console.WriteLine("MOXFIELD: mainboard missing");
+                    return null;
+                }
+
+                foreach (var card in mainboard.EnumerateObject())
+                {
+                    var qty = card.Value.GetProperty("quantity").GetInt32();
+                    var name = card.Value.GetProperty("card").GetProperty("name").GetString();
+
+                    if (!string.IsNullOrWhiteSpace(name))
+                        decklist.Add($"{qty} {name}");
+                }
+
+                if (data.TryGetProperty("sideboard", out JsonElement sideboard) && sideboard.ValueKind == JsonValueKind.Object && sideboard.EnumerateObject().Any())
+                {
+                    decklist.Add("");
+                    decklist.Add("Sideboard");
+
+                    foreach (var card in sideboard.EnumerateObject())
+                    {
+                        var qty = card.Value.GetProperty("quantity").GetInt32();
+                        var name = card.Value.GetProperty("card").GetProperty("name").GetString();
+
+                        if (!string.IsNullOrWhiteSpace(name))
+                            decklist.Add($"{qty} {name}");
+                    }
+                }
+
+                Console.WriteLine($"MOXFIELD IMPORTED LINES = {decklist.Count}");
+                return string.Join("\n", decklist);
+            }
+
+            // ARCHIDEKT
+            if (url.Contains("archidekt.com", StringComparison.OrdinalIgnoreCase))
+            {
+                var uri = new Uri(url);
+                var segments = uri.AbsolutePath.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+                var deckIndex = Array.FindIndex(segments, s => s.Equals("decks", StringComparison.OrdinalIgnoreCase));
+
+                if (deckIndex < 0 || deckIndex + 1 >= segments.Length)
+                {
+                    Console.WriteLine("ARCHIDEKT: could not extract deck id");
+                    return null;
+                }
+
+                var deckId = segments[deckIndex + 1];
+
+                var apiUrl = $"https://archidekt.com/api/decks/{deckId}/";
+
+                Console.WriteLine($"ARCHIDEKT API URL = {apiUrl}");
+
+                var response = await http.GetAsync(apiUrl);
+                Console.WriteLine($"ARCHIDEKT STATUS = {(int)response.StatusCode} {response.StatusCode}");
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("ARCHIDEKT ERROR BODY:");
+                    Console.WriteLine(errorBody);
+                    return null;
+                }
+
+                var json = await http.GetStringAsync(apiUrl);
+
+                var data = System.Text.Json.JsonSerializer.Deserialize<JsonElement>(json);
+
+                var decklist = new List<string>();
+
+                if (!data.TryGetProperty("cards", out JsonElement cards) || cards.ValueKind != JsonValueKind.Array)
+                {
+                    Console.WriteLine("ARCHIDEKT: cards array missing");
+                    return null;
+                }
+
+                foreach (var card in cards.EnumerateArray())
+                {
+                    var qty = card.GetProperty("quantity").GetInt32();
+                    var name = card.GetProperty("card").GetProperty("oracleCard").GetProperty("name").GetString();
+
+                    bool isSideBoard = false;
+
+                    if (card.TryGetProperty("categories", out JsonElement categories) && categories.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var category in categories.EnumerateArray())
+                        {
+                            var categoryName = category.GetString();
+                            if (string.Equals(categoryName, "Sideboard", StringComparison.OrdinalIgnoreCase))
+                            {
+                                isSideBoard =true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (string.IsNullOrWhiteSpace(name))
+                        continue;
+
+                    if (isSideBoard)
+                    {
+                        if (!decklist.Contains("Sideboard"))
+                        {
+                            decklist.Add("");
+                            decklist.Add("Sideboard");
+                        }
+
+                        decklist.Add($"{qty} {name}");
+                    }
+                    else
+                    {
+                        decklist.Add($"{qty} {name}");
+                    }
+                }
+
+                Console.WriteLine($"ARCHIDEKT IMPORTED LINES = {decklist.Count}");
+                return string.Join("\n", decklist);
+            }
+
+            Console.WriteLine("Unsupported URL");
+            return null;
         }
     }
 }
