@@ -10,10 +10,10 @@ public class ApplicationDbContext : DbContext
     {
     }
 
-    public DbSet<Card> Cards { get; set; }
-    public DbSet<Deck> Decks { get; set; }
-    public DbSet<DeckCard> DeckCards { get; set; }
-    public DbSet<OwnedCard> OwnedCards { get; set; }
+    public DbSet<Card> Cards { get; set; } = null!;
+    public DbSet<Deck> Decks { get; set; } = null!;
+    public DbSet<DeckCard> DeckCards { get; set; } = null!;
+    public DbSet<OwnedCard> OwnedCards { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -32,5 +32,9 @@ public class ApplicationDbContext : DbContext
             .HasOne(dc => dc.Card)
             .WithMany(c => c.DeckCards)
             .HasForeignKey(dc => dc.CardId);
+
+        modelBuilder.Entity<OwnedCard>()
+            .HasIndex(oc => oc.CardId)
+            .IsUnique();
     }
 }

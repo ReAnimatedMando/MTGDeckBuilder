@@ -1,0 +1,85 @@
+﻿@model IEnumerable<MTGDeckBuilder.Models.OwnedCard>
+
+@{
+    ViewData["Title"] = "Owned Cards";
+    var search = ViewBag.Search as string ?? "";
+}
+
+<h1>Owned Cards</h1>
+
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="row g-2">
+        <div class="col-md-6">
+            <input name="q" value="@search" class="form-control" placeholder="Search owned cards..." />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Search</button>
+            <a asp-action="Index" class="btn btn-secondary">Clear</a>
+        </div>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        You don't have any owned cards yet.
+    </div>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th style="width: 100px;">Image</th>
+                <th>Card</th>
+                <th>Type</th>
+                <th style="width: 140px;">Quantity</th>
+                <th style="width: 220px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var owned in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrWhiteSpace(owned.Card?.ImageUrl))
+                    {
+                        <img src="@owned.Card.ImageUrl"
+                             alt="@owned.Card?.Name"
+                             style="width: 80px; height: auto; border-radius: 6px;" />
+                    }
+                </td>
+                <td>
+                    <strong>@owned.Card?.Name</strong>
+                </td>
+                <td>
+                    @owned.Card?.TypeLine
+                </td>
+                <td>
+                    <form asp-action="UpdateQuantity" method="post" class="d-flex gap-2">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@owned.Id" />
+                        <input type="number"
+                               name="quantity"
+                               value="@owned.Quantity"
+                               min="0"
+                               class="form-control" />
+                        <button type="submit" class="btn btn-success btn-sm">Save</button>
+                    </form>
+                </td>
+                <td>
+                    <form asp-action="Delete" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@owned.Id" />
+                        <button type="submit"
+                                class="btn btn-danger btn-sm"
+                                onclick="return confirm('Remove @owned.Card?.Name from owned cards?');">
+                            Remove
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
