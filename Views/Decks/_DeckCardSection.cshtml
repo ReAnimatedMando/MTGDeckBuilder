@@ -14,6 +14,7 @@
         <tr>
             <th style="width: 140px;">Qty</th>
             <th>Card</th>
+            <th style="width:150px;">Owned</th>
             <th>Type</th>
             <th style="width: 120px;"></th>
         </tr>
@@ -21,6 +22,8 @@
     <tbody>
         @foreach (var dc in Model)
         {
+            var owned = dc.Card?.OwnedCards?.Sum(o => o.Quantity) ?? 0;
+            var needed = dc.Quantity;
             <tr>
                 <td>
                     <form asp-action="SetQuantity" method="post" class="d-flex gap-2">
@@ -60,6 +63,14 @@
                     </div>
                 </td>
 
+                <td>
+                    @owned / @needed
+                    @if (owned >= needed)
+                    {
+                        <span class="text-success fw-bold">✓</span>
+                    }
+                </td>
+
                 <td>@dc.Card?.TypeLine</td>
 
                 <td>
@@ -69,6 +80,14 @@
                         <input type="hidden" name="cardId" value="@dc.CardId" />
                         <input  type="hidden" name="isSideboard" value="@isSideboard.ToString().ToLower()" />
                         <button class="btn btn-sm btn-outline-danger" type="submit">Remove</button>
+                    </form>
+
+                    <form asp-action="AddToOwned" method="post" class="mt-2 d-flex gap-2 align-items-center">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="deckId" value="@deckId" />
+                        <input type="hidden" name="cardId" value="@dc.CardId" />
+                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 80px;" />
+                        <button class="btn btn-sm btn-outline-warning" type="submit">+ Owned</button>
                     </form>
                 </td>
             </tr>

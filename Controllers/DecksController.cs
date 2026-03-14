@@ -57,6 +57,7 @@ namespace MTGDeckBuilder.Controllers
             var deck = await _context.Decks
                 .Include(d => d.DeckCards)
                     .ThenInclude(dc => dc.Card)
+                        .ThenInclude(c => c.OwnedCards)
                 .FirstOrDefaultAsync(d => d.Id == id);
 
             if (deck == null) return NotFound();
@@ -242,6 +243,8 @@ namespace MTGDeckBuilder.Controllers
             int missingTotalCopies = 0;
             int missingUniqueCards = 0;
 
+            var missingCards = new List<MissingCardInfo>();
+
             foreach (var dc in deck.DeckCards.Where(dc => !dc.IsSideboard))
             {
                 requiredCopies += dc.Quantity;
@@ -259,6 +262,15 @@ namespace MTGDeckBuilder.Controllers
                 if (missing > 0)
                 {
                     missingUniqueCards++;
+
+                    missingCards.Add(new MissingCardInfo
+                    {
+                        CardId = dc.CardId,
+                        CardName = dc.Card?.Name ?? "Unknown Card",
+                        RequiredQuantity = dc.Quantity,
+                        OwnedQuantity = ownedQty,
+                        MissingQuantity = missing
+                    });
                 }
             }
 
@@ -271,6 +283,9 @@ namespace MTGDeckBuilder.Controllers
             ViewBag.MissingTotalCopies = missingTotalCopies;
             ViewBag.MissingUniqueCards = missingUniqueCards;
             ViewBag.CompletionPercent = completionPercent;
+            ViewBag.MissingCards = missingCards
+                .OrderBy(mc => mc.CardName)
+                .ToList();
 
             return View(deck);
         }
@@ -328,6 +343,46 @@ namespace MTGDeckBuilder.Controllers
             return RedirectToAction(nameof(Details), new { id = deckId });
         }
 
+        // POST: /Decks/AddToOwned
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddToOwned(int deckId, int cardId, int quantity = 1)
+        {
+            if (quantity <= 0)
+            {
+                quantity = 1;
+            }
+
+            var deckExists = await _context.Decks.AnyAsync(d => d.Id == deckId);
+            if (!deckExists) return NotFound();
+
+            var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == cardId);
+            if (card == null) return NotFound();
+
+            var ownedCard = await _context.OwnedCards
+                .FirstOrDefaultAsync(oc => oc.CardId == cardId);
+
+            if (ownedCard == null)
+            {
+                ownedCard = new OwnedCard
+                {
+                    CardId = cardId,
+                    Quantity =quantity
+                };
+
+                _context.OwnedCards.Add(ownedCard);
+            }
+            else
+            {
+                ownedCard.Quantity += quantity;
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Added {quantity} owned copy/copies of {card.Name}.";
+            return RedirectToAction(nameof(Details), new { id = deckId });
+        }
+
         // POST: /Decks/SetQuantity
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -342,19 +397,32 @@ namespace MTGDeckBuilder.Controllers
             if (quantity <= 0)
             {
                 _context.DeckCards.Remove(deckCard);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Details), new { id = deckId });
             }
-            else
-            {
-                var isBasicLand = deckCard.Card != null && !string.IsNullOrEmpty(deckCard.Card.TypeLine) && deckCard.Card.TypeLine.Contains("Basic Land", StringComparison.OrdinalIgnoreCase);
 
-                if (!isBasicLand && quantity > 4)
+            var isBasicLand = deckCard.Card != null
+                && !string.IsNullOrEmpty(deckCard.Card.TypeLine)
+                && deckCard.Card.TypeLine.Contains("Basic Land", StringComparison.OrdinalIgnoreCase);
+
+            if (!isBasicLand)
+            {
+                var otherCopiesAcrossDeck = await _context.DeckCards
+                    .Where(dc => dc.DeckId == deckId
+                        && dc.CardId == cardId
+                        && dc.IsSideboard != isSideboard)
+                    .SumAsync(dc => (int?)dc.Quantity) ?? 0;
+
+                var newTotalCopiesAcrossDeck = otherCopiesAcrossDeck + quantity;
+
+                if (newTotalCopiesAcrossDeck > 4)
                 {
-                    TempData["Error"] = $"{deckCard.Card?.Name} cannot have more than 4 copies in a deck";
+                    TempData["Error"] = $"{deckCard.Card?.Name} cannot have more than 4 copies across main deck and sideboard combined.";
                     return RedirectToAction(nameof(Details), new { id = deckId });
                 }
-
-                deckCard.Quantity = quantity;
             }
+
+            deckCard.Quantity = quantity;
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Details), new { id = deckId });

@@ -2,6 +2,10 @@
 @using MTGDeckBuilder.Models
 
 @{
+    var missingCards = ViewBag.MissingCards as List<MissingCardInfo> ?? new List<MissingCardInfo>();
+}
+
+@{
     var mainDeckCards = Model.DeckCards?
         .Where(dc => !dc.IsSideboard)
         .ToList() ?? new List<DeckCard>();
@@ -132,23 +136,26 @@
     <strong>Sideboard:</strong> @sideboardTotal
 </p>
 
-<div class="card mb-3" style="max-width: 420px;">
-    <div class="card-header">
-        <strong>Deck Stats</strong>
+<div class="row g-4 mb-4">
+    <div class="col-12 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <strong>Deck Stats</strong>
+            </div>
+            <div class="card-body">
+                <p class="mb-1"><strong>Total Cards:</strong> @totalCards</p>
+                <p class="mb-1"><strong>Creatures:</strong> @creatures</p>
+                <p class="mb-1"><strong>Instants/Sorceries:</strong> @instantsSorceries</p>
+                <p class="mb-1"><strong>Artifacts:</strong> @artifacts</p>
+                <p class="mb-1"><strong>Enchantments:</strong> @enchantments</p>
+                <p class="mb-1"><strong>Planeswalkers:</strong> @planeswalkers</p>
+                <p class="mb-1"><strong>Lands:</strong> @lands</p>
+                <p class="mb-1"><strong>Spells:</strong> @spells</p>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-        <p class="mb-1"><strong>Total Cards:</strong> @totalCards</p>
-        <p class="mb-1"><strong>Creatures:</strong> @creatures</p>
-        <p class="mb-1"><strong>Instants/Sorceries:</strong> @instantsSorceries</p>
-        <p class="mb-1"><strong>Artifacts:</strong> @artifacts</p>
-        <p class="mb-1"><strong>Enchantments:</strong> @enchantments</p>
-        <p class="mb-1"><strong>Planeswalkers:</strong> @planeswalkers</p>
-        <p class="mb-1"><strong>Lands:</strong> @lands</p>
-        <p class="mb-1"><strong>Spells:</strong> @spells</p>
-    </div>
-</div>
 
-<div class="col-12 col-lg-6">
+    <div class="col-12 col-lg-6">
         <div class="card h-100">
             <div class="card-header">
                 <strong>Deck Completion</strong>
@@ -157,21 +164,75 @@
                 <p class="mb-1"><strong>Owned Copies:</strong> @ViewBag.OwnedCopies / @ViewBag.RequiredCopies</p>
                 <p class="mb-2"><strong>Completion:</strong> @ViewBag.CompletionPercent%</p>
 
-                <div class="progress" style="height: 24px;">
+                <div class="progress mb-3" style="height: 24px;">
                     <div class="progress-bar bg-success"
-                        role="progressbar"
-                        style="width:@ViewBag.CompletionPercent%"
-                        aria-valuenow="@ViewBag.CompletionPercent"
-                        aria-valuemin="0"
-                        aria-valuemax="100">
+                         role="progressbar"
+                         style="width:@ViewBag.CompletionPercent%"
+                         aria-valuenow="@ViewBag.CompletionPercent"
+                         aria-valuemin="0"
+                         aria-valuemax="100">
                         @ViewBag.CompletionPercent%
                     </div>
                 </div>
+
                 <p class="mb-1"><strong>Missing Unique Cards:</strong> @ViewBag.MissingUniqueCards</p>
                 <p class="mb-1"><strong>Missing Total Copies:</strong> @ViewBag.MissingTotalCopies</p>
             </div>
         </div>
     </div>
+</div>
+
+<hr class="my-5" />
+
+<div class="mb-4">
+    <button class="btn btn-outline-danger d-flex align-items-center gap-2" type="button" data-bs-toggle="collapse" data-bs-target="#missingCardsCollapse" aria-expanded="true" aria-controls="missingCardsCollapse">
+        <span id="missingCardsChevron">▼</span>
+        Missing Cards (@ViewBag.MissingTotalCopies copies across @ViewBag.MissingUniqueCards cards)
+    </button>
+</div>
+
+<div class="collapse" id="missingCardsCollapse">
+    @if (missingCards.Any())
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Missing Cards</strong>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    @foreach (var missing in missingCards.OrderByDescending(m => m.MissingQuantity).ThenBy(m => m.CardName))
+                    {
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>
+                                        <a asp-controller="Cards"
+                                           asp-action="Details"
+                                           asp-route-id="@missing.CardId"
+                                           class="text-decoration-none">
+                                            @missing.CardName
+                                        </a>
+                                    </strong>
+                                </div>
+                                <div class="text-danger fw-bold">
+                                    Missing @missing.MissingQuantity
+                                </div>
+                            </div>
+                            <div class="small text-muted">
+                                Owned: @missing.OwnedQuantity / Required: @missing.RequiredQuantity
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success mb-4">
+            <strong>Complete!</strong> You own every card in the main deck.
+        </div>
+    }
 </div>
 
 <hr class="my-5" />
@@ -422,7 +483,7 @@ else
             <input type="hidden" name="deckId" value="@Model.Id" />
             <div class="mb-3">
                 <label for="decklistText" class="form-label">Paste decklist</label>
-                <textarea id="decklistText" name="decklistText" class="form-control" rows="10" placeholder="4 Lightning Bolt&#10;4 Monastery Swiftspear&#10;4 Lava Spike&#10;&#10;Sideboard&#10;2 Smash to Smithereens&#10;2 Roiling Vortex"></textarea>"
+                <textarea id="decklistText" name="decklistText" class="form-control" rows="10" placeholder="4 Lightning Bolt&#10;4 Monastery Swiftspear&#10;4 Lava Spike&#10;&#10;Sideboard&#10;2 Smash to Smithereens&#10;2 Roiling Vortex"></textarea>
             </div>
 
             <button type="submit" class="btn btn-primary">
@@ -497,6 +558,13 @@ else
 
                                         <button class="btn btn-sm btn-outline-secondary" type="submit" name="isSideboard" value="true">+ Sideboard</button>
                                     </form>
+                                    <form asp-action="AddToOwned" method="post" class="mt-2 d-flex gap-2 align-items-center">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="deckId" value="@Model.Id"/>
+                                        <input type="hidden" name="cardId" value="@c.Id" />
+                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 72px;" />
+                                        <button class="btn btn-sm btn-outline-warning" type="submit">+ Owned</button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -546,5 +614,24 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
     });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const collapse = document.getElementById("missingCardsCollapse");
+    const chevron = document.getElementById("missingCardsChevron");
+
+    if (!collapse || !chevron) return;
+
+    collapse.addEventListener("show.bs.collapse", function () {
+        chevron.textContent = "▼";
+    });
+
+    collapse.addEventListener("hide.bs.collapse", function () {
+        chevron.textContent = "▶";
+    });
+
 });
 </script>
