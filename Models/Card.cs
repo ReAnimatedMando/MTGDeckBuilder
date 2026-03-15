@@ -12,13 +12,14 @@ public class Card
 
     public string? ManaCost { get; set; }
 
+    public int? ManaValue { get; set; }
+
     public string? TypeLine { get; set; }
 
     public string? ColorIdentity { get; set; }
 
     public string? ImageUrl { get; set; }
-
-    public int? ManaValue { get; set; }
+    public decimal? PriceUsd { get; set; }
 
     // Navigation
     public ICollection<DeckCard> DeckCards { get; set; } = new List<DeckCard>();

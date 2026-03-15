@@ -158,7 +158,8 @@ namespace MTGDeckBuilder.Controllers
                                 ColorIdentity = scryfallCard.ColorIdentity != null
                                     ? string.Join(",", scryfallCard.ColorIdentity)
                                     : "",
-                                ImageUrl = scryfallCard.ImageUris?.Normal
+                                ImageUrl = scryfallCard.ImageUris?.Normal,
+                                PriceUsd = decimal.TryParse(scryfallCard.Prices?.Usd, out var price) ? price : 0
                             };
 
                             _context.Cards.Add(newCard);

@@ -23,10 +23,18 @@ public class ScryfallCardDto
     [JsonPropertyName("image_uris")]
     public ScryfallImageUrisDto? ImageUris { get; set; }
 
+    [JsonPropertyName("prices")]
+    public ScryfallPricesDto? Prices { get; set; }
 }
 
 public class ScryfallImageUrisDto
 {
     [JsonPropertyName("normal")]
     public string? Normal { get; set; }
+}
+
+public class ScryfallPricesDto
+{
+    [JsonPropertyName("usd")]
+    public string? Usd { get; set; }
 }
