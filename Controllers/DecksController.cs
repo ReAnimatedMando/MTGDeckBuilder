@@ -62,6 +62,16 @@ namespace MTGDeckBuilder.Controllers
 
             if (deck == null) return NotFound();
 
+            var mainDeckCost = deck.DeckCards?
+                .Where(dc => !dc.IsSideboard)
+                .Sum(dc => dc.Quantity * (dc.Card?.PriceUsd ?? 0)) ?? 0;
+
+            var sideboardCost = deck.DeckCards?
+                .Where(dc => dc.IsSideboard)
+                .Sum(dc => dc.Quantity * (dc.Card?.PriceUsd ?? 0)) ?? 0;
+
+            var totalDeckCost = mainDeckCost + sideboardCost;
+
             var curve = new ManaCurve();
             
             foreach (var dc in deck.DeckCards)
@@ -198,6 +208,14 @@ namespace MTGDeckBuilder.Controllers
                                 updated = true;
                             }
 
+                            var parsedPrice = decimal.TryParse(scryfallCard.Prices?.Usd, out var latestPrice) ? latestPrice : 0;
+
+                            if (parsedPrice > 0 && existingCard.PriceUsd != latestPrice)
+                            {
+                                existingCard.PriceUsd = latestPrice;
+                                updated = true;
+                            }
+
                             if (updated)
                             {
                                 Console.WriteLine($"Updated existing card: {existingCard.Name}");
@@ -244,6 +262,9 @@ namespace MTGDeckBuilder.Controllers
             int missingTotalCopies = 0;
             int missingUniqueCards = 0;
 
+            decimal ownedValue = 0;
+            decimal missingValue = 0;
+
             var missingCards = new List<MissingCardInfo>();
 
             foreach (var dc in deck.DeckCards.Where(dc => !dc.IsSideboard))
@@ -259,6 +280,11 @@ namespace MTGDeckBuilder.Controllers
 
                 var missing = Math.Max(0, dc.Quantity - ownedQty);
                 missingTotalCopies += missing;
+
+                var cardPrice = dc.Card?.PriceUsd ?? 0;
+
+                ownedValue += usedOwned * cardPrice;
+                missingValue += missing * cardPrice;
 
                 if (missing > 0)
                 {
@@ -287,6 +313,11 @@ namespace MTGDeckBuilder.Controllers
             ViewBag.MissingCards = missingCards
                 .OrderBy(mc => mc.CardName)
                 .ToList();
+            ViewBag.MainDeckCost = mainDeckCost;
+            ViewBag.SideboardCost = sideboardCost;
+            ViewBag.TotalDeckCost = totalDeckCost;
+            ViewBag.OwnedValue = ownedValue;
+            ViewBag.MissingValue = missingValue;
 
             return View(deck);
         }

@@ -15,8 +15,8 @@ namespace MTGDeckBuilder.Migrations
                 table: "Cards",
                 type: "decimal(65, 30)",
                 nullable: false,
-                defaultValue: 0m);
-            )
+                defaultValue: 0m
+            );
         }
 
         /// <inheritdoc />

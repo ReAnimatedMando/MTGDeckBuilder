@@ -42,6 +42,51 @@ namespace MTGDeckBuilder.Controllers
             return View(cards);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RefreshPrices()
+        {
+            var cards = await _context.Cards.ToListAsync();
+
+            int updatedCount = 0;
+
+            foreach (var card in cards)
+            {
+                if (string.IsNullOrWhiteSpace(card.Name))
+                    continue;
+
+                try
+                {
+                    var scryfallCard = await _scryfall.SearchCardAsync(card.Name);
+
+                    if (scryfallCard == null)
+                        continue;
+
+                    var parsedPrice = decimal.TryParse(scryfallCard.Prices?.Usd, out var latestPrice) ? latestPrice : 0;
+
+                    if (parsedPrice > 0 && card.PriceUsd != latestPrice)
+                    {
+                        card.PriceUsd = latestPrice;
+                        updatedCount++;
+                    }
+
+                    if (string.IsNullOrWhiteSpace(card.ImageUrl) && !string.IsNullOrWhiteSpace(scryfallCard.ImageUris?.Normal))
+                    {
+                        card.ImageUrl = scryfallCard.ImageUris.Normal;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Failed to refresh price for {card.Name}: {ex.Message}");
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Checked {cards.Count} cards and refreshed prices for {updatedCount} cards.";
+            return RedirectToAction(nameof(Index));
+        }
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

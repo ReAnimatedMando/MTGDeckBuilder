@@ -177,6 +177,14 @@
 
                 <p class="mb-1"><strong>Missing Unique Cards:</strong> @ViewBag.MissingUniqueCards</p>
                 <p class="mb-1"><strong>Missing Total Copies:</strong> @ViewBag.MissingTotalCopies</p>
+
+                <hr />
+
+                <p class="mb-1"><strong>Main Deck Cost:</strong> @(((decimal)ViewBag.MainDeckCost).ToString("0.00"))</p>
+                <p class="mb-1"><strong>Sideboard Cost:</strong> @(((decimal)ViewBag.SideboardCost).ToString("0.00"))</p>
+                <p class="mb-1"><strong>Total Deck Cost:</strong> @(((decimal)ViewBag.TotalDeckCost).ToString("0.00"))</p>
+                <p class="mb-1"><strong>Owned Value:</strong> @(((decimal)ViewBag.OwnedValue).ToString("0.00"))</p>
+                <p class="mb-0"><strong>Missing Value:</strong> @(((decimal)ViewBag.MissingValue).ToString("0.00"))</p>
             </div>
         </div>
     </div>
