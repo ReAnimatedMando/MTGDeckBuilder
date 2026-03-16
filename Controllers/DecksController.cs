@@ -7,6 +7,7 @@ using MTGDeckBuilder.Models;
 using MTGDeckBuilder.Services;
 using System.IO;
 using System.Text;
+using MTGDeckBuilder.Models.ViewModels;
 
 namespace MTGDeckBuilder.Controllers
 {
@@ -22,13 +23,106 @@ namespace MTGDeckBuilder.Controllers
         }
 
         // GET: /Decks 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? sort, string? status)
         {
             var decks = await _context.Decks
+                .Include(d => d.DeckCards)
+                    .ThenInclude(dc => dc.Card)
                 .OrderByDescending(d => d.Id)
                 .ToListAsync();
 
-            return View(decks);
+            var ownedCards = await _context.OwnedCards
+                .ToListAsync();
+
+            var ownedLookup = ownedCards
+                .GroupBy(oc => oc.CardId)
+                .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
+
+            var deckSummaries = new List<DeckBuildabilityViewModel>();
+
+            foreach (var deck in decks)
+            {
+                var mainDeckCards = deck.DeckCards?
+                    .Where(dc => !dc.IsSideboard)
+                    .ToList() ?? new List<DeckCard>();
+
+                int totalRequired = 0;
+                int totalOwned = 0;
+                int missingCopies = 0;
+                decimal totalDeckValue = 0m;
+                decimal missingValue = 0m;
+
+                foreach (var dc in mainDeckCards)
+                {
+                    int required = dc.Quantity;
+                    int owned = ownedLookup.TryGetValue(dc.CardId, out var qty) ? qty : 0;
+                    int usedOwned = Math.Min(required, owned);
+                    int missing = Math.Max(0, required - owned);
+
+                    decimal cardPrice = dc.Card?.PriceUsd ?? 0m;
+
+                    totalRequired += required;
+                    totalOwned += usedOwned;
+                    missingCopies += missing;
+
+                    totalDeckValue += required * cardPrice;
+                    missingValue += missing * cardPrice;
+                }
+
+                deckSummaries.Add(new DeckBuildabilityViewModel
+                {
+                    DeckId = deck.Id,
+                    DeckName = deck.Name,
+                    Theme = deck.Theme,
+                    ColorIdentity = deck.ColorIdentity,
+                    TotalRequired = totalRequired,
+                    TotalOwned = totalOwned,
+                    MissingCopies = missingCopies,
+                    TotalDeckValue = totalDeckValue,
+                    MissingValue = missingValue
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                deckSummaries = status switch
+                {
+                    "Buildable" => deckSummaries.Where(d => d.Status == "Buildable").ToList(),
+                    "NearlyComplete" => deckSummaries.Where(d => d.Status == "Nearly Complete").ToList(),
+                    "NeedsWork" => deckSummaries.Where(d => d.Status == "Needs Work").ToList(),
+                    _ => deckSummaries
+                };
+            }
+
+            deckSummaries = sort switch
+            {
+                "missing" => deckSummaries
+                    .OrderBy(d => d.MissingValue)
+                    .ThenByDescending(d => d.CompletionPercent)
+                    .ThenBy(d => d.DeckName)
+                    .ToList(),
+
+                "value" => deckSummaries
+                    .OrderByDescending(d => d.TotalDeckValue)
+                    .ThenByDescending(d => d.CompletionPercent)
+                    .ThenBy(d => d.DeckName)
+                    .ToList(),
+
+                "name" => deckSummaries
+                    .OrderBy(d => d.DeckName)
+                    .ToList(),
+
+                _ => deckSummaries
+                    .OrderByDescending(d => d.CompletionPercent)
+                    .ThenBy(d => d.MissingValue)
+                    .ThenBy(d => d.DeckName)
+                    .ToList()
+            };
+
+            ViewBag.CurrentSort = sort;
+            ViewBag.CurrentStatus = status;
+
+            return View(deckSummaries);
         }
 
         // GET: /Decks/Create

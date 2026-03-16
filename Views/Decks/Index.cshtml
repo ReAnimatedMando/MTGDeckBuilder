@@ -1,4 +1,13 @@
-﻿@model IEnumerable<MTGDeckBuilder.Models.Deck>
+﻿@model IEnumerable<MTGDeckBuilder.Models.ViewModels.DeckBuildabilityViewModel>
+
+@{
+    var currentSort = ViewBag.CurrentSort as string;
+    var currentStatus = ViewBag.CurrentStatus as string;
+
+    var totalDecks = Model.Count();
+    var buildableDecks = Model.Count(d => d.Status == "Buildable");
+    var avgCompletion = totalDecks == 0 ? 0 : (int)Math.Round(Model.Average(d => d.CompletionPercent));
+}
 
 <h1>Decks</h1>
 
@@ -6,12 +15,79 @@
     <a class="btn btn-primary" asp-action="Create">Create New Deck</a>
 </p>
 
-<table class="table">
+<div class="row mb-3">
+    <div class="col-md-4 mb-2">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Total Decks</div>
+                <div class="fs-4 fw-bold">@totalDecks</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-2">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Buildable Decks</div>
+                <div class="fs-4 fw-bold">@buildableDecks</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-2">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Average Completion</div>
+                <div class="fs-4 fw-bold">@avgCompletion%</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-auto">
+        <select name="sort" class="form-select">
+            <option value="" selected="@(string.IsNullOrWhiteSpace(currentSort))">Most Complete</option>
+            <option value="missing" selected="@(currentSort == "missing")">Cheapest to Finish</option>
+            <option value="value" selected="@(currentSort == "value")">Highest Deck Value</option>
+            <option value="name" selected="@(currentSort == "name")">Name</option>
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <select name="status" class="form-select">
+            <option value="" selected="@(string.IsNullOrWhiteSpace(currentStatus))">All Statuses</option>
+            <option value="Buildable" selected="@(currentStatus == "Buildable")">Buildable</option>
+            <option value="NearlyComplete" selected="@(currentStatus == "NearlyComplete")">Nearly Complete</option>
+            <option value="NeedsWork" selected="@(currentStatus == "NeedsWork")">Needs Work</option>
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">Apply</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No decks match the current filters.
+    </div>
+}
+else
+{
+
+<table class="table table-striped align-middle">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Theme</th>
-            <th>Color Identity</th>
+            <th>Deck</th>
+            <th>Owned</th>
+            <th>Completion</th>
+            <th>Missing</th>
+            <th>Missing Value</th>
+            <th>Total Deck Cost</th>
+            <th>Status</th>
             <th></th>
         </tr>
     </thead>
@@ -19,13 +95,59 @@
     @foreach (var deck in Model)
     {
         <tr>
-            <td>@deck.Name</td>
-            <td>@deck.Theme</td>
-            <td>@deck.ColorIdentity</td>
             <td>
-                <a asp-action="Details" asp-route-id="@deck.Id">Open</a>
+                <div class="fw-bold">@deck.DeckName</div>
+
+                @if (!string.IsNullOrWhiteSpace(deck.Theme))
+                {
+                    <div class="text-muted small">@deck.Theme</div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(deck.ColorIdentity))
+                {
+                    <div class="small">Colors: @deck.ColorIdentity</div>
+                }
+            </td>
+
+            <td>@deck.TotalOwned / @deck.TotalRequired</td>
+
+            <td style="min-width: 180px;">
+                <div class="fw-semibold mb-1">@deck.CompletionPercent%</div>
+                <div class="progress" style="height: 10px;">
+                    <div class="progress-bar"
+                         role="progressbar"
+                         style="width: @deck.CompletionPercent%;"
+                         aria-valuenow="@deck.CompletionPercent"
+                         aria-valuemin="0"
+                         aria-valuemax="100">
+                    </div>
+                </div>
+            </td>
+
+            <td>@deck.MissingCopies</td>
+            <td>@deck.MissingValue.ToString("C")</td>
+            <td>@deck.TotalDeckValue.ToString("C")</td>
+
+            <td>
+                @if (deck.Status == "Buildable")
+                {
+                    <span class="badge bg-success">Buildable</span>
+                }
+                else if (deck.Status == "Nearly Complete")
+                {
+                    <span class="badge bg-warning text-dark">Nearly Complete</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Needs Work</span>
+                }
+            </td>
+
+            <td>
+                <a asp-action="Details" asp-route-id="@deck.DeckId" class="btn btn-sm btn-outline-primary">Open</a>
             </td>
         </tr>
     }
     </tbody>
 </table>
+}
