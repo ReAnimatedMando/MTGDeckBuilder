@@ -1,0 +1,157 @@
+﻿@model MTGDeckBuilder.Models.ViewModels.CollectionStatsViewModel
+
+@{
+    ViewData["Title"] = "Collection Stats";
+}
+
+<h1>Collection Stats</h1>
+
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Total Cards Owned</div>
+                <div class="fs-4 fw-bold">@Model.TotalCardsOwned</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Unique Cards</div>
+                <div class="fs-4 fw-bold">@Model.UniqueCardsOwned</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Total Collection Value</div>
+                <div class="fs-4 fw-bold">@Model.TotalCollectionValue.ToString("C")</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="text-muted small">Average Card Value</div>
+                <div class="fs-4 fw-bold">@Model.AverageCardValue.ToString("C")</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header fw-semibold">Top Owned Cards</div>
+            <div class="card-body p-0">
+                @if (Model.TopOwnedCards.Any())
+                {
+                    <table class="table mb-0 align-middle">
+                        <thead>
+                            <tr>
+                                <th>Card</th>
+                                <th>Qty</th>
+                                <th>Total Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var card in Model.TopOwnedCards)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if (!string.IsNullOrWhiteSpace(card.ImageUrl))
+                                        {
+                                            <img src="@card.ImageUrl"
+                                                 alt="@card.CardName"
+                                                 style="width:40px; height:auto; border-radius:4px;" />
+                                        }
+                                        <span>@card.CardName</span>
+                                    </div>
+                                </td>
+                                <td>@card.Quantity</td>
+                                <td>@card.TotalValue.ToString("C")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="p-3 text-muted">No owned cards yet.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-header fw-semibold">Color Distribution</div>
+            <div class="card-body">
+                @if (Model.ColorDistribution.Any())
+                {
+                    @foreach (var item in Model.ColorDistribution)
+                    {
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>@item.Label</span>
+                                <span class="fw-semibold">@item.Count</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar"
+                                     role="progressbar"
+                                     style="width: @(Model.TotalCardsOwned == 0 ? 0 : (item.Count * 100 / Model.TotalCardsOwned))%;"
+                                     aria-valuenow="@item.Count"
+                                     aria-valuemin="0"
+                                     aria-valuemax="@Model.TotalCardsOwned">
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted">No color data yet.</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-3 mb-4">
+        <div class="card h-100">
+            <div class="card-header fw-semibold">Type Distribution</div>
+            <div class="card-body">
+                @if (Model.TypeDistribution.Any())
+                {
+                    @foreach (var item in Model.TypeDistribution)
+                    {
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>@item.Label</span>
+                                <span class="fw-semibold">@item.Count</span>
+                            </div>
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar"
+                                     role="progressbar"
+                                     style="width: @(Model.TotalCardsOwned == 0 ? 0 : (item.Count * 100 / Model.TotalCardsOwned))%;"
+                                     aria-valuenow="@item.Count"
+                                     aria-valuemin="0"
+                                     aria-valuemax="@Model.TotalCardsOwned">
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="text-muted">No type data yet.</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

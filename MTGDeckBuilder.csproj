@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Models\ViewModels\" />
+    <Folder Include="Views\Collection\" />
     <Folder Include="Views\OwnedCards\" />
   </ItemGroup>
 
