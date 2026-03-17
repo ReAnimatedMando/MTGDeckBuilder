@@ -370,6 +370,88 @@
 
 <hr class="my-5" />
 
+<h2>Add Cards</h2>
+
+<form asp-action="Details" asp-controller="Decks" method="get" class="d-flex gap-2 mb-3">
+    <input type="hidden" name="id" value="@Model.Id" />
+    <input type="text" name="q" value="@q" class="form-control" placeholder="Search card name (e.g. Lightning Bolt)" />
+    <button type="submit" class="btn btn-primary">Search</button>
+</form>
+
+@if (results != null)
+{
+    if (!results.Any())
+    {
+        <p>No results.</p>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+            @foreach (var c in results)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex gap-3">
+                                <div style="width: 72px; flex-shrink: 0;">
+                                    @if (!string.IsNullOrWhiteSpace(c.ImageUrl))
+                                    {
+                                        <img src="@c.ImageUrl"
+                                             alt="@c.Name"
+                                             class="img-fluid rounded card-preview-trigger"
+                                             data-image-url="@c.ImageUrl"
+                                             data-card-name="@c.Name"
+                                             style="width: 72px; cursor: pointer;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="border rounded d-flex align-items-center justify-content-center text-muted small"
+                                             style="width:72px; height:100px;">
+                                            No Image
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">
+                                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@c.Id" class="text-decoration-none card-preview-trigger" data-image-url="@c.ImageUrl" data-card-name="@c.Name">@c.Name</a>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(c.ManaCost))
+                                    {
+                                        <div class="text-muted small mb-1">@c.ManaCost</div>
+                                    }
+
+                                    <div class="small mb-3">@c.TypeLine</div>
+
+                                    <form asp-action="AddCard" method="post" class="d-flex gap-2 align-items-center flex-wrap">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="deckId" value="@Model.Id" />
+                                        <input type="hidden" name="cardId" value="@c.Id" />
+                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 72px;" />
+                                        <button class="btn btn-sm btn-success" type="submit" name="isSideboard" value="false">+ Main</button>
+
+                                        <button class="btn btn-sm btn-outline-secondary" type="submit" name="isSideboard" value="true">+ Sideboard</button>
+                                    </form>
+                                    <form asp-action="AddToOwned" method="post" class="mt-2 d-flex gap-2 align-items-center">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="deckId" value="@Model.Id"/>
+                                        <input type="hidden" name="cardId" value="@c.Id" />
+                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 72px;" />
+                                        <button class="btn btn-sm btn-outline-warning" type="submit">+ Owned</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+
+<hr class="my-5" />
+
 <h2>Card List</h2>
 
 @if (Model.DeckCards == null || !Model.DeckCards.Any())
@@ -502,86 +584,6 @@ else
 </div>
    
 <hr class="my-5" />
-
-<h2>Add Cards</h2>
-
-<form asp-action="Details" asp-controller="Decks" method="get" class="d-flex gap-2 mb-3">
-    <input type="hidden" name="id" value="@Model.Id" />
-    <input type="text" name="q" value="@q" class="form-control" placeholder="Search card name (e.g. Lightning Bolt)" />
-    <button type="submit" class="btn btn-primary">Search</button>
-</form>
-
-@if (results != null)
-{
-    if (!results.Any())
-    {
-        <p>No results.</p>
-    }
-    else
-    {
-        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
-            @foreach (var c in results)
-            {
-                <div class="col">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-body">
-                            <div class="d-flex gap-3">
-                                <div style="width: 72px; flex-shrink: 0;">
-                                    @if (!string.IsNullOrWhiteSpace(c.ImageUrl))
-                                    {
-                                        <img src="@c.ImageUrl"
-                                             alt="@c.Name"
-                                             class="img-fluid rounded card-preview-trigger"
-                                             data-image-url="@c.ImageUrl"
-                                             data-card-name="@c.Name"
-                                             style="width: 72px; cursor: pointer;" />
-                                    }
-                                    else
-                                    {
-                                        <div class="border rounded d-flex align-items-center justify-content-center text-muted small"
-                                             style="width:72px; height:100px;">
-                                            No Image
-                                        </div>
-                                    }
-                                </div>
-
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold">
-                                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@c.Id" class="text-decoration-none card-preview-trigger" data-image-url="@c.ImageUrl" data-card-name="@c.Name">@c.Name</a>
-                                    </div>
-
-                                    @if (!string.IsNullOrWhiteSpace(c.ManaCost))
-                                    {
-                                        <div class="text-muted small mb-1">@c.ManaCost</div>
-                                    }
-
-                                    <div class="small mb-3">@c.TypeLine</div>
-
-                                    <form asp-action="AddCard" method="post" class="d-flex gap-2 align-items-center flex-wrap">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="deckId" value="@Model.Id" />
-                                        <input type="hidden" name="cardId" value="@c.Id" />
-                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 72px;" />
-                                        <button class="btn btn-sm btn-success" type="submit" name="isSideboard" value="false">+ Main</button>
-
-                                        <button class="btn btn-sm btn-outline-secondary" type="submit" name="isSideboard" value="true">+ Sideboard</button>
-                                    </form>
-                                    <form asp-action="AddToOwned" method="post" class="mt-2 d-flex gap-2 align-items-center">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="deckId" value="@Model.Id"/>
-                                        <input type="hidden" name="cardId" value="@c.Id" />
-                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 72px;" />
-                                        <button class="btn btn-sm btn-outline-warning" type="submit">+ Owned</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    }
-}
 
 <p>
     <a asp-action="Index">Back to Decks</a>
