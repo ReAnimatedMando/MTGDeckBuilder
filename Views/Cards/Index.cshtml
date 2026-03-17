@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<Card>
+@using MTGDeckBuilder.Models
 
 @{
     var q = Context.Request.Query["q"].ToString();
@@ -8,87 +9,124 @@
 
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
         @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
-<h1>@(hasQuery ? "Search Results" : "Cards")</h1>
-
-<form method="get" class="mb-3">
-    <div class="input-group">
-        <input name="q" value="@q" class="form-control" placeholder="Search card name, type, mana cost, or color identity..." />
-        <button class="btn btn-primary" type="submit">Search</button>
-
-        @if (hasQuery)
-        {
-            <a class="btn btn-outline-secondary" asp-action="Index">Clear</a>
-        }
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-2">
+    <div>
+        <h1 class="mb-1">@(hasQuery ? "Search Results" : "Cards")</h1>
+        <div class="text-muted">
+            Search by card name, type, mana cost, or color identity.
+        </div>
     </div>
-</form>
 
-<form asp-action="RefreshPrices" method="post" class="mb-3">
-    @Html.AntiForgeryToken()
-    <button type="submit" class="btn btn-warning">
-        Refresh All Card Prices
-    </button>
-</form>
+    <form asp-action="RefreshPrices" method="post" class="mb-0">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-outline-danger">
+            Refresh All Card Prices
+        </button>
+    </form>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get">
+            <div class="input-group">
+                <input name="q"
+                       value="@q"
+                       class="form-control"
+                       placeholder="Search card name, type, mana cost, or color identity..." />
+                <button class="btn btn-primary" type="submit">Search</button>
+
+                @if (hasQuery)
+                {
+                    <a class="btn btn-outline-secondary" asp-action="Index">Clear</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
 
 @if (!hasQuery)
 {
-    <div class="alert alert-info">
-        Search for a card by name, type, mana cost, or color identity.
+    <div class="card shadow-sm">
+        <div class="card-body text-muted">
+            Start by searching for a card by name, type, mana cost, or color identity.
+        </div>
     </div>
 }
 else if (!hasResults)
 {
-    <div class="alert alert-warning">
-        No cards found for "<strong>@q</strong>"
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="fw-semibold mb-1">No cards found</div>
+            <div class="text-muted">
+                No results matched "<strong>@q</strong>".
+            </div>
+        </div>
     </div>
 }
 else
 {
-    <table class="table table-striped align-middle">
-        <thead>
-            <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Mana Cost</th>
-                <th>Type</th>
-                <th>Color Identity</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var card in Model)
-        {
-            <tr>
-                <td style="width: 100px;">
-                    @if (!string.IsNullOrWhiteSpace(card.ImageUrl))
+    <div class="card shadow-sm">
+        <div class="card-header bg-white fw-semibold">
+            Found @Model.Count() card@(Model.Count() == 1 ? "" : "s")
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Image</th>
+                            <th>Name</th>
+                            <th>Mana Cost</th>
+                            <th>Type</th>
+                            <th>Color Identity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var card in Model)
                     {
-                        <img src="@card.ImageUrl"
-                             alt="@card.Name"
-                             width="80"
-                             class="img-fluid rounded shadow-sm card-preview-trigger" 
-                             data-image-url="@card.ImageUrl" 
-                             data-card-name="@card.Name" />
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(card.ImageUrl))
+                                {
+                                    <img src="@card.ImageUrl"
+                                         alt="@card.Name"
+                                         width="80"
+                                         class="img-fluid rounded shadow-sm card-preview-trigger"
+                                         data-image-url="@card.ImageUrl"
+                                         data-card-name="@card.Name" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">No Image</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Details"
+                                   asp-route-id="@card.Id"
+                                   class="fw-semibold text-decoration-none card-preview-trigger"
+                                   data-image-url="@card.ImageUrl"
+                                   data-card-name="@card.Name">
+                                    @card.Name
+                                </a>
+                            </td>
+                            <td>@(string.IsNullOrWhiteSpace(card.ManaCost) ? "-" : card.ManaCost)</td>
+                            <td>@(string.IsNullOrWhiteSpace(card.TypeLine) ? "-" : card.TypeLine)</td>
+                            <td>@(string.IsNullOrWhiteSpace(card.ColorIdentity) ? "-" : card.ColorIdentity)</td>
+                        </tr>
                     }
-                    else
-                    {
-                        <span class="text-muted">No Image</span>
-                    }
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@card.Id" class="card-preview-trigger" data-image-url="@card.ImageUrl" data-card-name="@card.Name">@card.Name</a>
-                </td>
-                <td>@card.ManaCost</td>
-                <td>@card.TypeLine</td>
-                <td>@card.ColorIdentity</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 }
 
 <div id="cardPreviewPopup" class="card-preview-popup d-none">
     <img id="cardPreviewImage" src="" alt="Card Preview" />
-</div>"
+</div>

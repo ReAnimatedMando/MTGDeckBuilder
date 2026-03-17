@@ -3,83 +3,131 @@
 @{
     ViewData["Title"] = "Owned Cards";
     var search = ViewBag.Search as string ?? "";
+    var hasSearch = !string.IsNullOrWhiteSpace(search);
+    var hasResults = Model.Any();
 }
 
-<h1>Owned Cards</h1>
-
-<form asp-action="Index" method="get" class="mb-3">
-    <div class="row g-2">
-        <div class="col-md-6">
-            <input name="q" value="@search" class="form-control" placeholder="Search owned cards..." />
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">Search</button>
-            <a asp-action="Index" class="btn btn-secondary">Clear</a>
-        </div>
+<div class="mb-4">
+    <h1 class="mb-1">Owned Cards</h1>
+    <div class="text-muted">
+        View and manage the cards currently in your collection.
     </div>
-</form>
+</div>
 
-@if (!Model.Any())
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form asp-action="Index" method="get">
+            <div class="row g-2 align-items-center">
+                <div class="col-md">
+                    <input name="q"
+                           value="@search"
+                           class="form-control"
+                           placeholder="Search owned cards..." />
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+                @if (hasSearch)
+                {
+                    <div class="col-auto">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                    </div>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!hasResults)
 {
-    <div class="alert alert-info">
-        You don't have any owned cards yet.
+    <div class="card shadow-sm">
+        <div class="card-body">
+            @if (hasSearch)
+            {
+                <div class="fw-semibold mb-1">No owned cards found</div>
+                <div class="text-muted">
+                    No owned cards matched "<strong>@search</strong>".
+                </div>
+            }
+            else
+            {
+                <div class="fw-semibold mb-1">No owned cards yet</div>
+                <div class="text-muted">
+                    Start adding cards to your collection to track quantities and deck buildability.
+                </div>
+            }
+        </div>
     </div>
 }
 else
 {
-    <table class="table table-striped align-middle">
-        <thead>
-            <tr>
-                <th style="width: 100px;">Image</th>
-                <th>Card</th>
-                <th>Type</th>
-                <th style="width: 140px;">Quantity</th>
-                <th style="width: 220px;">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var owned in Model)
-        {
-            <tr>
-                <td>
-                    @if (!string.IsNullOrWhiteSpace(owned.Card?.ImageUrl))
+    <div class="card shadow-sm">
+        <div class="card-header bg-white fw-semibold">
+            @Model.Count() owned card@(Model.Count() == 1 ? "" : "s")
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th style="width: 100px;">Image</th>
+                            <th>Card</th>
+                            <th>Type</th>
+                            <th style="width: 180px;">Quantity</th>
+                            <th style="width: 140px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var owned in Model)
                     {
-                        <img src="@owned.Card.ImageUrl"
-                             alt="@owned.Card?.Name"
-                             style="width: 80px; height: auto; border-radius: 6px;" />
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(owned.Card?.ImageUrl))
+                                {
+                                    <img src="@owned.Card!.ImageUrl"
+                                         alt="@owned.Card?.Name"
+                                         class="img-fluid rounded shadow-sm"
+                                         style="width: 80px; height: auto;" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">No Image</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="fw-semibold">@owned.Card?.Name</div>
+                            </td>
+                            <td>
+                                @(string.IsNullOrWhiteSpace(owned.Card?.TypeLine) ? "-" : owned.Card.TypeLine)
+                            </td>
+                            <td>
+                                <form asp-action="UpdateQuantity" method="post" class="d-flex gap-2">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@owned.Id" />
+                                    <input type="number"
+                                           name="quantity"
+                                           value="@owned.Quantity"
+                                           min="0"
+                                           class="form-control form-control-sm" />
+                                    <button type="submit" class="btn btn-outline-success btn-sm">Save</button>
+                                </form>
+                            </td>
+                            <td>
+                                <form asp-action="Delete" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@owned.Id" />
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Remove @owned.Card?.Name from owned cards?');">
+                                        Remove
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
                     }
-                </td>
-                <td>
-                    <strong>@owned.Card?.Name</strong>
-                </td>
-                <td>
-                    @owned.Card?.TypeLine
-                </td>
-                <td>
-                    <form asp-action="UpdateQuantity" method="post" class="d-flex gap-2">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@owned.Id" />
-                        <input type="number"
-                               name="quantity"
-                               value="@owned.Quantity"
-                               min="0"
-                               class="form-control" />
-                        <button type="submit" class="btn btn-success btn-sm">Save</button>
-                    </form>
-                </td>
-                <td>
-                    <form asp-action="Delete" method="post" style="display:inline;">
-                        @Html.AntiForgeryToken()
-                        <input type="hidden" name="id" value="@owned.Id" />
-                        <button type="submit"
-                                class="btn btn-danger btn-sm"
-                                onclick="return confirm('Remove @owned.Card?.Name from owned cards?');">
-                            Remove
-                        </button>
-                    </form>
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 }

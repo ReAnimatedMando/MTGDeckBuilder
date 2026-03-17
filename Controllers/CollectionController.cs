@@ -61,6 +61,16 @@ namespace MTGDeckBuilder.Controllers
                 ["Colorless"] = 0
             };
 
+            var colorLabelMap = new Dictionary<string, string>
+            {
+                ["W"] = "White",
+                ["U"] = "Blue",
+                ["B"] = "Black",
+                ["R"] = "Red",
+                ["G"] = "Green",
+                ["Colorless"] = "Colorless"
+            };
+
             foreach (var oc in ownedCards)
             {
                 var qty = oc.Quantity;
@@ -91,9 +101,10 @@ namespace MTGDeckBuilder.Controllers
             }
 
             var colorDistribution = colorCounts
+                .Where(kvp => kvp.Value > 0)
                 .Select(kvp => new StatItemViewModel
                 {
-                    Label = kvp.Key,
+                    Label = colorLabelMap.ContainsKey(kvp.Key) ? colorLabelMap[kvp.Key] : kvp.Key,
                     Count = kvp.Value
                 })
                 .OrderByDescending(x => x.Count)
