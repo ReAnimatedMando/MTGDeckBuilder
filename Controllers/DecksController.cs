@@ -15,11 +15,13 @@ namespace MTGDeckBuilder.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly ScryfallService _scryfall;
+        private readonly DeckBuilderService _deckBuilder;
 
-        public DecksController(ApplicationDbContext context, ScryfallService scryfall)
+        public DecksController(ApplicationDbContext context, ScryfallService scryfall, DeckBuilderService deckBuilder)
         {
             _context = context;
             _scryfall = scryfall;
+            _deckBuilder = deckBuilder;
         }
 
         // GET: /Decks 
@@ -145,7 +147,43 @@ namespace MTGDeckBuilder.Controllers
             return RedirectToAction(nameof(Details), new { id = deck.Id });
         }
 
-        // Get: Decks/Delete/5
+        // GET: /Decks/Build
+        public IActionResult Build()
+        {
+            return View(new BuildDeckRequestViewModel());
+        }
+
+        // POST: /Decks/Build
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Build(BuildDeckRequestViewModel request)
+        {
+            if (!ModelState.IsValid)
+                return View(request);
+
+            if (request.DeckSize != 60)
+            {
+                ModelState.AddModelError(nameof(request.DeckSize), "MVP build currently supports 60-card decks only.");
+                return View(request);
+            }
+
+            var deck = await _deckBuilder.BuildDeckAsync(request);
+
+            if (deck.DeckCards == null || !deck.DeckCards.Any())
+            {
+                ModelState.AddModelError("", "Could not build a deck from your owned cards using those colors.");
+                return View(request);
+            }
+
+            _context.Decks.Add(deck);
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Built deck '{deck.Name}' from owned cards.";
+            return RedirectToAction(nameof(Details), new { id = deck.Id });
+        }
+
+
+        // GET: Decks/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

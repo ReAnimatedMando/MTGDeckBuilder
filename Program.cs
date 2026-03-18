@@ -11,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<DeckBuilderService>();
+
 builder.Services.AddHttpClient<ScryfallService>(client =>
 {
     client.Timeout = TimeSpan.FromSeconds(10);
