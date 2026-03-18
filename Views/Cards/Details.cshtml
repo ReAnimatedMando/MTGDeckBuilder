@@ -1,5 +1,13 @@
 ﻿@model MTGDeckBuilder.Models.Card
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissable fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <h1>@Model.Name</h1>
 
 <div class="row">
@@ -27,11 +35,39 @@
 
             <dt class="col-sm-3">Color Identity</dt>
             <dd class="col-sm-9">@Model.ColorIdentity</dd>
-            
+            <dt class="col-sm-3">Price</dt>
+            <dd class="col-sm-9">
+                <span class="badge bg-success">
+                    @(Model.PriceUsd.HasValue && Model.PriceUsd.Value > 0 
+                    ? Model.PriceUsd.Value.ToString("C") 
+                    : "N/A")
+                </span>
+            </dd>
         </dl>
 
     </div>
 
 </div>
+
+<form asp-controller="Decks"
+      asp-action="AddToOwned"
+      method="post"
+      class="d-flex gap-2 align-items-center flex-wrap mt-3">
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" name="cardId" value="@Model.Id" />
+    <input type="hidden" name="returnToCardDetails" value="true" />
+
+    <input type="number"
+           name="quantity"
+           value="1"
+           min="1"
+           class="form-control"
+           style="max-width: 90px;" />
+
+    <button type="submit" class="btn btn-outline-warning">
+        + Owned
+    </button>
+</form>
 
 <a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>

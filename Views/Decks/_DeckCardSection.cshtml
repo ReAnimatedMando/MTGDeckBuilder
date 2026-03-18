@@ -22,13 +22,13 @@
     {
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
+                <table class="table table-hover mb-0 deck-card-table">
                     <thead>
                         <tr>
-                            <th style="width: 160px;">Qty</th>
+                            <th style="width: 90px;">Qty</th>
                             <th>Card</th>
-                            <th style="width: 140px;">Owned</th>
-                            <th>Type</th>
+                            <th class="d-none d-md-table-cell">Type</th>
+                            <th style="width: 110px;">Owned</th>
                             <th style="width: 170px;">Actions</th>
                         </tr>
                     </thead>
@@ -56,52 +56,54 @@
                                     </form>
                                 </td>
 
-                                <td>
+                                <td class="card-name-cell">
                                     <div class="d-flex align-items-center gap-2">
                                         @if (!string.IsNullOrWhiteSpace(dc.Card?.ImageUrl))
                                         {
                                             <img src="@dc.Card.ImageUrl"
-                                                 alt="@dc.Card.Name"
-                                                 class="img-fluid rounded shadow-sm card-preview-trigger"
-                                                 data-image-url="@dc.Card.ImageUrl"
-                                                 data-card-name="@dc.Card.Name"
-                                                 style="width: 60px; height: auto; cursor: pointer;" />
+                                                alt="@dc.Card.Name"
+                                                class="img-fluid rounded shadow-sm card-preview-trigger"
+                                                data-image-url="@dc.Card.ImageUrl"
+                                                data-card-name="@dc.Card.Name"
+                                                style="width: 60px; height: auto; cursor: pointer;" />
                                         }
                                         else
                                         {
                                             <div class="text-muted small">No Image</div>
                                         }
 
-                                        <div>
+                                        <div class="min-w-0">
                                             <a asp-controller="Cards"
-                                               asp-action="Details"
-                                               asp-route-id="@dc.CardId"
-                                               class="fw-semibold text-decoration-none card-preview-trigger"
-                                               data-image-url="@dc.Card?.ImageUrl"
-                                               data-card-name="@dc.Card?.Name">
-                                                @dc.Card?.Name
+                                            asp-action="Details"
+                                            asp-route-id="@dc.CardId"
+                                            class="fw-semibold text-decoration-none text-break d-inline-block card-preview-trigger"
+                                            data-image-url="@dc.Card?.ImageUrl"
+                                            data-card-name="@dc.Card?.Name">
+                                            @dc.Card?.Name
                                             </a>
                                         </div>
                                     </div>
                                 </td>
 
-                                <td>
-                                    <div class="fw-semibold">@owned / @needed</div>
-                                    @if (isComplete)
-                                    {
-                                        <div class="small text-success">Complete ✓</div>
-                                    }
-                                    else
-                                    {
-                                        <div class="small text-muted">Missing @(needed - owned)</div>
-                                    }
-                                </td>
-
-                                <td>
+                                <td class="d-none d-md-table-cell">
                                     @(string.IsNullOrWhiteSpace(dc.Card?.TypeLine) ? "-" : dc.Card.TypeLine)
                                 </td>
 
                                 <td>
+                                    <div class="owned-summary small">
+                                        <div class="fw-semibold">@owned / @needed</div>
+                                        @if (isComplete)
+                                        {
+                                            <div class="text-success">Complete ✓</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-muted">Missing @(needed - owned)</div>
+                                        }
+                                    </div>
+                                </td>
+
+                                <td class="actions-cell">
                                     <form asp-action="RemoveCard" method="post" class="mb-2">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="deckId" value="@deckId" />

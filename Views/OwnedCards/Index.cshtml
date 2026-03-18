@@ -84,10 +84,16 @@ else
                             <td>
                                 @if (!string.IsNullOrWhiteSpace(owned.Card?.ImageUrl))
                                 {
-                                    <img src="@owned.Card!.ImageUrl"
-                                         alt="@owned.Card?.Name"
-                                         class="img-fluid rounded shadow-sm"
-                                         style="width: 80px; height: auto;" />
+                                    <a asp-controller="Cards"
+                                        asp-action="Details"
+                                        asp-route-id="@owned.CardId">
+                                            <img src="@owned.Card!.ImageUrl"
+                                                alt="@owned.Card?.Name"
+                                                class="img-fluid rounded shadow-sm card-preview-trigger"
+                                                data-image-url="@owned.Card!.ImageUrl"
+                                                data-card-name="@owned.Card?.Name"
+                                                style="width: 80px; height: auto;" />
+                                    </a>
                                 }
                                 else
                                 {
@@ -95,7 +101,12 @@ else
                                 }
                             </td>
                             <td>
-                                <div class="fw-semibold">@owned.Card?.Name</div>
+                                <a asp-controller="Cards"
+                                asp-action="Details"
+                                asp-route-id="@owned.CardId"
+                                class="fw-semibold text-decoration-none card-preview-trigger" data-image-url="@owned.Card?.ImageUrl" data-card-name="@owned.Card?.Name">
+                                    @owned.Card?.Name
+                                </a>
                             </td>
                             <td>
                                 @(string.IsNullOrWhiteSpace(owned.Card?.TypeLine) ? "-" : owned.Card.TypeLine)
@@ -130,4 +141,41 @@ else
             </div>
         </div>
     </div>
+}
+
+<div id="cardPreviewPopup" class="card-preview-popup d-none">
+    <img id="cardPreviewImage" src="" alt="Card Preview" />
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const popup = document.getElementById("cardPreviewPopup");
+            const popupImage = document.getElementById("cardPreviewImage");
+            const triggers = document.querySelectorAll(".card-preview-trigger");
+
+            if (!popup || !popupImage || !triggers.length) return;
+
+            triggers.forEach(trigger => {
+                trigger.addEventListener("mouseenter", function () {
+                    const imageUrl = trigger.getAttribute("data-image-url");
+
+                    if (!imageUrl) return;
+
+                    popupImage.src = imageUrl;
+                    popup.classList.remove("d-none");
+                });
+
+                trigger.addEventListener("mousemove", function (e) {
+                    popup.style.top = (e.pageY - 120) + "px";
+                    popup.style.left = (e.pageX + 20) + "px";
+                });
+
+                trigger.addEventListener("mouseleave", function () {
+                    popup.classList.add("d-none");
+                    popupImage.src = "";
+                });
+            });
+        });
+    </script>
 }

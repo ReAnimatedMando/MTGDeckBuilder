@@ -145,6 +145,44 @@ namespace MTGDeckBuilder.Controllers
             return RedirectToAction(nameof(Details), new { id = deck.Id });
         }
 
+        // Get: Decks/Delete/5
+        public async Task<IActionResult> Delete(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var deck = await _context.Decks
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (deck == null)
+                return NotFound();
+
+            return View(deck);
+        }
+
+        // POST: Decks/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var deck = await _context.Decks
+                .Include(d => d.DeckCards)
+                .FirstOrDefaultAsync(d => d.Id == id);
+
+            if (deck == null)
+                return NotFound();
+
+            if (deck.DeckCards != null && deck.DeckCards.Any())
+            {
+                _context.DeckCards.RemoveRange(deck.DeckCards);
+            }
+
+            _context.Decks.Remove(deck);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: /Decks/Details/5?q=bolt
         public async Task<IActionResult> Details(int id, string? q)
         {
@@ -472,18 +510,21 @@ namespace MTGDeckBuilder.Controllers
         // POST: /Decks/AddToOwned
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddToOwned(int deckId, int cardId, int quantity = 1)
+        public async Task<IActionResult> AddToOwned(int cardId, int quantity = 1, int? deckId = null, bool returnToCardDetails = false)
         {
             if (quantity <= 0)
             {
                 quantity = 1;
             }
 
-            var deckExists = await _context.Decks.AnyAsync(d => d.Id == deckId);
-            if (!deckExists) return NotFound();
-
             var card = await _context.Cards.FirstOrDefaultAsync(c => c.Id == cardId);
             if (card == null) return NotFound();
+
+            if (deckId.HasValue)
+            {
+                var deckExists = await _context.Decks.AnyAsync(d => d.Id == deckId.Value);
+                if (!deckExists) return NotFound();
+            }
 
             var ownedCard = await _context.OwnedCards
                 .FirstOrDefaultAsync(oc => oc.CardId == cardId);
@@ -493,7 +534,7 @@ namespace MTGDeckBuilder.Controllers
                 ownedCard = new OwnedCard
                 {
                     CardId = cardId,
-                    Quantity =quantity
+                    Quantity = quantity
                 };
 
                 _context.OwnedCards.Add(ownedCard);
@@ -505,8 +546,20 @@ namespace MTGDeckBuilder.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["Success"] = $"Added {quantity} owned copy/copies of {card.Name}.";
-            return RedirectToAction(nameof(Details), new { id = deckId });
+            if (deckId.HasValue)
+            {
+                TempData["Success"] = $"Added {quantity} owned copy/copies of {card.Name}.";
+                return RedirectToAction(nameof(Details), new { id = deckId.Value });
+            }
+
+            TempData["SuccessMessage"] = $"Added {quantity} owned copy/copies of {card.Name}.";
+
+            if (returnToCardDetails)
+            {
+                return RedirectToAction("Details", "Cards", new { id = cardId });
+            }
+            
+            return RedirectToAction("Index", "Cards");
         }
 
         // POST: /Decks/SetQuantity

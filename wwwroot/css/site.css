@@ -123,3 +123,46 @@ img {
 .card-preview-trigger {
   cursor: pointer;
 }
+
+.deck-card-table td,
+.deck-card-table th {
+  vertical-align: top;
+}
+
+.deck-card-table .card-name-cell {
+  min-width: 220px;
+}
+
+.deck-card-table .card-name-link {
+  display: inline-block;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+.deck-card-table .owned-summary {
+  white-space: normal;
+  line-height: 1.2;
+}
+
+.deck-card-table .actions-cell {
+  min-width: 170px;
+}
+
+.deck-card-table .actions-cell form {
+  margin-bottom: 0.5rem;
+}
+
+.deck-card-table .actions-cell form:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 767.98px) {
+  .deck-card-table .card-name-cell {
+    min-width: 180px;
+  }
+
+  .deck-card-table .actions-cell {
+    min-width: 150px;
+  }
+}

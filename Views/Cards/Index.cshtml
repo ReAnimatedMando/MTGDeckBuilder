@@ -85,6 +85,7 @@ else
                             <th>Mana Cost</th>
                             <th>Type</th>
                             <th>Color Identity</th>
+                            <th style="width: 160px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -118,6 +119,17 @@ else
                             <td>@(string.IsNullOrWhiteSpace(card.ManaCost) ? "-" : card.ManaCost)</td>
                             <td>@(string.IsNullOrWhiteSpace(card.TypeLine) ? "-" : card.TypeLine)</td>
                             <td>@(string.IsNullOrWhiteSpace(card.ColorIdentity) ? "-" : card.ColorIdentity)</td>
+                            <td>
+                                <form asp-controller="Decks" asp-action="AddToOwned" method="post" class="d-flex gap-2 align-items-center">
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden" name="cardId" value="@card.Id" />
+
+                                    <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 72px;" />
+
+                                    <button type="submit" class="btn btn-sm btn-outline-warning">+ Owned</button>
+                                </form>
+                            </td>
                         </tr>
                     }
                     </tbody>

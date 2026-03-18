@@ -168,10 +168,20 @@ else
                                 }
                             </td>
 
-                            <td>
-                                <a asp-action="Details" asp-route-id="@deck.DeckId" class="btn btn-sm btn-outline-primary">
-                                    Open
-                                </a>
+                            <td style="width: 150px;">
+                                <div class="d-grid gap-2">
+                                    <a asp-action="Details"
+                                    asp-route-id="@deck.DeckId"
+                                    class="btn btn-sm btn-outline-primary">
+                                        Open
+                                    </a>
+
+                                    <a asp-action="Delete"
+                                    asp-route-id="@deck.DeckId"
+                                    class="btn btn-sm btn-outline-danger">
+                                        Delete
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     }
