@@ -138,7 +138,7 @@
             @(string.IsNullOrWhiteSpace(Model.Theme) ? "No theme specified" : Model.Theme)
         </div>
         <div class="mt-2 small text-muted">
-            Color Identity: @(string.IsNullOrWhiteSpace(Model.ColorIdentity) ? "-" : Model.ColorIdentity)
+            Color Identity: @(string.IsNullOrWhiteSpace(Model.ColorIdentity) ? "-" : Model.ColorIdentity.Replace(",", ", "))
             <span class="mx-2">•</span>
             Main Deck: @totalCards
             <span class="mx-2">•</span>
@@ -147,6 +147,7 @@
     </div>
 
     <div class="d-flex flex-wrap gap-2">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning">Edit Deck</a>
         <a asp-action="Export" asp-route-id="@Model.Id" class="btn btn-outline-primary">Export Decklist</a>
         <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Delete Deck</a>
         <a asp-action="Index" class="btn btn-outline-secondary">Back to Decks</a>

@@ -1,0 +1,58 @@
+﻿@model MTGDeckBuilder.Models.Deck
+
+@{
+    ViewData["Title"] = "Edit Deck";
+}
+
+<h1 class="mb-4">Edit Deck</h1>
+
+<div class="row">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label"></label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Theme" class="form-label"></label>
+                        <input asp-for="Theme" class="form-control" placeholder="Angels, Burn, Control, Elves..." />
+                        <span asp-validation-for="Theme" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ColorIdentity" class="form-label"></label>
+                        <input asp-for="ColorIdentity" class="form-control" placeholder="W,U,B,R,G" />
+                        <span asp-validation-for="ColorIdentity" class="text-danger"></span>
+                        <div class="form-text">Use comma-separated values like W,U or just W.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

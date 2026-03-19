@@ -36,16 +36,17 @@ namespace MTGDeckBuilder.Controllers
                 {
                     oc.CardId,
                     Name = oc.Card!.Name,
-                    ImageUrl = oc.Card.ImageUrl
+                    ImageUrl = oc.Card.ImageUrl,
+                    PriceUsd = oc.Card.PriceUsd ?? 0m
                 })
                 .Select(g => new TopOwnedCardViewModel
                 {
                     CardName = g.Key.Name,
                     Quantity = g.Sum(x => x.Quantity),
-                    TotalValue = g.Sum(x => x.Quantity * (x.Card!.PriceUsd ?? 0m)),
+                    TotalValue = g.Sum(x => x.Quantity) * g.Key.PriceUsd,
                     ImageUrl = g.Key.ImageUrl
                 })
-                .OrderByDescending(x => x.Quantity)
+                .OrderByDescending(x => x.PriceUsd)
                 .ThenByDescending(x => x.TotalValue)
                 .ThenBy(x => x.CardName)
                 .Take(10)

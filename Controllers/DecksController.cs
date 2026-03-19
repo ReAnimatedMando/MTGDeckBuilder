@@ -136,7 +136,7 @@ namespace MTGDeckBuilder.Controllers
         // POST: /Decks/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Description")] Deck deck)
+        public async Task<IActionResult> Create([Bind("Name,Description,Theme,ColorIdentity")] Deck deck)
         {
             if (!ModelState.IsValid)
                 return View(deck);
@@ -180,6 +180,47 @@ namespace MTGDeckBuilder.Controllers
 
             TempData["Success"] = $"Built deck '{deck.Name}' from owned cards.";
             return RedirectToAction(nameof(Details), new { id = deck.Id });
+        }
+
+        // GET: /Decks/EDit/5
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+                return NotFound();
+
+            var deck = await _context.Decks.FindAsync(id);
+
+            if (deck == null)
+                return NotFound();
+
+            return View(deck);
+        }
+
+        // POST: /Decks/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Theme,ColorIdentity")] Deck deck)
+        {
+            if (id != deck.Id)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+                return View(deck);
+
+            var existingDeck = await _context.Decks.FindAsync(id);
+
+            if (existingDeck == null)
+                return NotFound();
+
+            existingDeck.Name = deck.Name;
+            existingDeck.Description = deck.Description;
+            existingDeck.Theme = deck.Theme;
+            existingDeck.ColorIdentity = deck.ColorIdentity;
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Updated deck '{existingDeck.Name}'.";
+            return RedirectToAction(nameof(Details), new { id = existingDeck.Id });
         }
 
 
