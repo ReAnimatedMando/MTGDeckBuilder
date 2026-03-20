@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using MTGDeckBuilder.Controllers;
 using MTGDeckBuilder.Data;
 using MTGDeckBuilder.Models;
 using MTGDeckBuilder.Models.ViewModels;
@@ -70,22 +69,24 @@ namespace MTGDeckBuilder.Services
                 .ToList();
 
             var targets = GetScaledRoleTargets(request.DeckSize, request.Theme);
+            var nonLandTargetCount = targets.Creatures + targets.Spells + targets.Enchantments + targets.Other;
+            var curveTargets = GetManaCurveTargets(nonLandTargetCount, request.Theme);
 
             var deck = new Deck
             {
                 Name = request.Name,
                 Theme = request.Theme,
                 ColorIdentity = request.GetColorIdentity(),
-                Description = $"Auto-built from owned cards on {DateTime.Now:d}. Target mix: {targets.Lands} lands / {targets.Creatures} creatures / {targets.Spells} instants-sorceries / {targets.Enchantments} enchantments / {targets.Other} other."
+                Description = $"Auto-built from owned cards on {DateTime.Now:d}. Target mix: {targets.Lands} lands / {targets.Creatures} creatures / {targets.Spells} instants-sorceries / {targets.Enchantments} enchantments / {targets.Other} other. Curve target: {curveTargets.Low} low / {curveTargets.Mid} mid / {curveTargets.High} high / {curveTargets.VeryHigh} very high."
             };
 
             var chosen = new List<DeckCard>();
 
-            AddCards(chosen, lands, targets.Lands, false);
-            AddCards(chosen, creatures, targets.Creatures, false);
-            AddCards(chosen, instantsSorceries, targets.Spells, false);
-            AddCards(chosen, enchantments, targets.Enchantments, false);
-            AddCards(chosen, others, targets.Other, false);
+            AddCards(chosen, lands, targets.Lands, false, curveTargets);
+            AddCards(chosen, creatures, targets.Creatures, false, curveTargets);
+            AddCards(chosen, instantsSorceries, targets.Spells, false, curveTargets);
+            AddCards(chosen, enchantments, targets.Enchantments, false, curveTargets);
+            AddCards(chosen, others, targets.Other, false, curveTargets);
 
             var currentTotal = chosen.Sum(dc => dc.Quantity);
 
@@ -106,7 +107,7 @@ namespace MTGDeckBuilder.Services
                     .Select(x => x.OwnedCard)
                     .ToList();
 
-                AddCards(chosen, fillerPool, request.DeckSize - currentTotal, false);
+                AddCards(chosen, fillerPool, request.DeckSize - currentTotal, false, curveTargets);
             }
 
             if (chosen.Sum(dc => dc.Quantity) > request.DeckSize)
@@ -238,7 +239,139 @@ namespace MTGDeckBuilder.Services
             }
         }
 
-        private static void AddCards(List<DeckCard> chosen, List<OwnedCard> pool, int targetCount, bool isSideboard)
+        private static (int Low, int Mid, int High, int VeryHigh) GetManaCurveTargets(int nonLandCount, string? theme)
+        {
+            var low = (int)Math.Round(nonLandCount * 0.40);
+            var mid = (int)Math.Round(nonLandCount * 0.35);
+            var high = (int)Math.Round(nonLandCount * 0.18);
+            var veryHigh = nonLandCount - (low + mid + high);
+
+            var t = theme?.Trim().ToLowerInvariant() ?? "";
+
+            if (!string.IsNullOrWhiteSpace(t))
+            {
+                if (ContainsAny(t, "aggro", "burn"))
+                {
+                    low += 4;
+                    mid += 1;
+                    high -= 3;
+                    veryHigh -= 2;
+                }
+
+                if (ContainsAny(t, "midrange"))
+                {
+                    low -= 2;
+                    mid += 2;
+                    high += 1;
+                    veryHigh -= 1;
+                }
+
+                if (ContainsAny(t, "control"))
+                {
+                    low -= 3;
+                    mid += 2;
+                    high += 1;
+                }
+
+                if (ContainsAny(t, "ramp"))
+                {
+                    low -= 4;
+                    mid += 1;
+                    high += 2;
+                    veryHigh += 1;
+                }
+            }
+
+            NormalizeCurveTargets(nonLandCount, ref low, ref mid, ref high, ref veryHigh);
+
+            return (low, mid, high, veryHigh);
+        }
+
+        private static void NormalizeCurveTargets(
+            int deckSize,
+            ref int low,
+            ref int mid,
+            ref int high,
+            ref int veryHigh)
+        {
+            low = Math.Max(0, low);
+            mid = Math.Max(0, mid);
+            high = Math.Max(0, high);
+            veryHigh = Math.Max(0, veryHigh);
+
+            var total = low + mid + high + veryHigh;
+
+            while (total > deckSize)
+            {
+                if (veryHigh > 0) veryHigh--;
+                else if (high > 0) high--;
+                else if (mid > 0) mid--;
+                else if (low > 0) low--;
+
+                total = low + mid + high + veryHigh;
+            }
+
+            while (total < deckSize)
+            {
+                if (low <= mid && low <= high && low <= veryHigh)
+                    low++;
+                else if (mid <= high && mid <= veryHigh)
+                    mid++;
+                else if (high <= veryHigh)
+                    high++;
+                else
+                    veryHigh++;
+
+                total = low + mid + high + veryHigh;
+            }
+        }
+
+        private static string GetManaBucket(Card card)
+        {
+            var mv = card.ManaValue;
+
+            if (mv <= 2) return "Low";
+            if (mv <= 4) return "Mid";
+            if (mv <= 6) return "High";
+            return "VeryHigh";
+        }
+
+        private static int GetBucketCount(List<DeckCard> chosen, string bucket)
+        {
+            return chosen
+                .Where(dc => dc.Card != null)
+                .Where(dc => !IsLand(dc.Card!))
+                .Where(dc => GetManaBucket(dc.Card!) == bucket)
+                .Sum(dc => dc.Quantity);
+        }
+
+        private static bool CanAddToManaCurve(
+            List<DeckCard> chosen,
+            Card card,
+            (int Low, int Mid, int High, int VeryHigh) curveTargets)
+        {
+            if (IsLand(card))
+                return true;
+
+            var bucket = GetManaBucket(card);
+            var current = GetBucketCount(chosen, bucket);
+
+            return bucket switch
+            {
+                "Low" => current < curveTargets.Low,
+                "Mid" => current < curveTargets.Mid,
+                "High" => current < curveTargets.High,
+                "VeryHigh" => current < curveTargets.VeryHigh,
+                _ => true
+            };
+        }
+
+        private static void AddCards(
+            List<DeckCard> chosen,
+            List<OwnedCard> pool,
+            int targetCount,
+            bool isSideboard,
+            (int Low, int Mid, int High, int VeryHigh) curveTargets)
         {
             var added = 0;
 
@@ -257,27 +390,33 @@ namespace MTGDeckBuilder.Services
                 if (remainingAllowed <= 0)
                     continue;
 
-                var copiesToAdd = Math.Min(remainingAllowed, targetCount - added);
-
-                if (copiesToAdd <= 0)
-                    continue;
-
-                if (existing == null)
+                while (remainingAllowed > 0 && added < targetCount)
                 {
-                    chosen.Add(new DeckCard
+                    if (!CanAddToManaCurve(chosen, card, curveTargets))
+                        break;
+
+                    if (existing == null)
                     {
-                        CardId = owned.CardId,
-                        Card = owned.Card,
-                        Quantity = copiesToAdd,
-                        IsSideboard = isSideboard
-                    });
-                }
-                else
-                {
-                    existing.Quantity += copiesToAdd;
+                        existing = new DeckCard
+                        {
+                            CardId = owned.CardId,
+                            Card = owned.Card,
+                            Quantity = 0,
+                            IsSideboard = isSideboard
+                        };
+
+                        chosen.Add(existing);
+                    }
+
+                    existing.Quantity++;
+                    added++;
+                    remainingAllowed--;
                 }
 
-                added += copiesToAdd;
+                if (existing != null && existing.Quantity <= 0)
+                {
+                    chosen.Remove(existing);
+                }
             }
         }
 
