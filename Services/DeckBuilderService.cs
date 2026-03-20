@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MTGDeckBuilder.Controllers;
 using MTGDeckBuilder.Data;
 using MTGDeckBuilder.Models;
 using MTGDeckBuilder.Models.ViewModels;
@@ -16,6 +17,9 @@ namespace MTGDeckBuilder.Services
 
         public async Task<Deck> BuildDeckAsync(BuildDeckRequestViewModel request)
         {
+            if (request.DeckSize < 60 || request.DeckSize > 100)
+                throw new ArgumentException("Deck size must be between 60 and 100 cards.");
+
             var ownedCards = await _context.OwnedCards
                 .Include(oc => oc.Card)
                 .ToListAsync();
@@ -51,27 +55,37 @@ namespace MTGDeckBuilder.Services
                 .ThenBy(oc => oc.Card!.Name)
                 .ToList();
 
+            var enchantments = usableOwned
+                .Where(oc => IsEnchantment(oc.Card!))
+                .OrderByDescending(oc => ScoreCard(oc.Card!, request.Theme, "enchantment"))
+                .ThenBy(oc => oc.Card!.ManaValue)
+                .ThenBy(oc => oc.Card!.Name)
+                .ToList();
+
             var others = usableOwned
-                .Where(oc => !IsLand(oc.Card!) && !IsCreature(oc.Card!) && !IsInstantOrSorcery(oc.Card!))
+                .Where(oc => !IsLand(oc.Card!) && !IsCreature(oc.Card!) && !IsInstantOrSorcery(oc.Card!) && !IsEnchantment(oc.Card!))
                 .OrderByDescending(oc => ScoreCard(oc.Card!, request.Theme, "other"))
                 .ThenBy(oc => oc.Card!.ManaValue)
                 .ThenBy(oc => oc.Card!.Name)
                 .ToList();
+
+            var targets = GetScaledRoleTargets(request.DeckSize, request.Theme);
 
             var deck = new Deck
             {
                 Name = request.Name,
                 Theme = request.Theme,
                 ColorIdentity = request.GetColorIdentity(),
-                Description = $"Auto-built from owned cards on {DateTime.Now:d}. Template: 24 lands / 20 creatures / 12 instants-sorceries / 4 other."
+                Description = $"Auto-built from owned cards on {DateTime.Now:d}. Target mix: {targets.Lands} lands / {targets.Creatures} creatures / {targets.Spells} instants-sorceries / {targets.Enchantments} enchantments / {targets.Other} other."
             };
 
             var chosen = new List<DeckCard>();
 
-            AddCards(chosen, lands, 24, false);
-            AddCards(chosen, creatures, 20, false);
-            AddCards(chosen, instantsSorceries, 12, false);
-            AddCards(chosen, others, 4, false);
+            AddCards(chosen, lands, targets.Lands, false);
+            AddCards(chosen, creatures, targets.Creatures, false);
+            AddCards(chosen, instantsSorceries, targets.Spells, false);
+            AddCards(chosen, enchantments, targets.Enchantments, false);
+            AddCards(chosen, others, targets.Other, false);
 
             var currentTotal = chosen.Sum(dc => dc.Quantity);
 
@@ -102,6 +116,126 @@ namespace MTGDeckBuilder.Services
 
             deck.DeckCards = chosen;
             return deck;
+        }
+
+        private static (int Lands, int Creatures, int Spells, int Enchantments, int Other) GetScaledRoleTargets(int deckSize, string? theme)
+        {
+            var lands = (int)Math.Round(deckSize * 24.0 / 60.0);
+            var creatures = (int)Math.Round(deckSize * 20.0 / 60.0);
+            var spells = (int)Math.Round(deckSize * 12.0 / 60.0);
+            var enchantments = (int)Math.Round(deckSize * 2.0 / 60.0);
+            var other = deckSize - (lands + creatures + spells + enchantments);
+
+            var t = theme?.Trim().ToLowerInvariant() ?? "";
+
+            if (!string.IsNullOrWhiteSpace(t))
+            {
+                if (ContainsAny(t, "aggro"))
+                {
+                    lands -= 2;
+                    creatures += 1;
+                    spells += 1;
+                }
+
+                if (ContainsAny(t, "control"))
+                {
+                    lands += 2;
+                    spells += 2;
+                    creatures -= 2;
+                }
+
+                if (ContainsAny(t, "ramp"))
+                {
+                    lands += 3;
+                    creatures += 1;
+                    spells -= 2;
+                    other -= 2;
+                }
+
+                if (ContainsAny(t, "midrange"))
+                {
+                    creatures += 2;
+                    spells -= 1;
+                    other -= 1;
+                }
+
+                if (ContainsAny(t, "burn"))
+                {
+                    lands -= 2;
+                    spells += 3;
+                    creatures -= 1;
+                }
+
+                if (ContainsAny(t, "tokens", "token"))
+                {
+                    creatures += 2;
+                    enchantments +=1;
+                    spells -= 2;
+                    lands -= 1;
+                }
+
+                if (ContainsAny(t, "lifegain", "life gain"))
+                {
+                    creatures += 1;
+                    enchantments += 1;
+                    spells -= 1;
+                    lands -= 1;
+                }
+
+                if (ContainsAny(t, "artifacts", "artifact"))
+                {
+                    other += 2;
+                    enchantments -= 1;
+                    creatures -= 1;
+                }
+
+                if (ContainsAny(t, "enchantment", "enchantments", "enchantress", "auras"))
+                {
+                    enchantments += 4;
+                    creatures -= 1;
+                    spells -= 1;
+                    other -= 2;
+                }
+            }
+
+            NormalizeRoleTargets(deckSize, ref lands, ref creatures, ref spells, ref enchantments, ref other);
+
+            return (lands, creatures, spells, enchantments, other);
+        }
+
+        private static void NormalizeRoleTargets(int deckSize, ref int lands, ref int creatures, ref int spells, ref int enchantments, ref int other)
+        {
+            lands = Math.Max(0, lands);
+            creatures = Math.Max(0, creatures);
+            spells = Math.Max(0, spells);
+            enchantments = Math.Max(0, enchantments);
+            other = Math.Max(0, other);
+
+            var total = lands + creatures + spells + enchantments + other;
+
+            while (total > deckSize)
+            {
+                if (other > 0) other--;
+                else if (enchantments > 0) enchantments--;
+                else if (spells > 0) spells--;
+                else if (creatures > 0) creatures--;
+                else if (lands > 0) lands--;
+                total = lands + creatures + spells + enchantments + other;
+            }
+
+            while (total < deckSize)
+            {
+                if (lands <= creatures && lands <= spells && lands <= enchantments)
+                    lands++;
+                else if (creatures <= spells && creatures <= enchantments)
+                    creatures++;
+                else if (spells <= enchantments)
+                    spells++;
+                else
+                    enchantments++;
+
+                total = lands + creatures + spells + enchantments + other;
+            }
         }
 
         private static void AddCards(List<DeckCard> chosen, List<OwnedCard> pool, int targetCount, bool isSideboard)
@@ -192,6 +326,11 @@ namespace MTGDeckBuilder.Services
                 else if (manaValue == 4) score += 2;
                 else score -= 2;
             }
+            else if (role == "enchantment")
+            {
+                if (manaValue <= 3) score += 6;
+                else if (manaValue == 4) score += 3;
+            }
             else if (role == "other")
             {
                 if (manaValue <= 3) score += 5;
@@ -269,6 +408,7 @@ namespace MTGDeckBuilder.Services
             if (ContainsAny(t, "control"))
             {
                 if (ContainsAny(typeLine, "Instant", "Sorcery")) score += 16;
+                if (ContainsAny(typeLine, "Enchantment")) score += 4;
                 if (manaValue >= 2 && manaValue <= 4) score += 5;
                 if (ContainsAny(name, "Counter", "Negate", "Cancel", "Memory", "Wrath")) score += 10;
             }
@@ -277,12 +417,15 @@ namespace MTGDeckBuilder.Services
             {
                 if (ContainsAny(name, "Call", "Raise", "March", "Join")) score += 8;
                 if (ContainsAny(typeLine, "Creature", "Enchantment")) score += 8;
+                if (ContainsAny(typeLine, "Enchantment")) score += 6;
+                if (ContainsAny(name, "Anointed", "Virtue", "Procession")) score += 8;
             }
 
             if (ContainsAny(t, "lifegain", "life gain"))
             {
                 if (ContainsAny(name, "Life", "Soul", "Cleric", "Ajani", "Healer")) score += 10;
-                if (ContainsAny(typeLine, "Creature", "Enchantment")) score += 8;
+                if (ContainsAny(typeLine, "Creature")) score += 8;
+                if (ContainsAny(typeLine, "Enchantment")) score += 5;
             }
 
             if (ContainsAny(t, "sacrifice", "aristocrats"))
@@ -371,5 +514,7 @@ namespace MTGDeckBuilder.Services
             !string.IsNullOrWhiteSpace(card.TypeLine) &&
             (card.TypeLine.Contains("Instant", StringComparison.OrdinalIgnoreCase) ||
              card.TypeLine.Contains("Sorcery", StringComparison.OrdinalIgnoreCase));
+
+        private static bool IsEnchantment(Card card) => !string.IsNullOrWhiteSpace(card.TypeLine) && card.TypeLine.Contains("Enchantment", StringComparison.OrdinalIgnoreCase);
     }
 }

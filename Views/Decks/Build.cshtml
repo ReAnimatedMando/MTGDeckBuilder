@@ -7,7 +7,7 @@
 <h1 class="mb-3">Build Deck from Owned Cards</h1>
 
 <div class="text-muted mb-4">
-    Generate a 60-card deck using your owned collection, selected colors, and a simple balance template.
+    Generate a deck from 60 to 100 cards using your owned collection, selected colors, and a simple balance template.
 </div>
 
 <div class="card shadow-sm">
@@ -34,7 +34,8 @@
 
             <div class="mb-3">
                 <label asp-for="DeckSize" class="form-label"></label>
-                <input asp-for="DeckSize" class="form-control" />
+                <input asp-for="DeckSize" class="form-control" min="60" max="100" />
+                <div class="form-text">Choose a deck size between 60 and 100 cards.</div>
                 <span asp-validation-for="DeckSize" class="text-danger"></span>
             </div>
 

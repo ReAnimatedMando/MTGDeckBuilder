@@ -161,12 +161,6 @@ namespace MTGDeckBuilder.Controllers
             if (!ModelState.IsValid)
                 return View(request);
 
-            if (request.DeckSize != 60)
-            {
-                ModelState.AddModelError(nameof(request.DeckSize), "MVP build currently supports 60-card decks only.");
-                return View(request);
-            }
-
             var deck = await _deckBuilder.BuildDeckAsync(request);
 
             if (deck.DeckCards == null || !deck.DeckCards.Any())

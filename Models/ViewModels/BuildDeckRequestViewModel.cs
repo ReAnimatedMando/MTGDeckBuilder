@@ -27,6 +27,7 @@ public class BuildDeckRequestViewModel
     [Display(Name = "Green")]
     public bool UseGreen { get; set; }
 
+    [Range(60, 100, ErrorMessage = "Deck size must be between 60 and 100 cards.")]
     public int DeckSize { get; set; } = 60;
 
     public string GetColorIdentity()
