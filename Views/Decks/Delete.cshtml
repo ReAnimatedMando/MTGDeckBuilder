@@ -4,24 +4,58 @@
     ViewData["Title"] = "Delete Deck";
 }
 
-<h1>Delete Deck</h1>
-
-<div class="alert alert-danger">
-    Are you sure you want to delete this deck?
+<div class="page-header">
+    <div class="page-eyebrow text-danger">Danger Zone</div>
+    <h1 class="page-title">Delete Deck</h1>
+    <p class="page-subtitle">
+        This action will permanently remove this deck and all associated cards.
+    </p>
 </div>
 
-<div class="card p-3 mb-3">
-    <h4>@Model.Name</h4>
+<div class="delete-warning mb-4">
+    <div class="delete-warning-icon">⚠</div>
     <div>
-        <strong>Theme:</strong> @(string.IsNullOrWhiteSpace(Model.Theme) ? "None" : Model.Theme)
-    </div>
-    <div>
-        <strong>Color Identity:</strong> @(string.IsNullOrWhiteSpace(Model.ColorIdentity) ? "-" : Model.ColorIdentity)
+        <div class="delete-warning-title">Are you sure?</div>
+        <div class="delete-warning-text">
+            This action cannot be undone. The deck and all of its contents will be permanently deleted.
+        </div>
     </div>
 </div>
 
-<form asp-action="Delete" method="post">
+<div class="section-card mb-4">
+    <div class="card-header">Deck Preview</div>
+    <div class="card-body">
+        <div class="delete-deck-preview">
+            <div class="delete-deck-name">@Model.Name</div>
+
+            <div class="delete-deck-meta">
+                <div>
+                    <span>Theme</span>
+                    <strong>@(string.IsNullOrWhiteSpace(Model.Theme) ? "None" : Model.Theme)</strong>
+                </div>
+
+                <div>
+                    <span>Color Identity</span>
+                    <strong>
+                        @(string.IsNullOrWhiteSpace(Model.ColorIdentity)
+                            ? "-"
+                            : Model.ColorIdentity.Replace(",", ", "))
+                    </strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form asp-action="Delete" method="post" class="d-flex flex-wrap gap-2">
+    @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
-    <button type="submit" class="btn btn-danger">Delete</button>
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
+
+    <button type="submit" class="btn btn-danger delete-confirm-btn">
+        Permanently Delete Deck
+    </button>
+
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary app-btn-utility">
+        Cancel
+    </a>
 </form>

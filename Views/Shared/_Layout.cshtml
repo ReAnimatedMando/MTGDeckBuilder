@@ -9,40 +9,66 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MTGDeckBuilder.styles.css" asp-append-version="true" />
 </head>
-<body class="bg-light">
+<body class="app-shell bg-light @(ViewData["IsHomePage"] as bool? == true ? "home-page-shell" : "")">
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var isHomePage = ViewData["IsHomePage"] as bool? == true;
+
+    string NavClass(string controller, string? action = null)
+    {
+        var isActive = string.Equals(currentController, controller, StringComparison.OrdinalIgnoreCase)
+            && (action == null || string.Equals(currentAction, action, StringComparison.OrdinalIgnoreCase));
+
+        return isActive ? "nav-link app-nav-link active" : "nav-link app-nav-link";
+    }
+}
     <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom shadow-sm">
-            <div class="container-xl py-2">
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
-                    MTGDeckBuilder
+        <nav class="navbar navbar-expand-lg app-navbar @(isHomePage ? "app-navbar-home" : "")">
+            <div class="container-xl @(isHomePage ? "py-0" : "py-4")">
+                <a class="navbar-brand app-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="app-brand-mark">✦</span>
+                    <span class="app-brand-text">
+                        <span class="app-brand-title">MTGDeckBuilder</span>
+                        <span class="app-brand-subtitle">Collection • Decks • Brewing</span>
+                    </span>
                 </a>
 
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-                        aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler app-navbar-toggler" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#mainNav"
+                        aria-controls="mainNav"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav align-items-lg-center gap-lg-1">
+                    <ul class="navbar-nav align-items-lg-center gap-lg-1 ms-lg-4 app-nav-pillbar">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="@NavClass("Home", "Index")" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Cards" asp-action="Index">Cards</a>
+                            <a class="@NavClass("Cards", "Index")" asp-controller="Cards" asp-action="Index">Cards</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="OwnedCards" asp-action="Index">Owned Cards</a>
+                            <a class="@NavClass("OwnedCards", "Index")" asp-controller="OwnedCards" asp-action="Index">Owned Cards</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Collection" asp-action="Stats">Collection Stats</a>
+                            <a class="@NavClass("Collection", "Stats")" asp-controller="Collection" asp-action="Stats">Collection Stats</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Decks" asp-action="Index">Decks</a>
+                            <a class="@NavClass("Decks")" asp-controller="Decks" asp-action="Index">Decks</a>
                         </li>
                     </ul>
 
-                    <div class="ms-auto mt-3 mt-lg-0">
-                        <a class="btn btn-primary" asp-controller="Decks" asp-action="Create">New Deck</a>
+                    <div class="ms-auto mt-3 mt-lg-0 d-flex flex-column flex-sm-row gap-2 app-nav-actions">
+                        <a class="btn btn-outline-light app-btn-outline" asp-controller="Cards" asp-action="Index">
+                            Browse Cards
+                        </a>
+                        <a class="btn app-btn-primary" asp-controller="Decks" asp-action="Create">
+                            New Deck
+                        </a>
                     </div>
                 </div>
             </div>
@@ -55,14 +81,27 @@
         </main>
     </div>
 
-    <footer class="border-top bg-white text-muted mt-4">
-        <div class="container-xl py-3 small">
-            &copy; 2026 - MTGDeckBuilder -
-            <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="app-footer mt-4">
+        <div class="container-xl py-4">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-6">
+                    <div class="app-footer-brand">&copy; 2026 MTGDeckBuilder</div>
+                    <div class="app-footer-text">
+                        Build decks. Track your collection. Brew smarter.
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div class="app-footer-links">
+                        <a asp-controller="Home" asp-action="Index">Home</a>
+                        <a asp-controller="Cards" asp-action="Index">Cards</a>
+                        <a asp-controller="Decks" asp-action="Index">Decks</a>
+                        <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
 
-    
     <div id="cardPreviewPopup" class="card-preview-popup d-none">
         <img id="cardPreviewImage" src="" alt="Card Preview" />
     </div>

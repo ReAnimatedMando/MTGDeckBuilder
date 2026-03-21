@@ -4,23 +4,11 @@ html {
   min-height: 100%;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
 body {
   min-height: 100vh;
 }
 
-.btn:focus,
-.btn:active:focus,
-.btn-link.nav-link:focus,
-.form-control:focus,
-.form-select:focus,
-.form-check-input:focus,
-textarea:focus {
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-select:focus, .form-check-input:focus, textarea:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
@@ -34,19 +22,20 @@ main h2 {
   font-weight: 700;
 }
 
-main h3,
-main h4 {
+main h3, main h4 {
   font-weight: 600;
 }
 
 .card {
   border-radius: 0.75rem;
   border-color: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.85);
 }
 
 .card-header {
   background-color: #fff;
   border-bottom-color: rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .table th {
@@ -54,8 +43,7 @@ main h4 {
   white-space: nowrap;
 }
 
-.table td,
-.table th {
+.table td, .table th {
   vertical-align: middle;
 }
 
@@ -93,15 +81,23 @@ img {
   max-width: 100%;
 }
 
-.form-floating > .form-control-plaintext::placeholder,
-.form-floating > .form-control::placeholder {
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder,
-.form-floating > .form-control:focus::placeholder {
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+.form-control, .form-select {
+  padding: 0.38rem 0.6rem;
+  font-size: 0.9rem;
+  border-radius: 0.75rem;
+}
+
+.form-control-sm {
+  padding: 0.25rem 0.5rem;
 }
 
 .card-preview-popup {
@@ -124,13 +120,12 @@ img {
   cursor: pointer;
 }
 
-.deck-card-table td,
-.deck-card-table th {
+.deck-card-table td, .deck-card-table th {
   vertical-align: top;
 }
 
 .deck-card-table .card-name-cell {
-  min-width: 220px;
+  min-width: 240px;
 }
 
 .deck-card-table .card-name-link {
@@ -155,16 +150,6 @@ img {
 
 .deck-card-table .actions-cell form:last-child {
   margin-bottom: 0;
-}
-
-@media (max-width: 767.98px) {
-  .deck-card-table .card-name-cell {
-    min-width: 180px;
-  }
-
-  .deck-card-table .actions-cell {
-    min-width: 150px;
-  }
 }
 
 .accordion-button .badge {
@@ -192,18 +177,1591 @@ img {
   width: 60px;
   text-align: center;
   padding: 2px 6px;
+  -moz-appearance: textfield;
 }
 
-.qty-input::-webkit-outer-spin-button,
-.qty-input::-webkit-inner-spin-button {
+.qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-.qty-input {
-  -moz-appearance: textfield;
-}
-
 .qty-btn:hover {
   transform: translateY(-1px);
+}
+
+:root {
+  --mtg-obsidian: #17181c;
+  --mtg-panel: #22242a;
+  --mtg-panel-2: #2a2d34;
+  --mtg-border: rgba(255, 255, 255, 0.08);
+  --mtg-gold: #c9a96a;
+  --mtg-gold-soft: #e6d2a7;
+  --mtg-ivory: #f4efe4;
+  --mtg-text: #1a1d22;
+  --mtg-muted: #6f7782;
+  --mtg-red: #8a4b43;
+  --mtg-blue: #44627a;
+  --mtg-green: #52684d;
+}
+
+body.app-shell {
+  background: radial-gradient(circle at top, rgba(201, 169, 106, 0.08), transparent 30%),
+    linear-gradient(to bottom, #f4f1eb, #ece8e0);
+  color: var(--mtg-text);
+}
+
+.app-navbar {
+  background: linear-gradient(180deg, rgba(29, 31, 36, 0.98), rgba(20, 21, 25, 0.98));
+  border-bottom: 1px solid rgba(201, 169, 106, 0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
+}
+
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--mtg-ivory) !important;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+}
+
+.app-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--mtg-gold), #8c6b3c);
+  color: #1d1b18;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.app-nav-link {
+  color: rgba(244, 239, 228, 0.82) !important;
+  border-radius: 999px;
+  padding: 0.65rem 1rem !important;
+  transition: all 0.2s ease;
+  position: relative;
+  font-weight: 600;
+}
+
+.app-nav-link:hover, .app-nav-link:focus {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+
+.app-btn-primary {
+  background: linear-gradient(180deg, #c9a96a, #b28d52);
+  border: none;
+  color: #1d1b18;
+  font-weight: 700;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.16);
+}
+
+.app-btn-primary:hover, .app-btn-primary:focus {
+  background: linear-gradient(180deg, #d5b578, #b99458);
+  color: #1d1b18;
+}
+
+.app-btn-outline {
+  border-color: rgba(244, 239, 228, 0.28);
+  color: var(--mtg-ivory);
+}
+
+.app-btn-outline:hover, .app-btn-outline:focus {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(244, 239, 228, 0.45);
+  color: #fff;
+}
+
+.app-footer {
+  background: rgba(23, 24, 28, 0.96);
+  color: rgba(244, 239, 228, 0.7);
+  border-top: 1px solid rgba(201, 169, 106, 0.15);
+}
+
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  padding: 4rem 3rem;
+  background: radial-gradient(circle at top right, rgba(201, 169, 106, 0.18), transparent 25%),
+    linear-gradient(135deg, #1d1f24 0%, #24262d 55%, #191b20 100%);
+  color: var(--mtg-ivory);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+  isolation: isolate;
+}
+
+.home-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.2), transparent 40%),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.015),
+      rgba(255, 255, 255, 0.015) 8px,
+      transparent 8px,
+      transparent 18px
+    );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.home-kicker {
+  display: inline-block;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--mtg-gold-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.home-title {
+  font-size: clamp(2.4rem, 5vw, 4.4rem);
+  line-height: 0.98;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  max-width: 10ch;
+}
+
+.home-subtitle {
+  max-width: 44rem;
+  color: rgba(244, 239, 228, 0.82);
+  font-size: 1.1rem;
+}
+
+.home-feature-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.home-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(244, 239, 228, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 0.92rem;
+}
+
+.home-hero-panel {
+  position: relative;
+  z-index: 1;
+  border-radius: 1.25rem;
+  padding: 1.4rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--mtg-border);
+  backdrop-filter: blur(4px);
+}
+
+.home-panel-label {
+  color: var(--mtg-gold-soft);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.home-panel-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.home-panel-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.home-panel-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.mana-white {
+  background: #e7dcc3;
+  color: #433b2d;
+}
+
+.mana-blue {
+  background: #6e8ca5;
+  color: #f8fbff;
+}
+
+.mana-black {
+  background: #3a3d45;
+  color: #f5f5f5;
+}
+
+.mana-red {
+  background: #9a5a52;
+  color: #fff7f5;
+}
+
+.mana-green {
+  background: #5d7657;
+  color: #f7fff3;
+}
+
+.home-panel-title {
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.2rem;
+}
+
+.home-panel-text {
+  color: rgba(244, 239, 228, 0.74);
+  line-height: 1.45;
+}
+
+.feature-card {
+  height: 100%;
+  padding: 1.5rem;
+  border-radius: 1.1rem;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(23, 24, 28, 0.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+}
+
+.feature-card-kicker {
+  color: #8a6f42;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.7rem;
+}
+
+.feature-card-title {
+  font-size: 1.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.feature-card-text {
+  color: var(--mtg-muted);
+  margin-bottom: 1rem;
+}
+
+.feature-card-link {
+  color: #6d5430;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.feature-card-link:hover {
+  color: #4f3c21;
+  text-decoration: underline;
+}
+
+.home-bottom-banner {
+  border-radius: 1.25rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #23252b, #1b1c21);
+  color: var(--mtg-ivory);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+}
+
+.home-bottom-kicker {
+  color: var(--mtg-gold-soft);
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.5rem;
+}
+
+.card, .table-responsive, .accordion-item {
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.035);
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: rgba(201, 169, 106, 0.12);
+  color: #2d261b;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+}
+
+.app-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.app-brand-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--mtg-ivory);
+  letter-spacing: 0.02em;
+}
+
+.app-brand-subtitle {
+  font-size: 0.72rem;
+  color: rgba(244, 239, 228, 0.58);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 0.15rem;
+}
+
+.app-nav-pillbar {
+  border-radius: 999px;
+  padding: 0.25rem;
+}
+
+.app-nav-link.active {
+  color: #fff !important;
+  background: rgba(201, 169, 106, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(201, 169, 106, 0.2);
+}
+
+.app-nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0.9rem;
+  right: 0.9rem;
+  bottom: 0.32rem;
+  height: 2px;
+  border-radius: 999px;
+  opacity: 0;
+  transform: scaleX(0.6);
+  transform-origin: center;
+  transition: opacity 0.22s ease,
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+  background: linear-gradient(
+    90deg,
+    rgba(201, 169, 106, 0),
+    rgba(201, 169, 106, 0.9) 20%,
+    rgba(230, 210, 167, 1) 50%,
+    rgba(201, 169, 106, 0.9) 80%,
+    rgba(201, 169, 106, 0)
+  );
+}
+
+.app-nav-link:hover::after, .app-nav-link:focus::after {
+  opacity: 0.55;
+  transform: scaleX(1);
+}
+
+.app-nav-link.active::after {
+  opacity: 1;
+  transform: scaleX(1);
+  box-shadow: 0 0 8px rgba(201, 169, 106, 0.28),
+    0 0 14px rgba(201, 169, 106, 0.16);
+}
+
+.home-page-shell .app-nav-link.active::after {
+  box-shadow: 0 0 10px rgba(201, 169, 106, 0.34),
+    0 0 18px rgba(201, 169, 106, 0.2);
+}
+
+.app-nav-actions .btn {
+  min-width: 140px;
+}
+
+.app-navbar-toggler {
+  border-color: rgba(244, 239, 228, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.app-navbar-toggler:focus {
+  box-shadow: 0 0 0 0.2rem rgba(201, 169, 106, 0.2);
+}
+
+.app-footer-brand {
+  color: var(--mtg-ivory);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.app-footer-text {
+  color: rgba(244, 239, 228, 0.68);
+}
+
+.app-footer-links {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.app-footer-links a {
+  color: rgba(244, 239, 228, 0.72);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.app-footer-links a:hover {
+  color: var(--mtg-gold-soft);
+}
+
+.home-page-shell .app-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.app-navbar-home {
+  background: linear-gradient(180deg, rgba(18, 19, 23, 0.92), rgba(18, 19, 23, 0.78));
+  border-bottom: 1px solid rgba(201, 169, 106, 0.22);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+}
+
+.app-table th, .app-table td {
+  padding: 0.5rem 0.6rem;
+  vertical-align: middle;
+}
+
+.app-table thead th {
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+  font-size: 0.83rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6a717b;
+  border-bottom-width: 1px;
+}
+
+.home-page-shell .app-brand-mark {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 22px rgba(201, 169, 106, 0.22);
+}
+
+.home-page-shell .app-nav-link.active {
+  background: rgba(201, 169, 106, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(201, 169, 106, 0.24),
+    0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.home-page-shell .app-btn-primary {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(circle at 15% 20%, rgba(201, 169, 106, 0.12), transparent 22%),
+    radial-gradient(circle at 85% 30%, rgba(68, 98, 122, 0.16), transparent 24%),
+    radial-gradient(circle at 70% 78%, rgba(82, 104, 77, 0.14), transparent 20%),
+    radial-gradient(circle at 35% 82%, rgba(138, 75, 67, 0.12), transparent 18%);
+  pointer-events: none;
+}
+
+.home-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.18;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.06) 0.7px, transparent 0.8px);
+  background-size: 32px 32px,
+    32px 32px,
+    18px 18px;
+  background-position: 0 0,
+    0 0,
+    8px 10px;
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+
+.home-hero .row, .home-hero .home-hero-panel, .home-hero .home-kicker, .home-hero .home-title, .home-hero .home-subtitle, .home-hero .home-feature-chips {
+  position: relative;
+  z-index: 1;
+}
+
+.home-page-shell main {
+  padding-top: 1.25rem;
+}
+
+.home-hero-home {
+  min-height: 540px;
+  display: flex;
+  align-items: center;
+}
+
+.hero-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 0.2s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.hero-cta:hover, .hero-cta:focus {
+  transform: translateY(-1px);
+}
+
+.hero-cta::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.hero-cta::after {
+  content: "";
+  position: absolute;
+  top: -20%;
+  bottom: -20%;
+  left: -35%;
+  width: 32%;
+  z-index: 1;
+  opacity: 0;
+  transform: skewX(-22deg) translateX(0);
+  pointer-events: none;
+}
+
+.hero-cta span, .hero-cta {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-cta-primary::before {
+  background: radial-gradient(circle at 20% 50%, rgba(231, 220, 195, 0.22), transparent 35%),
+    radial-gradient(circle at 80% 50%, rgba(201, 169, 106, 0.18), transparent 35%);
+}
+
+.hero-cta-primary::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 248, 225, 0.12) 45%,
+    rgba(255, 255, 255, 0.26) 50%,
+    rgba(255, 248, 225, 0.12) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.hero-cta-outline::before {
+  background: radial-gradient(circle at 30% 50%, rgba(110, 140, 165, 0.12), transparent 35%),
+    radial-gradient(circle at 75% 50%, rgba(201, 169, 106, 0.08), transparent 35%);
+}
+
+.hero-cta-outline::after {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(201, 169, 106, 0.06) 45%,
+    rgba(255, 255, 255, 0.16) 50%,
+    rgba(201, 169, 106, 0.06) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.home-page-shell .hero-cta-primary {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 0 0 rgba(201, 169, 106, 0);
+  animation: heroManaPulse 4.8s ease-in-out infinite;
+}
+
+.home-page-shell .hero-cta-outline {
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  animation: heroOutlinePulse 5.6s ease-in-out infinite;
+}
+
+.home-page-shell .hero-cta:hover::before, .home-page-shell .hero-cta:focus::before {
+  opacity: 1;
+}
+
+.home-page-shell .hero-cta:hover::after, .home-page-shell .hero-cta:focus::after {
+  opacity: 1;
+  animation: heroShimmer 1.15s ease;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-eyebrow {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a6f42;
+}
+
+.page-title {
+  margin-bottom: 0.35rem;
+  font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #1c1f24;
+}
+
+.page-subtitle {
+  margin-bottom: 0;
+  color: var(--mtg-muted);
+  max-width: 60rem;
+}
+
+.section-card {
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(23, 24, 28, 0.08);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.045);
+}
+
+.section-card .card-header {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(23, 24, 28, 0.07);
+  font-weight: 700;
+  padding: 0.6rem 1rem;
+}
+
+.section-card .card-body {
+  padding: 0.85rem 1rem;
+}
+
+.filter-card {
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(248,246,241,0.86));
+  border: 1px solid rgba(23, 24, 28, 0.08);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.045);
+}
+
+.filter-card .form-control, .filter-card .form-select {
+  border-radius: 0.8rem;
+  border-color: rgba(23, 24, 28, 0.12);
+  background: rgba(255,255,255,0.95);
+}
+
+.filter-card .btn {
+  border-radius: 0.8rem;
+}
+
+.app-table {
+  --bs-table-bg: transparent;
+  margin-bottom: 0;
+}
+
+.app-table tbody tr {
+  transition: background-color 0.16s ease;
+}
+
+.app-table tbody tr:hover {
+  background-color: rgba(201, 169, 106, 0.06);
+}
+
+.app-table td, .app-table th {
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+
+.table-wrap {
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.app-link {
+  color: #5e4a2d;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.app-link:hover {
+  color: #46361f;
+  text-decoration: underline;
+}
+
+.app-alert {
+  border-radius: 1rem;
+  border: 1px solid rgba(25, 135, 84, 0.18);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.04);
+}
+
+.app-btn-utility {
+  border-radius: 0.85rem;
+  font-weight: 600;
+}
+
+.app-btn-search {
+  border-radius: 0.85rem;
+  font-weight: 600;
+}
+
+.add-owned-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.add-owned-qty {
+  width: 68px;
+  text-align: center;
+  border-radius: 0.75rem;
+}
+
+.add-owned-btn {
+  border-radius: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.card-color-identity {
+  display: inline-block;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(201, 169, 106, 0.12);
+  color: #5d4a2c;
+  font-weight: 700;
+  font-size: 0.82rem;
+  letter-spacing: 0.03em;
+}
+
+.deck-index-table .deck-summary-cell {
+  min-width: 240px;
+}
+
+.deck-name {
+  font-weight: 800;
+  color: #1d2025;
+  line-height: 1.2;
+}
+
+.deck-theme {
+  margin-top: 0.2rem;
+  color: #7b6541;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.deck-colors {
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--mtg-muted);
+}
+
+.deck-progress {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(23, 24, 28, 0.08);
+  overflow: hidden;
+}
+
+.deck-progress-bar {
+  border-radius: 999px;
+  background: linear-gradient(90deg, #b99458, #d7bf84);
+}
+
+.deck-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.38rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.deck-meta-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  color: var(--mtg-muted);
+  font-size: 0.92rem;
+}
+
+.deck-meta-line span {
+  position: relative;
+}
+
+.deck-meta-line span:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  right: -0.48rem;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 999px;
+  background: rgba(23, 24, 28, 0.22);
+}
+
+.deck-validation {
+  border-radius: 1rem;
+  padding: 0.95rem 1.1rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.validation-success {
+  background: rgba(82, 104, 77, 0.12);
+  color: #355032;
+  border-color: rgba(82, 104, 77, 0.18);
+}
+
+.validation-warning {
+  background: rgba(201, 169, 106, 0.14);
+  color: #6a542f;
+  border-color: rgba(201, 169, 106, 0.2);
+}
+
+.validation-danger {
+  background: rgba(138, 75, 67, 0.12);
+  color: #6d3933;
+  border-color: rgba(138, 75, 67, 0.18);
+}
+
+.deck-stat-grid, .deck-completion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1.2rem;
+}
+
+.deck-stat-grid div, .deck-completion-grid div {
+  padding: 0.8rem 0.9rem;
+  border-radius: 0.9rem;
+  background: rgba(23, 24, 28, 0.035);
+}
+
+.deck-stat-grid span, .deck-completion-grid span {
+  display: block;
+  color: var(--mtg-muted);
+  font-size: 0.82rem;
+  margin-bottom: 0.2rem;
+}
+
+.deck-stat-grid strong, .deck-completion-grid strong {
+  font-size: 1rem;
+  color: #1d2025;
+}
+
+.deck-progress-lg {
+  height: 24px;
+}
+
+.deck-missing-item {
+  border-bottom-color: rgba(23, 24, 28, 0.08);
+}
+
+.deck-missing-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(138, 75, 67, 0.12);
+  color: #8a4b43;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.deck-search-card {
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.045);
+}
+
+.deck-search-thumb {
+  width: 72px;
+  flex-shrink: 0;
+}
+
+.deck-no-image {
+  width: 72px;
+  height: 100px;
+}
+
+.deck-inline-qty {
+  max-width: 72px;
+}
+
+.deck-chart-bars {
+  height: 220px;
+}
+
+.deck-mana-bar {
+  width: 40px;
+  background: linear-gradient(180deg, #d7bf84, #b99458);
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.deck-color-progress {
+  height: 24px;
+  border-radius: 8px;
+}
+
+.deck-color-progress .progress-bar {
+  border-radius: 8px;
+}
+
+.deck-section-total {
+  font-size: 0.85rem;
+  color: var(--mtg-muted);
+  font-weight: 600;
+}
+
+.deck-card-thumb {
+  width: 60px;
+  height: auto;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.deck-card-noimage {
+  width: 60px;
+}
+
+.deck-qty-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.deck-qty-input {
+  width: 62px;
+  border-radius: 0.75rem;
+}
+
+.deck-qty-set-btn {
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+.deck-add-owned-form, .card-detail-owned-controls, .deck-qty-form {
+  gap: 0.4rem;
+}
+
+.deck-add-owned-qty, .card-detail-qty, .deck-qty-input {
+  height: 32px;
+}
+
+.card-detail-item {
+  padding: 0.95rem 1rem;
+  border-radius: 1rem;
+  background: rgba(23, 24, 28, 0.035);
+}
+
+.table-hover tbody tr {
+  height: 52px;
+}
+
+.section-divider-title {
+  margin-top: 1.2rem;
+  margin-bottom: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 2rem 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #2a2d33;
+}
+
+.owned-summary {
+  font-size: 0.9rem;
+}
+
+.owned-summary-top {
+  font-weight: 700;
+  color: #1d2025;
+  margin-bottom: 0.25rem;
+}
+
+.owned-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.owned-status-complete {
+  background: rgba(82, 104, 77, 0.14);
+  color: #355032;
+  border: 1px solid rgba(82, 104, 77, 0.16);
+}
+
+.owned-status-missing {
+  background: rgba(201, 169, 106, 0.14);
+  color: #6a542f;
+  border: 1px solid rgba(201, 169, 106, 0.18);
+}
+
+.deck-import-card-body {
+  padding: 0.9rem 1rem;
+}
+
+.deck-import-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.deck-import-header {
+  margin-bottom: 0.1rem;
+}
+
+.deck-import-textarea {
+  min-height: 220px;
+  resize: vertical;
+  line-height: 1.5;
+  padding: 0.75rem 0.9rem;
+  border-radius: 1rem;
+  font-size: 0.95rem;
+}
+
+.deck-import-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.deck-import-actions .btn {
+  border-radius: 0.9rem;
+  font-weight: 700;
+  padding: 0.65rem 1.1rem;
+}
+
+.deck-actions-stack {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.deck-actions-stack form {
+  margin: 0;
+}
+
+.deck-actions-stack .btn {
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+.deck-add-owned-form {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.deck-add-owned-qty {
+  max-width: 72px;
+  border-radius: 0.75rem;
+  text-align: center;
+}
+
+.deck-form-label {
+  font-weight: 700;
+  color: #24272d;
+  margin-bottom: 0.45rem;
+}
+
+.deck-form-control {
+  border-radius: 0.85rem;
+  border-color: rgba(23, 24, 28, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.deck-form-control:focus {
+  border-color: rgba(201, 169, 106, 0.45);
+  box-shadow: 0 0 0 0.2rem rgba(201, 169, 106, 0.12);
+}
+
+.deck-builder-colors {
+  padding: 1rem;
+  border-radius: 1rem;
+  background: linear-gradient(180deg, rgba(23,24,28,0.03), rgba(23,24,28,0.015));
+  border: 1px solid rgba(23, 24, 28, 0.07);
+}
+
+.deck-builder-colors-title {
+  font-weight: 700;
+  color: #24272d;
+  margin-bottom: 0.9rem;
+}
+
+.mana-check {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(23, 24, 28, 0.08);
+  background: rgba(255, 255, 255, 0.78);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.mana-check:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
+}
+
+.mana-check input.form-check-input {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.mana-check-symbol {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.mana-check-label {
+  font-weight: 600;
+  color: #24272d;
+}
+
+.mana-check-white .mana-check-symbol {
+  background: #e7dcc3;
+  color: #433b2d;
+}
+
+.mana-check-blue .mana-check-symbol {
+  background: #6e8ca5;
+  color: #f8fbff;
+}
+
+.mana-check-black .mana-check-symbol {
+  background: #3a3d45;
+  color: #f5f5f5;
+}
+
+.mana-check-red .mana-check-symbol {
+  background: #9a5a52;
+  color: #fff7f5;
+}
+
+.mana-check-green .mana-check-symbol {
+  background: #5d7657;
+  color: #f7fff3;
+}
+
+.card-details-image {
+  max-width: 100%;
+  border-radius: 1rem;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.12);
+}
+
+.card-details-noimage {
+  min-height: 320px;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(23, 24, 28, 0.04);
+  color: var(--mtg-muted);
+  font-weight: 600;
+}
+
+.card-price-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.42rem 0.8rem;
+  border-radius: 999px;
+  background: rgba(82, 104, 77, 0.14);
+  color: #355032;
+  border: 1px solid rgba(82, 104, 77, 0.18);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.card-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem 1rem;
+}
+
+.card-detail-item span {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--mtg-muted);
+  margin-bottom: 0.28rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+.card-detail-item strong {
+  color: #1d2025;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.card-detail-owned-form {
+  margin-top: 0.5rem;
+}
+
+.card-detail-owned-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.card-detail-qty {
+  width: 90px;
+  border-radius: 0.85rem;
+  text-align: center;
+}
+
+.card-detail-owned-btn {
+  border-radius: 0.85rem;
+  font-weight: 700;
+}
+
+.delete-warning {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  padding: 1rem 1.1rem;
+  border-radius: 1rem;
+  background: rgba(138, 75, 67, 0.12);
+  border: 1px solid rgba(138, 75, 67, 0.2);
+}
+
+.delete-warning-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+.delete-warning-title {
+  font-weight: 700;
+  color: #6d3933;
+  margin-bottom: 0.25rem;
+}
+
+.delete-warning-text {
+  color: #7a4a44;
+  font-size: 0.92rem;
+}
+
+.delete-deck-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.delete-deck-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1d2025;
+}
+
+.delete-deck-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+}
+
+.delete-deck-meta span {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--mtg-muted);
+  margin-bottom: 0.15rem;
+}
+
+.delete-deck-meta strong {
+  font-size: 0.95rem;
+  color: #24272d;
+}
+
+.delete-confirm-btn {
+  font-weight: 700;
+  border-radius: 0.85rem;
+  padding: 0.55rem 1.1rem;
+  box-shadow: 0 6px 14px rgba(138, 75, 67, 0.25);
+}
+
+.delete-confirm-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(138, 75, 67, 0.35);
+}
+
+.deck-helper-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.deck-helper-list strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: #24272d;
+}
+
+.deck-helper-list p {
+  margin: 0;
+  color: var(--mtg-muted);
+  line-height: 1.5;
+}
+
+.status-buildable {
+  background: rgba(82, 104, 77, 0.16);
+  color: #355032;
+  border: 1px solid rgba(82, 104, 77, 0.18);
+}
+
+.status-nearly {
+  background: rgba(201, 169, 106, 0.18);
+  color: #6a542f;
+  border: 1px solid rgba(201, 169, 106, 0.22);
+}
+
+.status-needswork {
+  background: rgba(108, 117, 125, 0.16);
+  color: #4f5862;
+  border: 1px solid rgba(108, 117, 125, 0.18);
+}
+
+.deck-action-stack .btn {
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+.stat-tile {
+  border-radius: 1rem;
+  padding: 1.1rem 1.2rem;
+  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(247,244,238,0.88));
+  border: 1px solid rgba(23, 24, 28, 0.08);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.04);
+}
+
+.stat-tile-label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7a6a4e;
+  font-weight: 700;
+}
+
+.stat-tile-value {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #1d2025;
+  line-height: 1.1;
+  margin-top: 0.25rem;
+}
+
+.section-divider-title::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(201, 169, 106, 0.4),
+    rgba(23, 24, 28, 0.08)
+  );
+}
+
+.empty-state {
+  border-radius: 1rem;
+  padding: 2rem;
+  background: rgba(255,255,255,0.82);
+  border: 1px dashed rgba(23, 24, 28, 0.14);
+  text-align: center;
+}
+
+.empty-state-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #21242a;
+  margin-bottom: 0.35rem;
+}
+
+.empty-state-text {
+  color: var(--mtg-muted);
+  margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+
+}
+
+@media (max-width: 767.98px) {
+  .deck-card-table .card-name-cell {
+    min-width: 200px;
+  }
+
+  .deck-card-table .actions-cell {
+    min-width: 150px;
+  }
+
+  .add-owned-form {
+    flex-wrap: wrap;
+  }
+
+  .add-owned-btn, .add-owned-qty {
+    width: 100%;
+  }
+
+  .deck-stat-grid, .deck-completion-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .deck-meta-line span:not(:last-child)::after {
+    display: none;
+  }
+
+  .deck-inline-qty {
+    max-width: 100%;
+  }
+
+  .deck-add-owned-form {
+    flex-wrap: wrap;
+  }
+
+  .deck-add-owned-qty, .deck-add-owned-form .btn {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .card-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .card-detail-owned-controls {
+    display: flex;
+  }
+
+  .card-detail-qty, .card-detail-owned-btn {
+    width: 100%;
+  }
+
+  .delete-deck-meta {
+    grid-template-columns: 1fr;
+  }
+
+  .deck-index-table .deck-summary-cell {
+    min-width: 200px;
+  }
+
+}
+
+@media (max-width: 991.98px) {
+  .home-hero {
+    padding: 2rem 1.5rem;
+  }
+
+  .home-title {
+    max-width: none;
+  }
+
+  .app-brand-subtitle {
+    display: none;
+  }
+
+  .app-nav-pillbar {
+    padding: 0;
+    margin-top: 1rem;
+  }
+
+  .app-nav-link {
+    border-radius: 0.85rem;
+  }
+
+  .app-nav-actions {
+    margin-top: 1rem;
+  }
+
+}
+
+@media (min-width: 992px) {
+  .home-page-shell main {
+    padding-top: 1.5rem;
+  }
+
+  .home-page-shell .home-hero {
+    margin-top: 0.5rem;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-cta, .hero-cta::before, .hero-cta::after, .home-page-shell .hero-cta-primary, .home-page-shell .hero-cta-outline {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .home-page-shell .hero-cta:hover::after, .home-page-shell .hero-cta:focus::after {
+    opacity: 0;
+  }
+
+}
+
+@keyframes heroShimmer {
+  0% {
+    transform: skewX(-22deg) translateX(-220%);
+  }
+  100% {
+    transform: skewX(-22deg) translateX(520%);
+  }
+}
+
+@keyframes heroManaPulse {
+  0%, 100% {
+    box-shadow:
+      0 12px 24px rgba(0, 0, 0, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.05),
+      0 0 0 rgba(201, 169, 106, 0);
+  }
+  50% {
+    box-shadow:
+      0 14px 28px rgba(0, 0, 0, 0.22),
+      0 0 0 1px rgba(255, 255, 255, 0.06),
+      0 0 18px rgba(201, 169, 106, 0.16);
+  }
+}
+
+@keyframes heroOutlinePulse {
+  0%, 100% {
+    box-shadow:
+      0 8px 18px rgba(0, 0, 0, 0.14),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+  }
+  50% {
+    box-shadow:
+      0 10px 22px rgba(0, 0, 0, 0.16),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.04),
+      0 0 14px rgba(110, 140, 165, 0.1);
+  }
 }

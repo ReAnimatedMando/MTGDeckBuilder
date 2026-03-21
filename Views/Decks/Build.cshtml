@@ -4,82 +4,130 @@
     ViewData["Title"] = "Build Deck";
 }
 
-<h1 class="mb-3">Build Deck from Owned Cards</h1>
-
-<div class="text-muted mb-4">
-    Generate a deck from 60 to 100 cards using your owned collection, selected colors, and a simple balance template.
+<div class="page-header">
+    <div class="page-eyebrow">Deck Builder</div>
+    <h1 class="page-title">Build Deck from Owned Cards</h1>
+    <p class="page-subtitle">
+        Generate a deck from your owned collection using selected colors, a target size, and a simple balance template.
+    </p>
 </div>
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <form asp-action="Build" method="post">
-            @Html.AntiForgeryToken()
+<div class="row">
+    <div class="col-xl-8">
+        <div class="section-card">
+            <div class="card-header">Build Settings</div>
+            <div class="card-body">
+                <form asp-action="Build" method="post" class="deck-form">
+                    @Html.AntiForgeryToken()
 
-            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Name" class="form-label deck-form-label"></label>
+                            <input asp-for="Name" class="form-control deck-form-control" placeholder="Example: Gruul Midrange" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="DeckSize" class="form-label deck-form-label"></label>
+                            <input asp-for="DeckSize" class="form-control deck-form-control" min="60" max="100" />
+                            <div class="form-text">Choose a deck size between 60 and 100 cards.</div>
+                            <span asp-validation-for="DeckSize" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Theme" class="form-label deck-form-label"></label>
+                            <input asp-for="Theme" class="form-control deck-form-control" placeholder="Examples: Burn, Lifegain, Zombies, Artifacts" />
+                            <div class="form-text">
+                                Examples: Burn, Artifacts, Zombies, Angels, Aggro, Control, Lifegain
+                            </div>
+                            <span asp-validation-for="Theme" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="deck-builder-colors mt-4">
+                        <div class="deck-builder-colors-title">Colors</div>
+
+                        <div class="row g-3">
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="mana-check mana-check-white">
+                                    <input asp-for="UseWhite" class="form-check-input" />
+                                    <span class="mana-check-symbol">W</span>
+                                    <span class="mana-check-label">@Html.DisplayNameFor(m => m.UseWhite)</span>
+                                </label>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="mana-check mana-check-blue">
+                                    <input asp-for="UseBlue" class="form-check-input" />
+                                    <span class="mana-check-symbol">U</span>
+                                    <span class="mana-check-label">@Html.DisplayNameFor(m => m.UseBlue)</span>
+                                </label>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="mana-check mana-check-black">
+                                    <input asp-for="UseBlack" class="form-check-input" />
+                                    <span class="mana-check-symbol">B</span>
+                                    <span class="mana-check-label">@Html.DisplayNameFor(m => m.UseBlack)</span>
+                                </label>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="mana-check mana-check-red">
+                                    <input asp-for="UseRed" class="form-check-input" />
+                                    <span class="mana-check-symbol">R</span>
+                                    <span class="mana-check-label">@Html.DisplayNameFor(m => m.UseRed)</span>
+                                </label>
+                            </div>
+
+                            <div class="col-sm-6 col-lg-4">
+                                <label class="mana-check mana-check-green">
+                                    <input asp-for="UseGreen" class="form-check-input" />
+                                    <span class="mana-check-symbol">G</span>
+                                    <span class="mana-check-label">@Html.DisplayNameFor(m => m.UseGreen)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <button type="submit" class="btn app-btn-primary">Build Deck</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary app-btn-utility">Cancel</a>
+                    </div>
+                </form>
             </div>
+        </div>
+    </div>
 
-            <div class="mb-3">
-                <label asp-for="Theme" class="form-label"></label>
-                <input asp-for="Theme" class="form-control" placeholder="Examples: Burn, Lifegain, Zombies, Artifacts" />
-                <div class="form-text">
-                    Examples: Burn, Artifacts, Zombies, Angels, Aggro, Control, Lifegain
+    <div class="col-xl-4 mt-4 mt-xl-0">
+        <div class="section-card h-100">
+            <div class="card-header">How it works</div>
+            <div class="card-body">
+                <div class="deck-helper-list">
+                    <div>
+                        <strong>Name and theme</strong>
+                        <p>Give the generated deck a name and optionally guide it with an archetype or theme.</p>
+                    </div>
+
+                    <div>
+                        <strong>Choose colors</strong>
+                        <p>Select one or more colors to limit the generated card pool.</p>
+                    </div>
+
+                    <div>
+                        <strong>Set deck size</strong>
+                        <p>Pick a target size between 60 and 100 cards based on the style you want to build.</p>
+                    </div>
+
+                    <div>
+                        <strong>Build from owned cards</strong>
+                        <p>The builder uses your owned collection first, so the result is grounded in what you actually have.</p>
+                    </div>
                 </div>
-                <span asp-validation-for="Theme" class="text-danger"></span>
             </div>
-
-            <div class="mb-3">
-                <label asp-for="DeckSize" class="form-label"></label>
-                <input asp-for="DeckSize" class="form-control" min="60" max="100" />
-                <div class="form-text">Choose a deck size between 60 and 100 cards.</div>
-                <span asp-validation-for="DeckSize" class="text-danger"></span>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Colors</label>
-                <div class="row g-2">
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="form-check">
-                            <input asp-for="UseWhite" class="form-check-input" />
-                            <label asp-for="UseWhite" class="form-check-label"></label>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="form-check">
-                            <input asp-for="UseBlue" class="form-check-input" />
-                            <label asp-for="UseBlue" class="form-check-label"></label>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="form-check">
-                            <input asp-for="UseBlack" class="form-check-input" />
-                            <label asp-for="UseBlack" class="form-check-label"></label>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="form-check">
-                            <input asp-for="UseRed" class="form-check-input" />
-                            <label asp-for="UseRed" class="form-check-label"></label>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-4">
-                        <div class="form-check">
-                            <input asp-for="UseGreen" class="form-check-input" />
-                            <label asp-for="UseGreen" class="form-check-label"></label>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Build Deck</button>
-                <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 

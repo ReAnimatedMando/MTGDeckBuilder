@@ -1,92 +1,133 @@
 ﻿@{
     ViewData["Title"] = "Home";
+    ViewData["IsHomePage"] = true;
 }
 
-<div class="py-4">
-    <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body p-4 p-lg-5">
-            <div class="row align-items-center g-4">
-                <div class="col-lg-8">
-                    <h1 class="display-5 fw-bold mb-3">MTG Deck Builder</h1>
-                    <p class="lead mb-3">
-                        Build decks, track your collection, and see how close you are to completing each list.
-                    </p>
-                    <p class="text-muted mb-4">
-                        Search cards, manage owned copies, analyze deck completion, estimate value, and import decklists all in one place.
-                    </p>
+<section class="home-hero home-hero-home mb-5">
+    <div class="home-hero-overlay"></div>
+    <div class="row align-items-center g-4 position-relative">
+        <div class="col-lg-7">
+            <div class="home-kicker mb-3">Magic: The Gathering Collection & Deck Building</div>
+            <h1 class="home-title mb-3">
+                Build smarter decks from the cards you actually own.
+            </h1>
+            <p class="home-subtitle mb-4">
+                Search cards, track your collection, and build smarter decks with a workflow designed for serious gaming.
+            </p>
 
-                    <div class="d-flex flex-wrap gap-2">
-                        <a class="btn btn-primary" asp-controller="Decks" asp-action="Index">View Decks</a>
-                        <a class="btn btn-outline-primary" asp-controller="Cards" asp-action="Index">Browse Cards</a>
-                        <a class="btn btn-outline-secondary" asp-controller="OwnedCards" asp-action="Index">Owned Cards</a>
+            <div class="d-flex flex-wrap gap-3 mb-4">
+                <a asp-controller="Decks" asp-action="Create" class="btn app-btn-primary btn-lg hero-cta hero-cta-primary">
+                    <span>Start a New Deck</span>
+                </a>
+                <a asp-controller="Cards" asp-action="Index" class="btn btn-outline-light btn-lg app-btn-outline hero-cta hero-cta-outline">
+                    <span>Explore Cards</span>
+                </a>
+            </div>
+
+            <div class="home-feature-chips">
+                <span class="home-chip">Deck Building</span>
+                <span class="home-chip">Owned Card Tracking</span>
+                <span class="home-chip">Search & Import</span>
+                <span class="home-chip">Collection Insights</span>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="home-hero-panel">
+                <div class="home-panel-label">What you can do</div>
+
+                <div class="home-panel-item">
+                    <div class="home-panel-icon mana-white">W</div>
+                    <div>
+                        <div class="home-panel-title">Track your collection</div>
+                        <div class="home-panel-text">Keep your owned cards organized by quantity, color, and type.</div>
                     </div>
                 </div>
 
-                <div class="col-lg-4">
-                    <div class="card bg-light border-0">
-                        <div class="card-body">
-                            <h2 class="h5 mb-3">What you can do</h2>
-                            <ul class="mb-0 ps-3">
-                                <li class="mb-2">Search and view your card database</li>
-                                <li class="mb-2">Track owned quantities and collection value</li>
-                                <li class="mb-2">Build main decks and sideboards</li>
-                                <li class="mb-2">Import decklists from text or URL</li>
-                                <li>Measure buildability and missing cards</li>
-                            </ul>
-                        </div>
+                <div class="home-panel-item">
+                    <div class="home-panel-icon mana-blue">U</div>
+                    <div>
+                        <div class="home-panel-title">Search and discover</div>
+                        <div class="home-panel-text">Browse your local card data and expand your collection intelligently.</div>
+                    </div>
+                </div>
+
+                <div class="home-panel-item">
+                    <div class="home-panel-icon mana-black">B</div>
+                    <div>
+                        <div class="home-panel-title">Review your options</div>
+                        <div class="home-panel-text">See what your collection supports before committing to your next brew.</div>
+                    </div>
+                </div>
+
+                <div class="home-panel-item">
+                    <div class="home-panel-icon mana-red">R</div>
+                    <div>
+                        <div class="home-panel-title">Brew with purpose</div>
+                        <div class="home-panel-text">Build around themes, colors, and the cards you already have on hand.</div>
+                    </div>
+                </div>
+
+                <div class="home-panel-item">
+                    <div class="home-panel-icon mana-green">G</div>
+                    <div>
+                        <div class="home-panel-title">Refine over time</div>
+                        <div class="home-panel-text">Use deck pages and collection views to iterate like a real deck lab.</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</section>
 
-    <div class="row g-3">
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h2 class="h5">Cards</h2>
-                    <p class="text-muted mb-3">
-                        Browse your card database and search by name, type, mana cost, or color identity.
-                    </p>
-                    <a asp-controller="Cards" asp-action="Index" class="btn btn-sm btn-outline-primary">Open Cards</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h2 class="h5">Owned Cards</h2>
-                    <p class="text-muted mb-3">
-                        Keep track of the cards you own and update collection quantities anytime.
-                    </p>
-                    <a asp-controller="OwnedCards" asp-action="Index" class="btn btn-sm btn-outline-primary">Open Collection</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h2 class="h5">Decks</h2>
-                    <p class="text-muted mb-3">
-                        Build and manage decks, then check completion, value, and missing cards.
-                    </p>
-                    <a asp-controller="Decks" asp-action="Index" class="btn btn-sm btn-outline-primary">Open Decks</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h2 class="h5">Collection Stats</h2>
-                    <p class="text-muted mb-3">
-                        Analyze totals, top owned cards, and color and type distribution.
-                    </p>
-                    <a asp-controller="Collection" asp-action="Stats" class="btn btn-sm btn-outline-primary">Open Stats</a>
-                </div>
-            </div>
+<section class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="feature-card h-100">
+            <div class="feature-card-kicker">Collection</div>
+            <h2 class="feature-card-title">Own what you track</h2>
+            <p class="feature-card-text">
+               Keep accurate counts of your collection and update quantities quickly while you build.
+            </p>
+            <a asp-controller="OwnedCards" asp-action="Index" class="feature-card-link">Go to Owned Cards</a>
         </div>
     </div>
-</div>
+
+    <div class="col-md-4">
+        <div class="feature-card h-100">
+            <div class="feature-card-kicker">Decks</div>
+            <h2 class="feature-card-title">Build with intent</h2>
+            <p class="feature-card-text">
+                Create decks around themes and color identity, then refine them as your collection grows.
+            </p>
+            <a asp-controller="Decks" asp-action="Index" class="feature-card-link">View Decks</a>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="feature-card h-100">
+            <div class="feature-card-kicker">Search</div>
+            <h2 class="feature-card-title">Find the right card fast</h2>
+            <p class="feature-card-text">
+                Search your card database, preview art, and jump straight into details or collection actions.
+            </p>
+            <a asp-controller="Cards" asp-action="Index" class="feature-card-link">Browse Cards</a>
+        </div>
+    </div>
+</section>
+
+<section class="home-bottom-banner">
+    <div class="row align-items-center g-3">
+        <div class="col-lg-8">
+            <div class="home-bottom-kicker">Ready to brew?</div>
+            <h2 class="mb-2">Your workshop is live.</h2>
+            <p class="mb-0 text-light-emphasis">
+                Start with your collection, browse cards, or jump directly into a fresh deck build.
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a asp-controller="Decks" asp-action="Create" class="btn app-btn-primary btn-lg hero-cta hero-cta-primary">
+                Create a Deck
+            </a>
+        </div>
+    </div>
+</section>

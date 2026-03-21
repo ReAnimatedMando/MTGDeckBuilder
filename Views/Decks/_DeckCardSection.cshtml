@@ -7,9 +7,10 @@
     var total = Model.Sum(dc => dc.Quantity);
 }
 
-<div class="card shadow-sm mb-4">
-    <div class="card-header bg-white fw-semibold">
-        @title (@total)
+<div class="section-card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>@title</span>
+        <span class="deck-section-total">@total card@(total == 1 ? "" : "s")</span>
     </div>
 
     @if (!Model.Any())
@@ -21,15 +22,15 @@
     else
     {
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0 deck-card-table">
+            <div class="table-responsive table-wrap">
+                <table class="table table-hover mb-0 deck-card-table app-table">
                     <thead>
                         <tr>
-                            <th style="width: 90px;">Qty</th>
+                            <th style="width: 110px;">Qty</th>
                             <th>Card</th>
                             <th class="d-none d-md-table-cell">Type</th>
-                            <th style="width: 110px;">Owned</th>
-                            <th style="width: 170px;">Actions</th>
+                            <th style="width: 130px;">Owned</th>
+                            <th style="width: 190px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -38,49 +39,57 @@
                             var owned = dc.Card?.OwnedCards?.Sum(o => o.Quantity) ?? 0;
                             var needed = dc.Quantity;
                             var isComplete = owned >= needed;
+                            var missing = Math.Max(0, needed - owned);
 
                             <tr>
                                 <td>
-                                    <form asp-action="SetQuantity" method="post" class="d-flex gap-2 align-items-center">
+                                    <form asp-action="SetQuantity" method="post" class="deck-qty-form">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="deckId" value="@deckId" />
                                         <input type="hidden" name="cardId" value="@dc.CardId" />
                                         <input type="hidden" name="isSideboard" value="@isSideboard.ToString().ToLower()" />
+
                                         <input type="number"
                                                name="quantity"
                                                value="@dc.Quantity"
                                                min="1"
-                                               class="form-control form-control-sm text-center"
-                                               style="width: 60px" />
-                                        <button class="btn btn-sm btn-outline-primary" type="submit">Set</button>
+                                               class="form-control form-control-sm text-center deck-qty-input" />
+
+                                        <button class="btn btn-sm btn-outline-primary deck-qty-set-btn" type="submit">
+                                            Set
+                                        </button>
                                     </form>
                                 </td>
 
                                 <td class="card-name-cell">
-                                    <div class="d-flex align-items-center gap-2">
+                                    <div class="d-flex align-items-center gap-3">
                                         @if (!string.IsNullOrWhiteSpace(dc.Card?.ImageUrl))
                                         {
                                             <img src="@dc.Card.ImageUrl"
-                                                alt="@dc.Card.Name"
-                                                class="img-fluid rounded shadow-sm card-preview-trigger"
-                                                data-image-url="@dc.Card.ImageUrl"
-                                                data-card-name="@dc.Card.Name"
-                                                style="width: 60px; height: auto; cursor: pointer;" />
+                                                 alt="@dc.Card.Name"
+                                                 class="img-fluid rounded shadow-sm card-preview-trigger deck-card-thumb"
+                                                 data-image-url="@dc.Card.ImageUrl"
+                                                 data-card-name="@dc.Card.Name" />
                                         }
                                         else
                                         {
-                                            <div class="text-muted small">No Image</div>
+                                            <div class="text-muted small deck-card-noimage">No Image</div>
                                         }
 
                                         <div class="min-w-0">
                                             <a asp-controller="Cards"
-                                            asp-action="Details"
-                                            asp-route-id="@dc.CardId"
-                                            class="fw-semibold text-decoration-none text-break d-inline-block card-preview-trigger"
-                                            data-image-url="@dc.Card?.ImageUrl"
-                                            data-card-name="@dc.Card?.Name">
-                                            @dc.Card?.Name
+                                               asp-action="Details"
+                                               asp-route-id="@dc.CardId"
+                                               class="app-link card-name-link card-preview-trigger"
+                                               data-image-url="@dc.Card?.ImageUrl"
+                                               data-card-name="@dc.Card?.Name">
+                                                @dc.Card?.Name
                                             </a>
+
+                                            @if (!string.IsNullOrWhiteSpace(dc.Card?.ManaCost))
+                                            {
+                                                <div class="small text-muted mt-1">@dc.Card.ManaCost</div>
+                                            }
                                         </div>
                                     </div>
                                 </td>
@@ -90,40 +99,48 @@
                                 </td>
 
                                 <td>
-                                    <div class="owned-summary small">
-                                        <div class="fw-semibold">@owned / @needed</div>
+                                    <div class="owned-summary">
+                                        <div class="owned-summary-top">@owned / @needed</div>
+
                                         @if (isComplete)
                                         {
-                                            <div class="text-success">Complete ✓</div>
+                                            <div class="owned-status owned-status-complete">Complete ✓</div>
                                         }
                                         else
                                         {
-                                            <div class="text-muted">Missing @(needed - owned)</div>
+                                            <div class="owned-status owned-status-missing">Missing @missing</div>
                                         }
                                     </div>
                                 </td>
 
                                 <td class="actions-cell">
-                                    <form asp-action="RemoveCard" method="post" class="mb-2">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="deckId" value="@deckId" />
-                                        <input type="hidden" name="cardId" value="@dc.CardId" />
-                                        <input type="hidden" name="isSideboard" value="@isSideboard.ToString().ToLower()" />
-                                        <button class="btn btn-sm btn-outline-danger w-100" type="submit">Remove</button>
-                                    </form>
+                                    <div class="deck-actions-stack">
+                                        <form asp-action="RemoveCard" method="post">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="deckId" value="@deckId" />
+                                            <input type="hidden" name="cardId" value="@dc.CardId" />
+                                            <input type="hidden" name="isSideboard" value="@isSideboard.ToString().ToLower()" />
+                                            <button class="btn btn-sm btn-outline-danger w-100" type="submit">
+                                                Remove
+                                            </button>
+                                        </form>
 
-                                    <form asp-action="AddToOwned" method="post" class="d-flex gap-2 align-items-center">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="deckId" value="@deckId" />
-                                        <input type="hidden" name="cardId" value="@dc.CardId" />
-                                        <input type="number"
-                                               name="quantity"
-                                               value="1"
-                                               min="1"
-                                               class="form-control form-control-sm"
-                                               style="max-width: 80px;" />
-                                        <button class="btn btn-sm btn-outline-warning" type="submit">+ Owned</button>
-                                    </form>
+                                        <form asp-action="AddToOwned" method="post" class="deck-add-owned-form">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="deckId" value="@deckId" />
+                                            <input type="hidden" name="cardId" value="@dc.CardId" />
+
+                                            <input type="number"
+                                                   name="quantity"
+                                                   value="1"
+                                                   min="1"
+                                                   class="form-control form-control-sm deck-add-owned-qty" />
+
+                                            <button class="btn btn-sm btn-outline-warning" type="submit">
+                                                + Owned
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         }

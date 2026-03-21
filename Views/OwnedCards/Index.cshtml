@@ -102,33 +102,28 @@
         .ToList();
 }
 
-<div class="mb-4">
-    <h1 class="mb-1">Owned Cards</h1>
-    <div class="text-muted">
-        View and manage the cards currently in your collection.
-    </div>
+<div class="page-header">
+    <div class="page-eyebrow">Collection</div>
+    <h1 class="page-title">Owned Cards</h1>
+    <p class="page-subtitle">View and manage the cards currently in your collection.</p>
 </div>
 
 <div class="row g-3 mb-4">
     <div class="col-md-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <div class="text-muted small">Unique Cards</div>
-                <div class="fs-3 fw-bold">@totalUniqueCards</div>
-            </div>
+        <div class="stat-tile h-100">
+            <div class="stat-tile-label">Unique Cards</div>
+            <div class="stat-tile-value">@totalUniqueCards</div>
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card shadow-sm h-100">
-            <div class="card-body">
-                <div class="text-muted small">Total Copies Owned</div>
-                <div class="fs-3 fw-bold">@totalOwnedCopies</div>
-            </div>
+        <div class="stat-tile h-100">
+            <div class="stat-tile-label">Total Copies Owned</div>
+            <div class="stat-tile-value">@totalOwnedCopies</div>
         </div>
     </div>
 </div>
 
-<div class="card shadow-sm mb-4">
+<div class="filter-card mb-4">
     <div class="card-body">
         <form asp-action="Index" method="get">
             <div class="row g-2 align-items-center">
@@ -257,8 +252,8 @@ else
                                          class="accordion-collapse collapse @typeExpanded"
                                          aria-labelledby="@typeHeadingId">
                                         <div class="accordion-body p-0">
-                                            <div class="table-responsive">
-                                                <table class="table table-hover align-middle mb-0">
+                                            <div class="table-responsive table-wrap">
+                                                <table class="table table-hover align-middle app-table">
                                                     <thead>
                                                         <tr>
                                                             <th style="width: 100px;">Image</th>

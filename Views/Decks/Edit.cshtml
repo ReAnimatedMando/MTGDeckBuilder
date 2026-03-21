@@ -4,46 +4,53 @@
     ViewData["Title"] = "Edit Deck";
 }
 
-<h1 class="mb-4">Edit Deck</h1>
+<div class="page-header">
+    <div class="page-eyebrow">Deck Workshop</div>
+    <h1 class="page-title">Edit Deck</h1>
+    <p class="page-subtitle">
+        Update your deck details, theme, and color identity.
+    </p>
+</div>
 
 <div class="row">
-    <div class="col-md-8 col-lg-6">
-        <div class="card shadow-sm">
+    <div class="col-lg-8 col-xl-6">
+        <div class="section-card">
+            <div class="card-header">Edit @Model.Name</div>
             <div class="card-body">
-                <form asp-action="Edit" method="post">
+                <form asp-action="Edit" method="post" class="deck-form">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
 
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                     <div class="mb-3">
-                        <label asp-for="Name" class="form-label"></label>
-                        <input asp-for="Name" class="form-control" />
+                        <label asp-for="Name" class="form-label deck-form-label"></label>
+                        <input asp-for="Name" class="form-control deck-form-control" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Theme" class="form-label"></label>
-                        <input asp-for="Theme" class="form-control" placeholder="Angels, Burn, Control, Elves..." />
+                        <label asp-for="Theme" class="form-label deck-form-label"></label>
+                        <input asp-for="Theme" class="form-control deck-form-control" placeholder="Angels, Burn, Control, Elves..." />
                         <span asp-validation-for="Theme" class="text-danger"></span>
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="ColorIdentity" class="form-label"></label>
-                        <input asp-for="ColorIdentity" class="form-control" placeholder="W,U,B,R,G" />
+                        <label asp-for="ColorIdentity" class="form-label deck-form-label"></label>
+                        <input asp-for="ColorIdentity" class="form-control deck-form-control" placeholder="W,U,B,R,G" />
                         <span asp-validation-for="ColorIdentity" class="text-danger"></span>
-                        <div class="form-text">Use comma-separated values like W,U or just W.</div>
+                        <div class="form-text">Use comma-separated values like W,U or a single color like W.</div>
                     </div>
 
-                    <div class="mb-3">
-                        <label asp-for="Description" class="form-label"></label>
-                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label deck-form-label"></label>
+                        <textarea asp-for="Description" class="form-control deck-form-control" rows="4"></textarea>
                         <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
 
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
-                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button type="submit" class="btn app-btn-primary">Save Changes</button>
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary app-btn-utility">Cancel</a>
                     </div>
                 </form>
             </div>
@@ -52,7 +59,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

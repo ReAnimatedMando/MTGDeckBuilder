@@ -2,10 +2,10 @@
 @using MTGDeckBuilder.Models
 
 @{
-    var missingCards = ViewBag.MissingCards as List<MissingCardInfo> ?? new List<MissingCardInfo>();
-}
+    ViewData["Title"] = Model.Name;
 
-@{
+    var missingCards = ViewBag.MissingCards as List<MissingCardInfo> ?? new List<MissingCardInfo>();
+
     var mainDeckCards = Model.DeckCards?
         .Where(dc => !dc.IsSideboard)
         .ToList() ?? new List<DeckCard>();
@@ -13,81 +13,79 @@
     var sideboardCards = Model.DeckCards?
         .Where(dc => dc.IsSideboard)
         .ToList() ?? new List<DeckCard>();
-}
 
-@{
     var results = ViewBag.SearchResults as List<Card>;
     string? q = ViewBag.Query as string;
     int totalCards = mainDeckCards.Sum(dc => dc.Quantity);
     int sideboardTotal = sideboardCards.Sum(dc => dc.Quantity);
 
-    int creatures = mainDeckCards? 
+    int creatures = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Creature"))
-        .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity);
 
-    int instantsSorceries = mainDeckCards? 
+    int instantsSorceries = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && (dc.Card.TypeLine.Contains("Instant") || dc.Card.TypeLine.Contains("Sorcery")))
-        .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity);
 
-    int artifacts = mainDeckCards?
+    int artifacts = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact") && !dc.Card.TypeLine.Contains("Creature"))
-        .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity);
 
-    int enchantments = mainDeckCards?
+    int enchantments = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment") && !dc.Card.TypeLine.Contains("Creature"))
-        .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity);
 
-    int planeswalkers = mainDeckCards?
+    int planeswalkers = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Planeswalker"))
-        .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity);
 
-    int lands = mainDeckCards?
+    int lands = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Land"))
-        .Sum(dc => dc.Quantity) ?? 0;
+        .Sum(dc => dc.Quantity);
 
     int spells = totalCards - lands;
 
-    var creaturesList = mainDeckCards?
+    var creaturesList = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Creature"))
         .OrderBy(dc => dc.Card!.Name)
-        .ToList() ?? new List<DeckCard>();
-    
-    var instantsSorceriesList = mainDeckCards?
+        .ToList();
+
+    var instantsSorceriesList = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && (dc.Card.TypeLine.Contains("Instant") || dc.Card.TypeLine.Contains("Sorcery")))
         .OrderBy(dc => dc.Card!.Name)
-        .ToList() ?? new List<DeckCard>();
+        .ToList();
 
-    var artifactsList = mainDeckCards?
+    var artifactsList = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Artifact") && !dc.Card.TypeLine.Contains("Creature"))
         .OrderBy(dc => dc.Card!.Name)
-        .ToList() ?? new List<DeckCard>();
+        .ToList();
 
-    var enchantmentsList = mainDeckCards?
+    var enchantmentsList = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Enchantment") && !dc.Card.TypeLine.Contains("Creature"))
         .OrderBy(dc => dc.Card!.Name)
-        .ToList() ?? new List<DeckCard>();
+        .ToList();
 
-    var planeswalkersList = mainDeckCards?
+    var planeswalkersList = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Planeswalker"))
         .OrderBy(dc => dc.Card!.Name)
-        .ToList() ?? new List<DeckCard>();
+        .ToList();
 
-    var landsList = mainDeckCards?
+    var landsList = mainDeckCards
         .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && dc.Card.TypeLine.Contains("Land"))
         .OrderBy(dc => dc.Card!.Name)
-        .ToList() ?? new List<DeckCard>();
+        .ToList();
 
-    var otherList = mainDeckCards?
-        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) && 
-            !dc.Card.TypeLine.Contains("Creature") && 
-            !dc.Card.TypeLine.Contains("Instant") && 
-            !dc.Card.TypeLine.Contains("Sorcery") && 
-            !dc.Card.TypeLine.Contains("Artifact") && 
-            !dc.Card.TypeLine.Contains("Enchantment") && 
-            !dc.Card.TypeLine.Contains("Planeswalker") && 
+    var otherList = mainDeckCards
+        .Where(dc => dc.Card != null && !string.IsNullOrEmpty(dc.Card.TypeLine) &&
+            !dc.Card.TypeLine.Contains("Creature") &&
+            !dc.Card.TypeLine.Contains("Instant") &&
+            !dc.Card.TypeLine.Contains("Sorcery") &&
+            !dc.Card.TypeLine.Contains("Artifact") &&
+            !dc.Card.TypeLine.Contains("Enchantment") &&
+            !dc.Card.TypeLine.Contains("Planeswalker") &&
             !dc.Card.TypeLine.Contains("Land"))
         .OrderBy(dc => dc.Card!.Name)
-        .ToList() ?? new List<DeckCard>();
+        .ToList();
 
     var sideboardList = sideboardCards
         .OrderBy(dc => dc.Card!.Name)
@@ -99,25 +97,50 @@
     if (totalCards < 60)
     {
         deckValidationMessage = $"Deck is too small ({totalCards} cards). Minimum is 60.";
-        deckValidationClass = "alert alert-warning";
+        deckValidationClass = "deck-validation validation-warning";
     }
     else if (totalCards > 100)
     {
         deckValidationMessage = $"Deck is too large ({totalCards} cards). Maximum is 100.";
-        deckValidationClass = "alert alert-danger";
+        deckValidationClass = "deck-validation validation-danger";
     }
-    else 
+    else
     {
         deckValidationMessage = $"Deck size is valid ({totalCards} cards).";
-        deckValidationClass = "alert alert-success";
+        deckValidationClass = "deck-validation validation-success";
     }
+
+    var curveData = ViewBag.ManaCurveData as List<int> ?? new List<int>();
+    var labels = new List<string> { "0", "1", "2", "3", "4", "5", "6", "7+" };
+    var maxValue = curveData.Any() ? curveData.Max() : 1;
+    if (maxValue == 0) { maxValue = 1; }
+
+    var colorPieData = ViewBag.ColorPieData as Dictionary<string, int> ?? new Dictionary<string, int>();
+    var colorLabels = new Dictionary<string, string>
+    {
+        ["W"] = "White",
+        ["U"] = "Blue",
+        ["B"] = "Black",
+        ["R"] = "Red",
+        ["G"] = "Green"
+    };
+
+    var colorClasses = new Dictionary<string, string>
+    {
+        ["W"] = "bg-light text-dark",
+        ["U"] = "bg-primary",
+        ["B"] = "bg-dark",
+        ["R"] = "bg-danger",
+        ["G"] = "bg-success"
+    };
+
+    var maxColorValue = colorPieData.Any() ? colorPieData.Values.Max() : 1;
+    if (maxColorValue == 0) { maxColorValue = 1; }
 }
-
-
 
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <div class="alert alert-danger alert-dismissible fade show app-alert mb-4" role="alert">
         @TempData["Error"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -125,127 +148,157 @@
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show app-alert mb-4" role="alert">
         @TempData["Success"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
-<div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+<div class="page-header d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3">
     <div>
-        <h1 class="mb-1">@Model.Name</h1>
-        <div class="text-muted">
+        <div class="page-eyebrow">Deck Details</div>
+        <h1 class="page-title">@Model.Name</h1>
+        <p class="page-subtitle mb-2">
             @(string.IsNullOrWhiteSpace(Model.Theme) ? "No theme specified" : Model.Theme)
-        </div>
-        <div class="mt-2 small text-muted">
-            Color Identity: @(string.IsNullOrWhiteSpace(Model.ColorIdentity) ? "-" : Model.ColorIdentity.Replace(",", ", "))
-            <span class="mx-2">•</span>
-            Main Deck: @totalCards
-            <span class="mx-2">•</span>
-            Sideboard: @sideboardTotal
+        </p>
+        <div class="deck-meta-line">
+            <span>Color Identity: @(string.IsNullOrWhiteSpace(Model.ColorIdentity) ? "-" : Model.ColorIdentity.Replace(",", ", "))</span>
+            <span>Main Deck: @totalCards</span>
+            <span>Sideboard: @sideboardTotal</span>
         </div>
     </div>
 
     <div class="d-flex flex-wrap gap-2">
-        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning">Edit Deck</a>
-        <a asp-action="Export" asp-route-id="@Model.Id" class="btn btn-outline-primary">Export Decklist</a>
-        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">Delete Deck</a>
-        <a asp-action="Index" class="btn btn-outline-secondary">Back to Decks</a>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning app-btn-utility">Edit Deck</a>
+        <a asp-action="Export" asp-route-id="@Model.Id" class="btn btn-outline-primary app-btn-utility">Export Decklist</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger app-btn-utility">Delete Deck</a>
+        <a asp-action="Index" class="btn btn-outline-secondary app-btn-utility">Back to Decks</a>
     </div>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-12 col-lg-6">
-        <div class="card h-100">
-            <div class="card-header bg-white fw-semibold">
-                <strong>Deck Stats</strong>
-            </div>
+<div class="@deckValidationClass mb-4">
+    @deckValidationMessage
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-tile h-100">
+            <div class="stat-tile-label">Completion</div>
+            <div class="stat-tile-value">@ViewBag.CompletionPercent%</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-tile h-100">
+            <div class="stat-tile-label">Owned Copies</div>
+            <div class="stat-tile-value">@ViewBag.OwnedCopies / @ViewBag.RequiredCopies</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-tile h-100">
+            <div class="stat-tile-label">Missing Copies</div>
+            <div class="stat-tile-value">@ViewBag.MissingTotalCopies</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-tile h-100">
+            <div class="stat-tile-label">Total Deck Cost</div>
+            <div class="stat-tile-value">@(((decimal)ViewBag.TotalDeckCost).ToString("C"))</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-12 col-xl-6">
+        <div class="section-card h-100">
+            <div class="card-header">Deck Stats</div>
             <div class="card-body">
-                <p class="mb-1"><strong>Total Cards:</strong> @totalCards</p>
-                <p class="mb-1"><strong>Creatures:</strong> @creatures</p>
-                <p class="mb-1"><strong>Instants/Sorceries:</strong> @instantsSorceries</p>
-                <p class="mb-1"><strong>Artifacts:</strong> @artifacts</p>
-                <p class="mb-1"><strong>Enchantments:</strong> @enchantments</p>
-                <p class="mb-1"><strong>Planeswalkers:</strong> @planeswalkers</p>
-                <p class="mb-1"><strong>Lands:</strong> @lands</p>
-                <p class="mb-1"><strong>Spells:</strong> @spells</p>
+                <div class="deck-stat-grid">
+                    <div><span>Total Cards</span><strong>@totalCards</strong></div>
+                    <div><span>Creatures</span><strong>@creatures</strong></div>
+                    <div><span>Instants / Sorceries</span><strong>@instantsSorceries</strong></div>
+                    <div><span>Artifacts</span><strong>@artifacts</strong></div>
+                    <div><span>Enchantments</span><strong>@enchantments</strong></div>
+                    <div><span>Planeswalkers</span><strong>@planeswalkers</strong></div>
+                    <div><span>Lands</span><strong>@lands</strong></div>
+                    <div><span>Spells</span><strong>@spells</strong></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-12 col-lg-6">
-        <div class="card h-100">
-            <div class="card-header bg-white fw-semibold">
-                <strong>Deck Completion</strong>
-            </div>
+    <div class="col-12 col-xl-6">
+        <div class="section-card h-100">
+            <div class="card-header">Deck Completion</div>
             <div class="card-body">
-                <p class="mb-1"><strong>Owned Copies:</strong> @ViewBag.OwnedCopies / @ViewBag.RequiredCopies</p>
-                <p class="mb-2"><strong>Completion:</strong> @ViewBag.CompletionPercent%</p>
+                <div class="mb-2 d-flex justify-content-between">
+                    <span class="fw-semibold">Owned Copies</span>
+                    <span>@ViewBag.OwnedCopies / @ViewBag.RequiredCopies</span>
+                </div>
 
-                <div class="progress mb-3" style="height: 24px;">
-                    <div class="progress-bar bg-success"
-                         role="progressbar"
-                         style="width:@ViewBag.CompletionPercent%"
-                         aria-valuenow="@ViewBag.CompletionPercent"
-                         aria-valuemin="0"
-                         aria-valuemax="100">
+                <div class="progress deck-progress deck-progress-lg mb-3" role="progressbar"
+                     aria-valuenow="@ViewBag.CompletionPercent"
+                     aria-valuemin="0"
+                     aria-valuemax="100">
+                    <div class="progress-bar deck-progress-bar d-flex align-items-center justify-content-center"
+                         style="width:@ViewBag.CompletionPercent%">
                         @ViewBag.CompletionPercent%
                     </div>
                 </div>
 
-                <p class="mb-1"><strong>Missing Unique Cards:</strong> @ViewBag.MissingUniqueCards</p>
-                <p class="mb-1"><strong>Missing Total Copies:</strong> @ViewBag.MissingTotalCopies</p>
-
-                <hr />
-
-                <p class="mb-1"><strong>Main Deck Cost:</strong> @(((decimal)ViewBag.MainDeckCost).ToString("C"))</p>
-                <p class="mb-1"><strong>Sideboard Cost:</strong> @(((decimal)ViewBag.SideboardCost).ToString("C"))</p>
-                <p class="mb-1"><strong>Total Deck Cost:</strong> @(((decimal)ViewBag.TotalDeckCost).ToString("C"))</p>
-                <p class="mb-1"><strong>Owned Value:</strong> @(((decimal)ViewBag.OwnedValue).ToString("C"))</p>
-                <p class="mb-0"><strong>Missing Value:</strong> @(((decimal)ViewBag.MissingValue).ToString("C"))</p>
+                <div class="deck-completion-grid">
+                    <div><span>Missing Unique Cards</span><strong>@ViewBag.MissingUniqueCards</strong></div>
+                    <div><span>Missing Total Copies</span><strong>@ViewBag.MissingTotalCopies</strong></div>
+                    <div><span>Main Deck Cost</span><strong>@(((decimal)ViewBag.MainDeckCost).ToString("C"))</strong></div>
+                    <div><span>Sideboard Cost</span><strong>@(((decimal)ViewBag.SideboardCost).ToString("C"))</strong></div>
+                    <div><span>Owned Value</span><strong>@(((decimal)ViewBag.OwnedValue).ToString("C"))</strong></div>
+                    <div><span>Missing Value</span><strong>@(((decimal)ViewBag.MissingValue).ToString("C"))</strong></div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<hr class="my-5" />
+<div class="section-divider-title">Missing Cards</div>
 
-<div class="mb-4">
-    <button class="btn btn-outline-danger d-flex align-items-center gap-2" type="button" data-bs-toggle="collapse" data-bs-target="#missingCardsCollapse" aria-expanded="true" aria-controls="missingCardsCollapse">
+<div class="mb-3">
+    <button class="btn btn-outline-danger app-btn-utility d-inline-flex align-items-center gap-2"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#missingCardsCollapse"
+            aria-expanded="true"
+            aria-controls="missingCardsCollapse">
         <span id="missingCardsChevron">▼</span>
         Missing Cards (@ViewBag.MissingTotalCopies copies across @ViewBag.MissingUniqueCards cards)
     </button>
 </div>
 
-<div class="collapse" id="missingCardsCollapse">
+<div class="collapse show" id="missingCardsCollapse">
     @if (missingCards.Any())
     {
-        <div class="card mb-4">
-            <div class="card-header bg-white fw-semibold">
-                <strong>Missing Cards</strong>
-            </div>
+        <div class="section-card mb-5">
+            <div class="card-header">Missing Cards</div>
             <div class="card-body">
                 <div class="list-group list-group-flush">
                     @foreach (var missing in missingCards.OrderByDescending(m => m.MissingQuantity).ThenBy(m => m.CardName))
                     {
-                        <div class="list-group-item px-0">
-                            <div class="d-flex justify-content-between align-items-center">
+                        <div class="list-group-item px-0 deck-missing-item">
+                            <div class="d-flex justify-content-between align-items-center gap-3">
                                 <div>
                                     <strong>
                                         <a asp-controller="Cards"
                                            asp-action="Details"
                                            asp-route-id="@missing.CardId"
-                                           class="text-decoration-none">
+                                           class="app-link">
                                             @missing.CardName
                                         </a>
                                     </strong>
+                                    <div class="small text-muted">
+                                        Owned: @missing.OwnedQuantity / Required: @missing.RequiredQuantity
+                                    </div>
                                 </div>
-                                <div class="text-danger fw-bold">
+                                <div class="deck-missing-pill">
                                     Missing @missing.MissingQuantity
                                 </div>
-                            </div>
-                            <div class="small text-muted">
-                                Owned: @missing.OwnedQuantity / Required: @missing.RequiredQuantity
                             </div>
                         </div>
                     }
@@ -255,35 +308,34 @@
     }
     else
     {
-        <div class="alert alert-success mb-4">
-            <strong>Complete!</strong> You own every card in the main deck.
+        <div class="empty-state mb-5">
+            <div class="empty-state-title">Complete!</div>
+            <p class="empty-state-text">You own every card in the main deck.</p>
         </div>
     }
-</div>
+}
 
-<hr class="my-5" />
+<div class="section-divider-title">Add Cards</div>
 
-<div class="@deckValidationClass">
-    @deckValidationMessage
-</div>
-
-<hr class="my-5" />
-
-<h2 class="mb-3">Add Cards</h2>
-
-<div class="card shadow-sm mb-4">
+<div class="filter-card mb-4">
     <div class="card-body">
-        <form asp-action="Details" asp-controller="Decks" method="get" class="d-flex gap-2 flex-wrap">
+        <form asp-action="Details" asp-controller="Decks" method="get" class="row g-2 align-items-center">
             <input type="hidden" name="id" value="@Model.Id" />
-            <input type="text"
-                   name="q"
-                   value="@q"
-                   class="form-control"
-                   placeholder="Search card name (e.g. Lightning Bolt)" />
-            <button type="submit" class="btn btn-primary">Search</button>
+            <div class="col-lg">
+                <input type="text"
+                       name="q"
+                       value="@q"
+                       class="form-control"
+                       placeholder="Search card name (e.g. Lightning Bolt)" />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary app-btn-search">Search</button>
+            </div>
             @if (!string.IsNullOrWhiteSpace(q))
             {
-                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Clear</a>
+                <div class="col-auto">
+                    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary app-btn-utility">Clear</a>
+                </div>
             }
         </form>
     </div>
@@ -293,20 +345,21 @@
 {
     if (!results.Any())
     {
-        <div class="card shadow-sm mb-4">
-            No cards matched your search.
+        <div class="empty-state mb-5">
+            <div class="empty-state-title">No cards found</div>
+            <p class="empty-state-text">No cards matched your search.</p>
         </div>
     }
     else
     {
-        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 mb-5">
             @foreach (var c in results)
             {
                 <div class="col">
-                    <div class="card h-100 shadow-sm">
+                    <div class="section-card h-100 deck-search-card">
                         <div class="card-body">
                             <div class="d-flex gap-3">
-                                <div style="width: 72px; flex-shrink: 0;">
+                                <div class="deck-search-thumb">
                                     @if (!string.IsNullOrWhiteSpace(c.ImageUrl))
                                     {
                                         <img src="@c.ImageUrl"
@@ -314,20 +367,26 @@
                                              class="img-fluid rounded card-preview-trigger"
                                              data-image-url="@c.ImageUrl"
                                              data-card-name="@c.Name"
-                                             style="width: 72px; cursor: pointer;" />
+                                             style="width: 72px;" />
                                     }
                                     else
                                     {
-                                        <div class="border rounded d-flex align-items-center justify-content-center text-muted small"
-                                             style="width:72px; height:100px;">
+                                        <div class="border rounded d-flex align-items-center justify-content-center text-muted small deck-no-image">
                                             No Image
                                         </div>
                                     }
                                 </div>
 
                                 <div class="flex-grow-1">
-                                    <div class="fw-bold">
-                                        <a asp-controller="Cards" asp-action="Details" asp-route-id="@c.Id" class="text-decoration-none card-preview-trigger" data-image-url="@c.ImageUrl" data-card-name="@c.Name">@c.Name</a>
+                                    <div class="fw-bold mb-1">
+                                        <a asp-controller="Cards"
+                                           asp-action="Details"
+                                           asp-route-id="@c.Id"
+                                           class="app-link card-preview-trigger"
+                                           data-image-url="@c.ImageUrl"
+                                           data-card-name="@c.Name">
+                                            @c.Name
+                                        </a>
                                     </div>
 
                                     @if (!string.IsNullOrWhiteSpace(c.ManaCost))
@@ -337,20 +396,20 @@
 
                                     <div class="small mb-3">@c.TypeLine</div>
 
-                                    <form asp-action="AddCard" method="post" class="d-flex gap-2 align-items-center flex-wrap">
+                                    <form asp-action="AddCard" method="post" class="d-flex gap-2 align-items-center flex-wrap mb-2">
                                         @Html.AntiForgeryToken()
                                         <input type="hidden" name="deckId" value="@Model.Id" />
                                         <input type="hidden" name="cardId" value="@c.Id" />
-                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 72px;" />
+                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm deck-inline-qty" />
                                         <button class="btn btn-sm btn-success" type="submit" name="isSideboard" value="false">+ Main</button>
-
                                         <button class="btn btn-sm btn-outline-secondary" type="submit" name="isSideboard" value="true">+ Sideboard</button>
                                     </form>
-                                    <form asp-action="AddToOwned" method="post" class="mt-2 d-flex gap-2 align-items-center">
+
+                                    <form asp-action="AddToOwned" method="post" class="d-flex gap-2 align-items-center flex-wrap">
                                         @Html.AntiForgeryToken()
-                                        <input type="hidden" name="deckId" value="@Model.Id"/>
+                                        <input type="hidden" name="deckId" value="@Model.Id" />
                                         <input type="hidden" name="cardId" value="@c.Id" />
-                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="max-width: 72px;" />
+                                        <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm deck-inline-qty" />
                                         <button class="btn btn-sm btn-outline-warning" type="submit">+ Owned</button>
                                     </form>
                                 </div>
@@ -363,16 +422,13 @@
     }
 }
 
-<hr class="my-5" />
-
-<h2 class="mb-3">Card List</h2>
+<div class="section-divider-title">Card List</div>
 
 @if (Model.DeckCards == null || !Model.DeckCards.Any())
 {
-    <div class="card shadow-sm mb-4">
-        <div class="card-body text-muted">
-        No cards in this deck yet. Search above to add some.
-        </div>
+    <div class="empty-state mb-5">
+        <div class="empty-state-title">No cards in this deck yet</div>
+        <p class="empty-state-text">Search above to add some cards.</p>
     </div>
 }
 else
@@ -427,7 +483,7 @@ else
         })
     }
 
-     @if (landsList.Any())
+    @if (landsList.Any())
     {
         @await Html.PartialAsync("_DeckCardSection", landsList, new ViewDataDictionary(ViewData)
         {
@@ -436,6 +492,7 @@ else
             ["IsSideboard"] = false
         })
     }
+
     @if (otherList.Any())
     {
         @await Html.PartialAsync("_DeckCardSection", otherList, new ViewDataDictionary(ViewData)
@@ -447,14 +504,13 @@ else
     }
 }
 
-<hr class="my-5" />
-
-<h2 class="mb-3">Sideboard</h2>
+<div class="section-divider-title">Sideboard</div>
 
 @if (!sideboardList.Any())
 {
-    <div class="card shadow-sm mb-4">
-        No sideboard cards yet.
+    <div class="empty-state mb-5">
+        <div class="empty-state-title">No sideboard cards yet</div>
+        <p class="empty-state-text">Add cards to the sideboard from the search results above.</p>
     </div>
 }
 else
@@ -467,53 +523,14 @@ else
     })
 }
 
-<hr class="my-5" />
-
-<h2 class="mb-3">Deck Analysis</h2>
-
-@{
-    var curveData = ViewBag.ManaCurveData as List<int> ?? new List<int>();
-    var labels = new List<string> { "0", "1", "2", "3", "4", "5", "6", "7+" };
-    var maxValue = curveData.Any() ? curveData.Max() : 1;
-
-    if (maxValue == 0)
-    {
-        maxValue = 1;
-    }
-
-    var colorPieData = ViewBag.ColorPieData as Dictionary<string, int> ?? new Dictionary<string, int>();
-    var colorLabels = new Dictionary<string, string>
-    {
-        ["W"] = "White",
-        ["U"] = "Blue",
-        ["B"] = "Black",
-        ["R"] = "Red",
-        ["G"] = "Green"
-    };
-
-    var colorClasses = new Dictionary<string, string>
-        {
-            ["W"] = "bg-light text-dark",
-            ["U"] = "bg-primary",
-            ["B"] = "bg-dark",
-            ["R"] = "bg-danger",
-            ["G"] = "bg-success"
-        };
-
-    var maxColorValue = colorPieData.Any() ? colorPieData.Values.Max() : 1;
-
-    if (maxColorValue == 0)
-    {
-        maxColorValue = 1;
-    }
-}
+<div class="section-divider-title">Deck Analysis</div>
 
 <div class="row g-4 mb-5">
     <div class="col-12 col-lg-6">
-        <h3>Mana Curve Chart</h3>
+        <div class="section-card h-100 p-3">
+            <h3 class="h5 mb-3">Mana Curve Chart</h3>
 
-        <div class="card shadow-sm h-100 p-3">
-            <div class="d-flex align-items-end justify-content-between" style="height: 220px;">
+            <div class="d-flex align-items-end justify-content-between deck-chart-bars">
                 @for (int i = 0; i < curveData.Count; i++)
                 {
                     var count = curveData[i];
@@ -522,13 +539,11 @@ else
 
                     <div class="text-center" style="width: 52px;">
                         <div class="mb-2 fw-bold">@count</div>
-
                         <div class="d-flex align-items-end justify-content-center" style="height: 160px;">
-                            <div class="bg-primary rounded-top"
-                                 style="width: 40px; height:@(heightPercent)%; min-height:@minHeight;">
+                            <div class="deck-mana-bar"
+                                 style="height:@(heightPercent)%; min-height:@minHeight;">
                             </div>
                         </div>
-
                         <div class="mt-2">@labels[i]</div>
                     </div>
                 }
@@ -537,9 +552,9 @@ else
     </div>
 
     <div class="col-12 col-lg-6">
-        <h3>Color Pie Distribution</h3>
+        <div class="section-card h-100 p-3">
+            <h3 class="h5 mb-3">Color Pie Distribution</h3>
 
-        <div class="card shadow-sm h-100 p-3">
             @foreach (var kvp in colorLabels)
             {
                 var key = kvp.Key;
@@ -553,10 +568,10 @@ else
                         <span>@count</span>
                     </div>
 
-                    <div class="progress" style="height: 24px; border-radius: 8px;">
+                    <div class="progress deck-color-progress">
                         <div class="progress-bar @colorClasses[key]"
                              role="progressbar"
-                             style="width:@(widthPercent)%; border-radius: 8px;"
+                             style="width:@(widthPercent)%;"
                              aria-valuenow="@count"
                              aria-valuemin="0"
                              aria-valuemax="@maxColorValue">
@@ -570,9 +585,8 @@ else
 
 <div class="row g-4 mb-5">
     <div class="col-12 col-lg-6">
-        <h3>Land vs Spells</h3>
-
-        <div class="card shadow-sm p-3">
+        <div class="section-card p-3">
+            <h3 class="h5 mb-3">Land vs Spells</h3>
             <p class="mb-3"><strong>Lands:</strong> @lands | <strong>Spells:</strong> @spells</p>
 
             <div style="position: relative; height: 260px; max-width: 260px; margin: 0 auto;">
@@ -582,11 +596,9 @@ else
     </div>
 </div>
 
-<hr class="my-5" />
+<div class="section-divider-title">Import Deck from URL</div>
 
-<h2 class="mb-3">Import Deck from URL</h2>
-
-<div class="card shadow-sm mb-4">
+<div class="filter-card mb-4">
     <div class="card-body">
         <form asp-action="ImportFromUrl" asp-controller="Decks" method="post">
             @Html.AntiForgeryToken()
@@ -600,29 +612,34 @@ else
     </div>
 </div>
 
-<hr class="my-5" />
+<div class="section-divider-title">Import Decklist</div>
 
-<h2 class="mb-3">Import Decklist</h2>
-
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <form asp-action="ImportDecklist" asp-controller="Decks" method="post">
+<div class="filter-card mb-4">
+    <div class="card-body deck-import-card-body">
+        <form asp-action="ImportDecklist" asp-controller="Decks" method="post" class="deck-import-form">
             @Html.AntiForgeryToken()
             <input type="hidden" name="deckId" value="@Model.Id" />
-            <div class="mb-3">
-                <label for="decklistText" class="form-label">Paste decklist</label>
-                <textarea id="decklistText" name="decklistText" class="form-control" rows="10" placeholder="4 Lightning Bolt&#10;4 Monastery Swiftspear&#10;4 Lava Spike&#10;&#10;Sideboard&#10;2 Smash to Smithereens&#10;2 Roiling Vortex"></textarea>
+
+            <div class="deck-import-header">
+                <label for="decklistText" class="form-label deck-form-label mb-1">Paste decklist</label>
+                <div class="form-text mt-0">
+                    Paste one card per line. Add a <strong>Sideboard</strong> section if needed.
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-primary">
-                Import Decklist
-            </button>
+            <textarea id="decklistText"
+                      name="decklistText"
+                      class="form-control deck-import-textarea"
+                      rows="8"
+                      placeholder="4 Lightning Bolt&#10;4 Monastery Swiftspear&#10;4 Lava Spike&#10;&#10;Sideboard&#10;2 Smash to Smithereens&#10;2 Roiling Vortex"></textarea>
+
+            <div class="deck-import-actions">
+                <button type="submit" class="btn app-btn-primary">
+                    Import Decklist
+                </button>
+            </div>
         </form>
     </div>
-</div>
-
-<div id="cardPreviewPopup" class="card-preview-popup d-none">
-    <img id="cardPreviewImage" src="" alt="Card Preview" />
 </div>
 
 @section Scripts {
@@ -632,9 +649,7 @@ else
     document.addEventListener("DOMContentLoaded", function () {
         const ctx = document.getElementById("landSpellChart");
 
-        if (!ctx) {
-            return;
-        }
+        if (!ctx) return;
 
         new Chart(ctx, {
             type: "pie",
@@ -678,26 +693,25 @@ else
     </script>
 
     <script>
-        // Save scroll position before form submits
-        document.addEventListener("DOMContentLoaded", function() {
-            const forms = document.querySelectorAll("form");
+    document.addEventListener("DOMContentLoaded", function () {
+        const forms = document.querySelectorAll("form");
 
-            forms.forEach(form => {
-                form.addEventListener("submit", function () {
-                    sessionStorage.setItem("scrollPosition", window.scrollY);
-                });
+        forms.forEach(form => {
+            form.addEventListener("submit", function () {
+                sessionStorage.setItem("scrollPosition", window.scrollY);
             });
         });
+    });
     </script>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const scrollPosition = sessionStorage.getItem("scrollPosition");
+    document.addEventListener("DOMContentLoaded", function () {
+        const scrollPosition = sessionStorage.getItem("scrollPosition");
 
-            if (scrollPosition !== null) {
-                window.scrollTo(0, parseInt(scrollPosition));
-                sessionStorage.removeItem("scrollPosition");
-            }
-        });
+        if (scrollPosition !== null) {
+            window.scrollTo(0, parseInt(scrollPosition));
+            sessionStorage.removeItem("scrollPosition");
+        }
+    });
     </script>
 }

@@ -1,73 +1,119 @@
 ﻿@model MTGDeckBuilder.Models.Card
 
+@{
+    ViewData["Title"] = Model.Name;
+}
+
 @if (TempData["SuccessMessage"] != null)
 {
-    <div class="alert alert-success alert-dismissable fade show" role="alert">
+    <div class="alert alert-success alert-dismissible fade show app-alert mb-4" role="alert">
         @TempData["SuccessMessage"]
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 }
 
-<h1>@Model.Name</h1>
-
-<div class="row">
-
-    <div class="col-md-4">
-        @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
-        {
-            <img src="@Model.ImageUrl" class="img-fluid rounded" alt="@Model.Name" />
-        }
-        else 
-        {
-            <p>No Image Available</p>
-        }
-    </div>
-
-    <div class="col-md-8">
-
-        <dl class="row">
-            
-            <dt class="col-sm-3">Mana Cost</dt>
-            <dd class="col-sm-9">@Model.ManaCost</dd>
-
-            <dt class="col-sm-3">Type</dt>
-            <dd class="col-sm-9">@Model.TypeLine</dd>
-
-            <dt class="col-sm-3">Color Identity</dt>
-            <dd class="col-sm-9">@Model.ColorIdentity</dd>
-            <dt class="col-sm-3">Price</dt>
-            <dd class="col-sm-9">
-                <span class="badge bg-success">
-                    @(Model.PriceUsd.HasValue && Model.PriceUsd.Value > 0 
-                    ? Model.PriceUsd.Value.ToString("C") 
-                    : "N/A")
-                </span>
-            </dd>
-        </dl>
-
-    </div>
-
+<div class="page-header">
+    <div class="page-eyebrow">Card Details</div>
+    <h1 class="page-title">@Model.Name</h1>
+    <p class="page-subtitle">
+        Review card details, price, and quickly add copies to your owned collection.
+    </p>
 </div>
 
-<form asp-controller="Decks"
-      asp-action="AddToOwned"
-      method="post"
-      class="d-flex gap-2 align-items-center flex-wrap mt-3">
-    @Html.AntiForgeryToken()
+<div class="row g-4 mb-4">
+    <div class="col-lg-4">
+        <div class="section-card h-100">
+            <div class="card-body text-center">
+                @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                {
+                    <img src="@Model.ImageUrl"
+                         class="img-fluid rounded card-details-image"
+                         alt="@Model.Name" />
+                }
+                else
+                {
+                    <div class="card-details-noimage">
+                        No Image Available
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 
-    <input type="hidden" name="cardId" value="@Model.Id" />
-    <input type="hidden" name="returnToCardDetails" value="true" />
+    <div class="col-lg-8">
+        <div class="section-card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Card Overview</span>
 
-    <input type="number"
-           name="quantity"
-           value="1"
-           min="1"
-           class="form-control"
-           style="max-width: 90px;" />
+                <span class="card-price-pill">
+                    @(Model.PriceUsd.HasValue && Model.PriceUsd.Value > 0
+                        ? Model.PriceUsd.Value.ToString("C")
+                        : "Price N/A")
+                </span>
+            </div>
 
-    <button type="submit" class="btn btn-outline-warning">
-        + Owned
-    </button>
-</form>
+            <div class="card-body">
+                <div class="card-detail-grid">
+                    <div class="card-detail-item">
+                        <span>Mana Cost</span>
+                        <strong>@(string.IsNullOrWhiteSpace(Model.ManaCost) ? "-" : Model.ManaCost)</strong>
+                    </div>
 
-<a asp-action="Index" class="btn btn-secondary mt-3">Back to List</a>
+                    <div class="card-detail-item">
+                        <span>Type</span>
+                        <strong>@(string.IsNullOrWhiteSpace(Model.TypeLine) ? "-" : Model.TypeLine)</strong>
+                    </div>
+
+                    <div class="card-detail-item">
+                        <span>Color Identity</span>
+                        <strong>
+                            @if (string.IsNullOrWhiteSpace(Model.ColorIdentity))
+                            {
+                                <span>-</span>
+                            }
+                            else
+                            {
+                                <span class="card-color-identity">@Model.ColorIdentity</span>
+                            }
+                        </strong>
+                    </div>
+
+                    <div class="card-detail-item">
+                        <span>Mana Value</span>
+                        <strong>@Model.ManaValue</strong>
+                    </div>
+                </div>
+
+                <div class="section-divider-title mt-4">Collection Actions</div>
+
+                <form asp-controller="Decks"
+                      asp-action="AddToOwned"
+                      method="post"
+                      class="card-detail-owned-form">
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="cardId" value="@Model.Id" />
+                    <input type="hidden" name="returnToCardDetails" value="true" />
+
+                    <div class="card-detail-owned-controls">
+                        <input type="number"
+                               name="quantity"
+                               value="1"
+                               min="1"
+                               class="form-control card-detail-qty" />
+
+                        <button type="submit" class="btn btn-outline-warning card-detail-owned-btn">
+                            + Add to Owned
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary app-btn-utility">
+                        Back to Cards
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
