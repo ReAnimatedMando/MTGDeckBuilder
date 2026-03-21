@@ -308,33 +308,36 @@ else
                                                             </td>
 
                                                             <td>
-                                                                <div class="d-flex align-items-center gap-2 flex-wrap">
-                                                                    <form asp-action="Decrement" method="post" class="d-inline">
+                                                                <div class="qty-control">
+
+                                                                    <form asp-action="Decrement" method="post">
                                                                         @Html.AntiForgeryToken()
                                                                         <input type="hidden" name="id" value="@owned.Id" />
                                                                         <input type="hidden" name="q" value="@search" />
-                                                                        <button type="submit" class="btn btn-outline-secondary btn-sm">-1</button>
+                                                                        <button type="submit" class="btn btn-outline-secondary btn-sm qty-btn">-</button>
                                                                     </form>
 
-                                                                    <form asp-action="UpdateQuantity" method="post" class="d-flex gap-2 align-items-center">
+                                                                    <form asp-action="UpdateQuantity" method="post" class="d-flex align-items-center">
                                                                         @Html.AntiForgeryToken()
                                                                         <input type="hidden" name="id" value="@owned.Id" />
                                                                         <input type="hidden" name="q" value="@search" />
+
                                                                         <input type="number"
-                                                                               name="quantity"
-                                                                               value="@owned.Quantity"
-                                                                               min="0"
-                                                                               class="form-control form-control-sm"
-                                                                               style="width: 90px;" />
-                                                                        <button type="submit" class="btn btn-outline-success btn-sm">Save</button>
+                                                                            name="quantity"
+                                                                            value="@owned.Quantity"
+                                                                            min="0"
+                                                                            class="form-control form-control-sm qty-input" />
+
+                                                                        <button type="submit" class="btn btn-outline-success btn-sm ms-1">✓</button>
                                                                     </form>
 
-                                                                    <form asp-action="Increment" method="post" class="d-inline">
+                                                                    <form asp-action="Increment" method="post">
                                                                         @Html.AntiForgeryToken()
                                                                         <input type="hidden" name="id" value="@owned.Id" />
                                                                         <input type="hidden" name="q" value="@search" />
-                                                                        <button type="submit" class="btn btn-outline-primary btn-sm">+1</button>
+                                                                        <button type="submit" class="btn btn-outline-primary btn-sm qty-btn">+</button>
                                                                     </form>
+
                                                                 </div>
                                                             </td>
 
