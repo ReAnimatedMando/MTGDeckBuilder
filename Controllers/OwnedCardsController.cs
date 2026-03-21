@@ -8,6 +8,7 @@ namespace MTGDeckBuilder.Controllers
     public class OwnedCardsController : Controller
     {
         private readonly ApplicationDbContext _context;
+
         public OwnedCardsController(ApplicationDbContext context)
         {
             _context = context;
@@ -24,7 +25,10 @@ namespace MTGDeckBuilder.Controllers
             {
                 q = q.Trim();
 
-                query = query.Where(oc => oc.Card != null && oc.Card.Name != null && oc.Card.Name.Contains(q));
+                query = query.Where(oc =>
+                    oc.Card != null &&
+                    oc.Card.Name != null &&
+                    EF.Functions.Like(oc.Card.Name, $"%{q}%"));
             }
 
             var ownedCards = await query
@@ -32,13 +36,15 @@ namespace MTGDeckBuilder.Controllers
                 .ToListAsync();
 
             ViewBag.Search = q;
+            ViewBag.TotalUniqueCards = ownedCards.Count;
+            ViewBag.TotalOwnedCopies = ownedCards.Sum(x => x.Quantity);
 
             return View(ownedCards);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateQuantity(int id, int quantity)
+        public async Task<IActionResult> UpdateQuantity(int id, int quantity, string? q)
         {
             var ownedCard = await _context.OwnedCards.FindAsync(id);
 
@@ -57,12 +63,48 @@ namespace MTGDeckBuilder.Controllers
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { q });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Increment(int id, string? q)
+        {
+            var ownedCard = await _context.OwnedCards.FindAsync(id);
+
+            if (ownedCard == null)
+                return NotFound();
+
+            ownedCard.Quantity += 1;
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index), new { q });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Decrement(int id, string? q)
+        {
+            var ownedCard = await _context.OwnedCards.FindAsync(id);
+
+            if (ownedCard == null)
+                return NotFound();
+
+            ownedCard.Quantity -= 1;
+
+            if (ownedCard.Quantity <= 0)
+            {
+                _context.OwnedCards.Remove(ownedCard);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index), new { q });
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id, string? q)
         {
             var ownedCard = await _context.OwnedCards.FindAsync(id);
 
@@ -72,8 +114,7 @@ namespace MTGDeckBuilder.Controllers
             _context.OwnedCards.Remove(ownedCard);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { q });
         }
-
     }
 }

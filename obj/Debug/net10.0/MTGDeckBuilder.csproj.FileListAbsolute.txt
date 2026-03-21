@@ -185,4 +185,4 @@ C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\MTGDeckBuilder.genr
 C:\Dev\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\ref\MTGDeckBuilder.dll
 C:\DEV\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\MTGDeckBuilder.sourcelink.json
 C:\DEV\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\sy76453xdk-{0}-77b0kzmt27-77b0kzmt27.gz
-C:\DEV\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\mt29ckpa5g-{0}-4wab1qtp2u-4wab1qtp2u.gz
+C:\DEV\Repos\MTGDeckBuilder\MTGDeckBuilder\obj\Debug\net10.0\compressed\mt29ckpa5g-{0}-9h1jfos0iq-9h1jfos0iq.gz

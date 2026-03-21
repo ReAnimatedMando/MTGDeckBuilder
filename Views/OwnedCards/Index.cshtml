@@ -5,12 +5,126 @@
     var search = ViewBag.Search as string ?? "";
     var hasSearch = !string.IsNullOrWhiteSpace(search);
     var hasResults = Model.Any();
+
+    var totalUniqueCards = (int?)ViewBag.TotalUniqueCards ?? 0;
+    var totalOwnedCopies = (int?)ViewBag.TotalOwnedCopies ?? 0;
+
+    string GetColorGroup(MTGDeckBuilder.Models.OwnedCard owned)
+    {
+        var colorIdentity = owned.Card?.ColorIdentity ?? "";
+
+        if (string.IsNullOrWhiteSpace(colorIdentity))
+            return "Colorless";
+
+        var colors = colorIdentity
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Distinct()
+            .ToList();
+
+        if (colors.Count > 1)
+            return "Multicolor";
+
+        return colors[0] switch
+        {
+            "W" => "White",
+            "U" => "Blue",
+            "B" => "Black",
+            "R" => "Red",
+            "G" => "Green",
+            _ => "Colorless"
+        };
+    }
+
+    string GetTypeGroup(MTGDeckBuilder.Models.OwnedCard owned)
+    {
+        var typeLine = owned.Card?.TypeLine ?? "";
+
+        if (string.IsNullOrWhiteSpace(typeLine))
+            return "Other";
+
+        if (typeLine.Contains("Creature")) return "Creatures";
+        if (typeLine.Contains("Instant")) return "Instants";
+        if (typeLine.Contains("Sorcery")) return "Sorceries";
+        if (typeLine.Contains("Artifact")) return "Artifacts";
+        if (typeLine.Contains("Enchantment")) return "Enchantments";
+        if (typeLine.Contains("Planeswalker")) return "Planeswalkers";
+        if (typeLine.Contains("Battle")) return "Battles";
+        if (typeLine.Contains("Land")) return "Lands";
+
+        return "Other";
+    }
+
+    string GetColorBadgeClass(string colorGroup)
+    {
+        return colorGroup switch
+        {
+            "White" => "bg-light text-dark border",
+            "Blue" => "bg-info text-dark",
+            "Black" => "bg-dark text-white",
+            "Red" => "bg-danger text-white",
+            "Green" => "bg-success text-white",
+            "Multicolor" => "bg-warning text-dark",
+            _ => "bg-secondary text-white"
+        };
+    }
+
+    string GetColorSymbol(string colorGroup)
+    {
+        return colorGroup switch
+        {
+            "White" => "W",
+            "Blue" => "U",
+            "Black" => "B",
+            "Red" => "R",
+            "Green" => "G",
+            "Multicolor" => "M",
+            _ => "C"
+        };
+    }
+
+    var colorOrder = new List<string>
+    {
+        "White", "Blue", "Black", "Red", "Green", "Multicolor", "Colorless"
+    };
+
+    var typeOrder = new List<string>
+    {
+        "Creatures", "Instants", "Sorceries", "Artifacts", "Enchantments", "Planeswalkers", "Battles", "Lands", "Other"
+    };
+
+    var groupedByColor = Model
+        .GroupBy(GetColorGroup)
+        .OrderBy(g =>
+        {
+            var index = colorOrder.IndexOf(g.Key);
+            return index >= 0 ? index : 999;
+        })
+        .ToList();
 }
 
 <div class="mb-4">
     <h1 class="mb-1">Owned Cards</h1>
     <div class="text-muted">
         View and manage the cards currently in your collection.
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Unique Cards</div>
+                <div class="fs-3 fw-bold">@totalUniqueCards</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Total Copies Owned</div>
+                <div class="fs-3 fw-bold">@totalOwnedCopies</div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -61,121 +175,221 @@
 }
 else
 {
-    <div class="card shadow-sm">
-        <div class="card-header bg-white fw-semibold">
-            @Model.Count() owned card@(Model.Count() == 1 ? "" : "s")
-        </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead>
-                        <tr>
-                            <th style="width: 100px;">Image</th>
-                            <th>Card</th>
-                            <th>Type</th>
-                            <th style="width: 180px;">Quantity</th>
-                            <th style="width: 140px;">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @foreach (var owned in Model)
-                    {
-                        <tr>
-                            <td>
-                                @if (!string.IsNullOrWhiteSpace(owned.Card?.ImageUrl))
-                                {
-                                    <a asp-controller="Cards"
-                                        asp-action="Details"
-                                        asp-route-id="@owned.CardId">
-                                            <img src="@owned.Card!.ImageUrl"
-                                                alt="@owned.Card?.Name"
-                                                class="img-fluid rounded shadow-sm card-preview-trigger"
-                                                data-image-url="@owned.Card!.ImageUrl"
-                                                data-card-name="@owned.Card?.Name"
-                                                style="width: 80px; height: auto;" />
-                                    </a>
-                                }
-                                else
-                                {
-                                    <span class="text-muted small">No Image</span>
-                                }
-                            </td>
-                            <td>
-                                <a asp-controller="Cards"
-                                asp-action="Details"
-                                asp-route-id="@owned.CardId"
-                                class="fw-semibold text-decoration-none card-preview-trigger" data-image-url="@owned.Card?.ImageUrl" data-card-name="@owned.Card?.Name">
-                                    @owned.Card?.Name
-                                </a>
-                            </td>
-                            <td>
-                                @(string.IsNullOrWhiteSpace(owned.Card?.TypeLine) ? "-" : owned.Card.TypeLine)
-                            </td>
-                            <td>
-                                <form asp-action="UpdateQuantity" method="post" class="d-flex gap-2">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@owned.Id" />
-                                    <input type="number"
-                                           name="quantity"
-                                           value="@owned.Quantity"
-                                           min="0"
-                                           class="form-control form-control-sm" />
-                                    <button type="submit" class="btn btn-outline-success btn-sm">Save</button>
-                                </form>
-                            </td>
-                            <td>
-                                <form asp-action="Delete" method="post" class="d-inline">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@owned.Id" />
-                                    <button type="submit"
-                                            class="btn btn-outline-danger btn-sm"
-                                            onclick="return confirm('Remove @owned.Card?.Name from owned cards?');">
-                                        Remove
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                    </tbody>
-                </table>
+    <div class="d-flex gap-2 justify-content-end mb-3">
+        <button type="button" class="btn btn-outline-primary btn-sm" id="expandAllBtn">Expand All</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="collapseAllBtn">Collapse All</button>
+    </div>
+
+    <div class="accordion" id="ownedCardsAccordion">
+        @foreach (var colorGroup in groupedByColor)
+        {
+            var colorKey = colorGroup.Key.Replace(" ", "");
+            var colorCollapseId = $"collapse-{colorKey}";
+            var colorHeadingId = $"heading-{colorKey}";
+            var colorCardCount = colorGroup.Count();
+            var colorCopyCount = colorGroup.Sum(x => x.Quantity);
+
+            var colorExpanded = hasSearch ? "show" : "";
+            var colorButtonClass = hasSearch ? "accordion-button fw-semibold" : "accordion-button collapsed fw-semibold";
+            var colorAriaExpanded = hasSearch ? "true" : "false";
+
+            var typeGroups = colorGroup
+                .GroupBy(GetTypeGroup)
+                .OrderBy(g =>
+                {
+                    var index = typeOrder.IndexOf(g.Key);
+                    return index >= 0 ? index : 999;
+                })
+                .ToList();
+
+            <div class="accordion-item shadow-sm mb-3 border-0">
+                <h2 class="accordion-header" id="@colorHeadingId">
+                    <button class="@colorButtonClass"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#@colorCollapseId"
+                            aria-expanded="@colorAriaExpanded"
+                            aria-controls="@colorCollapseId">
+                        <span class="badge rounded-pill me-2 @GetColorBadgeClass(colorGroup.Key)" style="min-width: 42px;">
+                            @GetColorSymbol(colorGroup.Key)
+                        </span>
+                        <span>@colorGroup.Key</span>
+                        <span class="ms-3 text-muted small">
+                            @colorCardCount card@(colorCardCount == 1 ? "" : "s") • @colorCopyCount cop@(colorCopyCount == 1 ? "y" : "ies")
+                        </span>
+                    </button>
+                </h2>
+
+                <div id="@colorCollapseId"
+                     class="accordion-collapse collapse @colorExpanded"
+                     aria-labelledby="@colorHeadingId"
+                     data-bs-parent="@(hasSearch ? null : "#ownedCardsAccordion")">
+                    <div class="accordion-body">
+                        <div class="accordion type-accordion" id="types-@colorKey">
+                            @foreach (var typeGroup in typeGroups)
+                            {
+                                var typeKey = $"{colorKey}-{typeGroup.Key.Replace(" ", "").Replace("/", "")}";
+                                var typeCollapseId = $"collapse-{typeKey}";
+                                var typeHeadingId = $"heading-{typeKey}";
+                                var typeCardCount = typeGroup.Count();
+                                var typeCopyCount = typeGroup.Sum(x => x.Quantity);
+
+                                var typeExpanded = hasSearch ? "show" : "";
+                                var typeButtonClass = hasSearch ? "accordion-button" : "accordion-button collapsed";
+                                var typeAriaExpanded = hasSearch ? "true" : "false";
+
+                                <div class="accordion-item mb-3 border rounded">
+                                    <h2 class="accordion-header" id="@typeHeadingId">
+                                        <button class="@typeButtonClass"
+                                                type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#@typeCollapseId"
+                                                aria-expanded="@typeAriaExpanded"
+                                                aria-controls="@typeCollapseId">
+                                            <span>@typeGroup.Key</span>
+                                            <span class="ms-3 text-muted small">
+                                                @typeCardCount card@(typeCardCount == 1 ? "" : "s") • @typeCopyCount cop@(typeCopyCount == 1 ? "y" : "ies")
+                                            </span>
+                                        </button>
+                                    </h2>
+
+                                    <div id="@typeCollapseId"
+                                         class="accordion-collapse collapse @typeExpanded"
+                                         aria-labelledby="@typeHeadingId">
+                                        <div class="accordion-body p-0">
+                                            <div class="table-responsive">
+                                                <table class="table table-hover align-middle mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th style="width: 100px;">Image</th>
+                                                            <th>Card</th>
+                                                            <th>Type</th>
+                                                            <th style="width: 250px;">Quantity</th>
+                                                            <th style="width: 140px;">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    @foreach (var owned in typeGroup.OrderBy(x => x.Card != null ? x.Card.Name : ""))
+                                                    {
+                                                        <tr>
+                                                            <td>
+                                                                @if (!string.IsNullOrWhiteSpace(owned.Card?.ImageUrl))
+                                                                {
+                                                                    <a asp-controller="Cards"
+                                                                       asp-action="Details"
+                                                                       asp-route-id="@owned.CardId">
+                                                                        <img src="@owned.Card!.ImageUrl"
+                                                                             alt="@owned.Card?.Name"
+                                                                             class="img-fluid rounded shadow-sm card-preview-trigger"
+                                                                             data-image-url="@owned.Card!.ImageUrl"
+                                                                             data-card-name="@owned.Card?.Name"
+                                                                             style="width: 80px; height: auto;" />
+                                                                    </a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-muted small">No Image</span>
+                                                                }
+                                                            </td>
+
+                                                            <td>
+                                                                <a asp-controller="Cards"
+                                                                   asp-action="Details"
+                                                                   asp-route-id="@owned.CardId"
+                                                                   class="fw-semibold text-decoration-none card-preview-trigger"
+                                                                   data-image-url="@owned.Card?.ImageUrl"
+                                                                   data-card-name="@owned.Card?.Name">
+                                                                    @owned.Card?.Name
+                                                                </a>
+                                                            </td>
+
+                                                            <td>
+                                                                @(string.IsNullOrWhiteSpace(owned.Card?.TypeLine) ? "-" : owned.Card.TypeLine)
+                                                            </td>
+
+                                                            <td>
+                                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                                    <form asp-action="Decrement" method="post" class="d-inline">
+                                                                        @Html.AntiForgeryToken()
+                                                                        <input type="hidden" name="id" value="@owned.Id" />
+                                                                        <input type="hidden" name="q" value="@search" />
+                                                                        <button type="submit" class="btn btn-outline-secondary btn-sm">-1</button>
+                                                                    </form>
+
+                                                                    <form asp-action="UpdateQuantity" method="post" class="d-flex gap-2 align-items-center">
+                                                                        @Html.AntiForgeryToken()
+                                                                        <input type="hidden" name="id" value="@owned.Id" />
+                                                                        <input type="hidden" name="q" value="@search" />
+                                                                        <input type="number"
+                                                                               name="quantity"
+                                                                               value="@owned.Quantity"
+                                                                               min="0"
+                                                                               class="form-control form-control-sm"
+                                                                               style="width: 90px;" />
+                                                                        <button type="submit" class="btn btn-outline-success btn-sm">Save</button>
+                                                                    </form>
+
+                                                                    <form asp-action="Increment" method="post" class="d-inline">
+                                                                        @Html.AntiForgeryToken()
+                                                                        <input type="hidden" name="id" value="@owned.Id" />
+                                                                        <input type="hidden" name="q" value="@search" />
+                                                                        <button type="submit" class="btn btn-outline-primary btn-sm">+1</button>
+                                                                    </form>
+                                                                </div>
+                                                            </td>
+
+                                                            <td>
+                                                                <form asp-action="Delete" method="post" class="d-inline">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <input type="hidden" name="id" value="@owned.Id" />
+                                                                    <input type="hidden" name="q" value="@search" />
+                                                                    <button type="submit"
+                                                                            class="btn btn-outline-danger btn-sm"
+                                                                            onclick="return confirm('Remove @owned.Card?.Name from owned cards?');">
+                                                                        Remove
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        }
     </div>
 }
-
-<div id="cardPreviewPopup" class="card-preview-popup d-none">
-    <img id="cardPreviewImage" src="" alt="Card Preview" />
-</div>
 
 @section Scripts {
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const popup = document.getElementById("cardPreviewPopup");
-            const popupImage = document.getElementById("cardPreviewImage");
-            const triggers = document.querySelectorAll(".card-preview-trigger");
+            const expandAllBtn = document.getElementById("expandAllBtn");
+            const collapseAllBtn = document.getElementById("collapseAllBtn");
 
-            if (!popup || !popupImage || !triggers.length) return;
-
-            triggers.forEach(trigger => {
-                trigger.addEventListener("mouseenter", function () {
-                    const imageUrl = trigger.getAttribute("data-image-url");
-
-                    if (!imageUrl) return;
-
-                    popupImage.src = imageUrl;
-                    popup.classList.remove("d-none");
+            if (expandAllBtn) {
+                expandAllBtn.addEventListener("click", function () {
+                    document.querySelectorAll(".accordion-collapse").forEach(function (el) {
+                        const collapse = bootstrap.Collapse.getOrCreateInstance(el, { toggle: false });
+                        collapse.show();
+                    });
                 });
+            }
 
-                trigger.addEventListener("mousemove", function (e) {
-                    popup.style.top = (e.pageY - 120) + "px";
-                    popup.style.left = (e.pageX + 20) + "px";
+            if (collapseAllBtn) {
+                collapseAllBtn.addEventListener("click", function () {
+                    document.querySelectorAll(".accordion-collapse").forEach(function (el) {
+                        const collapse = bootstrap.Collapse.getOrCreateInstance(el, { toggle: false });
+                        collapse.hide();
+                    });
                 });
-
-                trigger.addEventListener("mouseleave", function () {
-                    popup.classList.add("d-none");
-                    popupImage.src = "";
-                });
-            });
+            }
         });
     </script>
 }

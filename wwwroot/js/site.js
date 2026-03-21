@@ -10,22 +10,27 @@
     function movePopup(e) {
         const offsetX = 20;
         const offsetY = 20;
-        const popupWidth = 223;
-        const popupHeight = 310;
+        const padding = 10;
 
         let left = e.clientX + offsetX;
         let top = e.clientY + offsetY;
 
-        if (left + popupWidth > window.innerWidth) {
-            left = e.clientX - popupWidth - offsetX;
+        const popupRect = popup.getBoundingClientRect();
+
+        if (left + popupRect.width > window.innerWidth - padding) {
+            left = e.clientX - popupRect.width - offsetX;
         }
 
-        if (top + popupHeight > window.innerHeight) {
-            top = window.innerHeight - popupHeight - 10;
+        if (top + popupRect.height > window.innerHeight - padding) {
+            top = window.innerHeight - popupRect.height - padding;
         }
 
-        if (top < 10) {
-            top = 10;
+        if (top < padding) {
+            top = padding;
+        }
+
+        if (left < padding) {
+            left = padding;
         }
 
         popup.style.left = left + "px";
