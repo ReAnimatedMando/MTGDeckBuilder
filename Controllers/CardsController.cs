@@ -20,25 +20,21 @@ namespace MTGDeckBuilder.Controllers
         // GET: Cards
         public async Task<IActionResult> Index(string? q)
         {
-            IQueryable<Card> query = _context.Cards;
+            List<Card> cards;
 
             if (!string.IsNullOrWhiteSpace(q))
             {
-                q = q.Trim();
-                var term = $"%{q}%";
-
-                query = query.Where(c =>
-                    EF.Functions.Like(c.Name, term) ||
-                    (c.TypeLine != null && EF.Functions.Like(c.TypeLine, term)) ||
-                    (c.ManaCost != null && EF.Functions.Like(c.ManaCost, term)) ||
-                    (c.ColorIdentity != null && EF.Functions.Like(c.ColorIdentity, term)));
+                cards = await _scryfall.SearchAndSyncCardsAsync(q, 40);
+            }
+            else
+            {
+                cards = await _context.Cards
+                    .OrderBy(c => c.Name)
+                    .Take(200)
+                    .ToListAsync();
             }
 
-            var cards = await query
-                .OrderBy(c => c.Name)
-                .Take(200)
-                .ToListAsync();
-
+            ViewBag.Query = q;
             return View(cards);
         }
 
