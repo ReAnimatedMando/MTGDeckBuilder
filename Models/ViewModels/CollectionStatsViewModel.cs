@@ -19,7 +19,7 @@ namespace MTGDeckBuilder.Models.ViewModels
         public string CardName { get; set; } = "";
         public int Quantity { get; set; }
         public decimal PriceUsd { get; set; }
-        public decimal TotalValue { get; set; }
+        public decimal CardValue { get; set; }
         public string? ImageUrl { get; set; }
     }
 

@@ -43,11 +43,10 @@ namespace MTGDeckBuilder.Controllers
                 {
                     CardName = g.Key.Name,
                     Quantity = g.Sum(x => x.Quantity),
-                    TotalValue = g.Sum(x => x.Quantity) * g.Key.PriceUsd,
+                    CardValue = g.Key.PriceUsd,
                     ImageUrl = g.Key.ImageUrl
                 })
-                .OrderByDescending(x => x.PriceUsd)
-                .ThenByDescending(x => x.TotalValue)
+                .OrderByDescending(x => x.CardValue)
                 .ThenBy(x => x.CardName)
                 .Take(10)
                 .ToList();
