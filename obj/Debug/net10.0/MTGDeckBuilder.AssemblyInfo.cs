@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MTGDeckBuilder")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+42929ada6eb263cf255e875c2cd4739913379c4c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+42da717660f2061cce8f13e3e8864c716a28f8ac")]
 [assembly: System.Reflection.AssemblyProductAttribute("MTGDeckBuilder")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MTGDeckBuilder")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
