@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "oEQwwxdgh9A=",
+  "dgSpecHash": "y33/cak0J+0=",
   "success": true,
   "projectFilePath": "C:\\DEV\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
   "expectedPackageFiles": [
@@ -31,5 +31,18 @@
     "C:\\Users\\the_g\\.nuget\\packages\\system.composition.runtime\\7.0.0\\system.composition.runtime.7.0.0.nupkg.sha512",
     "C:\\Users\\the_g\\.nuget\\packages\\system.composition.typedparts\\7.0.0\\system.composition.typedparts.7.0.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "message": "Package 'MySqlConnector' 2.4.0 has a known moderate severity vulnerability, https://github.com/advisories/GHSA-473q-m89c-ghf8",
+      "projectPath": "C:\\DEV\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\DEV\\Repos\\MTGDeckBuilder\\MTGDeckBuilder\\MTGDeckBuilder.csproj",
+      "libraryId": "MySqlConnector",
+      "targetGraphs": [
+        "net10.0"
+      ]
+    }
+  ]
 }
